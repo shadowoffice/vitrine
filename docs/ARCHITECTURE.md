@@ -21,6 +21,7 @@ Public pages live in `src/app`:
 - `page.tsx` - ProJD sales home page
 - `projd/page.tsx` - ERP product page
 - `modules/page.tsx` - modules overview
+- `modules/[slug]/page.tsx` - module detail pages
 - `tarifs/page.tsx` - pricing
 - `commander/page.tsx` - purchase form
 - `demo/page.tsx` - external ProJD demo entry
@@ -41,6 +42,9 @@ Shared content and schemas:
 - `src/lib/site-content.ts`
 - `src/lib/pricing.ts`
 - `src/lib/erp-order.ts`
+
+`src/lib/site-content.ts` owns the module catalog, slugs and detail-page copy so
+the overview, home page, sitemap and dynamic module routes stay aligned.
 
 ## Server Routes
 
