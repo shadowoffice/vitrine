@@ -2,8 +2,9 @@ import Link from "next/link";
 
 import { ErpPreview } from "../_components/ErpPreview";
 import { MarketingCta } from "../_components/MarketingCta";
+import { ProductShowcaseSlider } from "../_components/ProductShowcaseSlider";
 import { SiteHeader } from "../_components/SiteHeader";
-import { demoErpUrl, integrations, modules } from "@/lib/site-content";
+import { demoErpUrl, decisionCards, integrations, modules } from "@/lib/site-content";
 
 export const metadata = {
   title: "ProJD",
@@ -24,10 +25,10 @@ export default function ProjdPage() {
 
       <section className="page-hero">
         <p className="eyebrow">Produit ERP</p>
-        <h1>ProJD</h1>
+        <h1>ProJD pour la construction</h1>
         <p>
-          ProJD est le tenant ERP construction: projets, budgets, estimation, appels d’offres,
-          factures, documents et rapports dans une couche contrôlée par l’entreprise.
+          ProJD rassemble projets, budgets, estimation, appels d’offres, factures, documents et
+          rapports dans une interface pensée pour les entrepreneurs québécois.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href={demoErpUrl}>
@@ -52,17 +53,40 @@ export default function ProjdPage() {
         <ErpPreview />
       </section>
 
+      <section className="section product-showcase-section">
+        <div className="section-heading">
+          <p className="eyebrow">Modules animés</p>
+          <h2>Voir les informations qui changent vraiment la gestion d’un chantier.</h2>
+        </div>
+        <ProductShowcaseSlider />
+      </section>
+
       <section className="section">
         <div className="section-heading">
           <p className="eyebrow">Modules ProJD</p>
           <h2>Les blocs qui forment le coeur de l’ERP.</h2>
         </div>
         <div className="module-grid">
-          {modules.slice(1, 6).map((module) => (
+          {modules.slice(0, 6).map((module) => (
             <Link key={module.name} href="/modules">
               <strong>{module.name}</strong>
               <span>{module.text}</span>
             </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section-heading">
+          <p className="eyebrow">Équipes</p>
+          <h2>Une même base de données, plusieurs lectures métier.</h2>
+        </div>
+        <div className="decision-grid">
+          {decisionCards.map((card) => (
+            <article className="card decision-card" key={card.title}>
+              <span>{card.title}</span>
+              <p>{card.text}</p>
+            </article>
           ))}
         </div>
       </section>
@@ -83,8 +107,8 @@ export default function ProjdPage() {
       </section>
 
       <MarketingCta
-        title="Acheter ProJD pour un premier tenant"
-        text="La démo publique donne un aperçu immédiat. Le formulaire d'achat sert ensuite à créer le dossier, choisir le forfait et réserver le sous-domaine."
+        title="Acheter ProJD pour une première équipe"
+        text="La démo publique donne un aperçu immédiat. Le formulaire d'achat sert ensuite à choisir le forfait, le nombre d'utilisateurs et le contexte projet."
         primaryHref={demoErpUrl}
         primaryLabel="Visiter la démo publique"
         secondaryHref="/commander"

@@ -1,17 +1,13 @@
 import { formatMoney, pricingPlans } from "./pricing";
 
 export const siteUrl = "https://fichero.cloud";
-
-export const saasLoginUrl = "https://login.fichero.cloud/login";
 export const demoErpUrl = "https://demo.erp.fichero.cloud/admin/login";
-export const testTenantUrl = "https://test.erp.fichero.cloud";
 
 export const mainMessage =
-  "Fichero présente l'offre, Fondation opère les environnements SaaS et ProJD livre l'ERP construction pour les entrepreneurs québécois.";
+  "ProJD centralise projets, budgets, appels d'offres, factures, documents et rapports pour les entrepreneurs de la construction qui veulent enfin piloter avec des données propres.";
 
 export const navigation = [
   { label: "ProJD", href: "/projd" },
-  { label: "Fondation", href: "/fondation" },
   { label: "Modules", href: "/modules" },
   { label: "Tarifs", href: "/tarifs" },
   { label: "Démo ERP", href: demoErpUrl },
@@ -19,57 +15,93 @@ export const navigation = [
 ];
 
 export const indicators = [
-  { value: "ERP", label: "projets, coûts, documents" },
-  { value: "SaaS", label: "tenants et domaines" },
-  { value: "TLS", label: "certificats suivis" },
+  { value: "360°", label: "projets et coûts" },
+  { value: "BID", label: "soumissions suivies" },
+  { value: "OCR", label: "factures assistées" },
   { value: "QC", label: "construction Québec" },
 ];
 
-export const productPillars = [
+export const salesPainPoints = [
   {
-    title: "Vitrine publique",
-    text: "Une entrée claire pour présenter l'offre, qualifier les achats et ouvrir les dossiers Fondation.",
-    href: "/",
+    title: "Moins de fichiers isolés",
+    text: "Projets, budgets, documents et factures restent attachés au bon chantier, au bon fournisseur et au bon code de coût.",
   },
   {
-    title: "Fondation SaaS",
-    text: "Le plan de contrôle pour les clients, tenants, domaines, TLS, licences, runtime et audits.",
-    href: "/fondation",
+    title: "Des décisions plus rapides",
+    text: "Les écarts de budget, soumissions en retard et factures à valider remontent dans le même tableau de bord.",
   },
   {
-    title: "ERP ProJD",
-    text: "L'application métier pour projets, budgets, appels d'offres, factures, documents et rapports.",
-    href: "/projd",
+    title: "Un ERP adapté au terrain",
+    text: "Les workflows parlent construction: divisions, lots, partenaires, bons de commande, factures et documents projet.",
   },
 ];
 
-export const whyFichero = [
+export const showcaseSlides = [
   {
-    title: "Pas un simple site web",
-    text: "La vitrine qualifie les demandes et les transmet vers l'opération SaaS au lieu de finir dans une boîte courriel vague.",
+    key: "budget",
+    kicker: "Contrôle des coûts",
+    title: "Budget, engagé et réel dans une seule lecture",
+    text: "Repère les dépassements avant la fin du mois et garde les divisions critiques visibles pour le chargé de projet.",
+    metric: "68 %",
+    metricLabel: "budget engagé",
+    tags: ["Codes de coût", "Engagements", "Écarts"],
   },
   {
-    title: "Separation nette",
-    text: "Marketing, contrôle plateforme et ERP métier gardent chacun leur rôle, leurs permissions et leur rythme de livraison.",
+    key: "bid",
+    kicker: "Assistant BID",
+    title: "Soumissions, relances et réponses partenaires",
+    text: "Prépare les lots, cible les bons sous-traitants et suit les réponses sans perdre le contexte dans les courriels.",
+    metric: "24",
+    metricLabel: "soumissions actives",
+    tags: ["Lots", "Relances", "Comparatifs"],
   },
   {
-    title: "Concu pour le chantier",
-    text: "Les modules partent des besoins construction: coûts, documents, soumissions, partenaires et suivi de projet.",
+    key: "invoice",
+    kicker: "Factures et OCR",
+    title: "Factures lues, classées et validées avant posting",
+    text: "L'assistance OCR accélère la saisie, mais la validation humaine garde le contrôle sur les montants et les fournisseurs.",
+    metric: "7",
+    metricLabel: "factures à valider",
+    tags: ["OCR", "Validation", "Posting"],
   },
   {
-    title: "Implantation progressive",
-    text: "On peut acheter un premier tenant ProJD, activer les licences, puis ajouter les intégrations Procore, SharePoint et Outlook.",
+    key: "documents",
+    kicker: "Documents projet",
+    title: "Plans, contrats et photos rattachés au chantier",
+    text: "Les documents utiles restent accessibles depuis le projet et peuvent cohabiter avec Procore ou SharePoint.",
+    metric: "1 248",
+    metricLabel: "documents indexés",
+    tags: ["Plans", "Contrats", "SharePoint"],
+  },
+];
+
+export const decisionCards = [
+  {
+    title: "Direction",
+    text: "Une lecture claire des marges, coûts engagés, factures en attente et risques projet.",
+  },
+  {
+    title: "Chargés de projet",
+    text: "Un espace unique pour budget, documents, soumissions, fournisseurs et suivis.",
+  },
+  {
+    title: "Estimation",
+    text: "Des lots d'appel d'offres structurés, des partenaires ciblés et des relances visibles.",
+  },
+  {
+    title: "Comptabilité",
+    text: "Factures, validations et pièces justificatives reliées au bon projet avant traitement.",
   },
 ];
 
 export const modules = [
   {
-    name: "Clients et tenants",
-    text: "Dossiers clients, instances ERP, domaines, licences et environnement de test.",
+    name: "Projets",
+    text: "Fiches projet, phases, responsables, statut, échéances et vue exécutive.",
   },
   {
-    name: "Projets et budgets",
-    text: "Projets, phases, codes de coût, budgets, engagements et coûts réels.",
+    name: "Budgets",
+    text: "Codes de coût, budgets, engagements, coûts réels et écarts à surveiller.",
   },
   {
     name: "Estimation et BID",
@@ -77,7 +109,7 @@ export const modules = [
   },
   {
     name: "Documents",
-    text: "SharePoint, Procore, politiques de synchronisation et espace fichiers employé.",
+    text: "Plans, contrats, photos, pièces jointes et synchronisation documentaire contrôlée.",
   },
   {
     name: "Factures et OCR",
@@ -85,24 +117,24 @@ export const modules = [
   },
   {
     name: "Partenaires",
-    text: "Import ConstructBuy, spécialités, statuts, notes internes et portail sécurisé.",
-  },
-  {
-    name: "Operations SaaS",
-    text: "Santé runtime, DNS, TLS, sauvegardes, migrations et rollback préparé.",
+    text: "Répertoire de sous-traitants, spécialités, statuts, notes et historique.",
   },
   {
     name: "Rapports",
-    text: "Vues pour estimation, projets, comptabilité, direction et opérations.",
+    text: "Vues pour estimation, projets, comptabilité, direction et suivi mensuel.",
+  },
+  {
+    name: "Intégrations",
+    text: "Connexions préparées avec Procore, SharePoint, Outlook et données internes.",
   },
 ];
 
 export const workflow = [
-  "Qualifier le client",
-  "Planifier son tenant",
-  "Brancher domaine et TLS",
+  "Choisir le forfait",
+  "Configurer les projets",
+  "Importer les partenaires",
   "Activer les modules",
-  "Suivre santé et coûts",
+  "Suivre coûts et livrables",
 ];
 
 export const packages = pricingPlans.map((plan) => ({
@@ -121,51 +153,51 @@ export const packages = pricingPlans.map((plan) => ({
 export const integrations = [
   {
     name: "Procore",
-    text: "Connecter projets, photos, documents et références externes sans transformer Procore en source non contrôlée.",
+    text: "Rapprocher projets, photos, documents et références externes sans perdre le suivi financier ProJD.",
   },
   {
     name: "SharePoint",
-    text: "Structurer les bibliothèques, synchroniser les documents utiles et appliquer les politiques de confidentialité.",
+    text: "Garder les bibliothèques existantes tout en attachant les documents utiles au bon projet.",
   },
   {
     name: "Outlook",
-    text: "Préparer les communications d'appels d'offres, relances et suivis avec Microsoft Graph.",
+    text: "Préparer les invitations, relances BID et suivis fournisseurs depuis les workflows projet.",
   },
 ];
 
 export const securityItems = [
-  "Tenants ERP isolés et rattachés à un client Fondation.",
-  "Liens portail signés, scopes, expirants et auditables.",
-  "Opérations SaaS journalisées avec rôles owner, billing, ops et support.",
-  "Aucune promesse de conformité légale sans workflow vérifié.",
+  "Accès par rôle pour protéger coûts, factures, documents et paramètres sensibles.",
+  "Historique des actions importantes pour garder une trace claire des décisions.",
+  "Validation humaine avant les actions comptables ou les changements critiques.",
+  "Intégrations activées progressivement selon la maturité des données.",
 ];
 
 export const faqItems = [
   {
-    question: "Fichero remplace-t-il Procore?",
+    question: "ProJD remplace-t-il Procore?",
     answer:
-      "Non. ProJD devient la couche ERP et workflow. Procore peut rester connecté pour les données et documents pertinents.",
+      "Pas nécessairement. ProJD devient la couche ERP et suivi financier; Procore peut rester connecté pour les données et documents pertinents.",
   },
   {
-    question: "Est-ce pret pour plusieurs clients?",
+    question: "Peut-on commencer avec une seule équipe?",
     answer:
-      "La direction produit est multi-tenant. Fondation garde le contrôle des clients, domaines, TLS, licences et opérations.",
+      "Oui. Le meilleur départ est souvent un premier groupe projet avec quelques utilisateurs, puis une expansion par modules.",
   },
   {
     question: "Que se passe-t-il après l'achat?",
     answer:
-      "Fondation confirme le paiement, attribue la licence, réserve le sous-domaine et prépare l'instance ProJD avant l'activation.",
+      "L'équipe ProJD confirme le paiement, prépare l'espace client, active les licences et accompagne la première configuration.",
   },
   {
-    question: "Ou vont les demandes de la vitrine?",
+    question: "Les prix sont-ils définitifs?",
     answer:
-      "Elles peuvent être envoyées à Fondation par API sécurisée ou conservées en sauvegarde locale si l'intégration n'est pas configurée.",
+      "Les forfaits cadrent l'achat initial. Les intégrations, imports historiques et besoins d'accompagnement peuvent ajuster le devis final.",
   },
 ];
 
 export const statusTargets = [
-  { label: "Vitrine", status: "En ligne", href: "/healthz", detail: "Site public et formulaire" },
-  { label: "Fondation", status: "Contrôle", href: saasLoginUrl, detail: "Connexion SaaS" },
-  { label: "Démo ProJD", status: "Lecture seule", href: demoErpUrl, detail: "Compte demo ProJD" },
-  { label: "ERP test", status: "Validation", href: testTenantUrl, detail: "Tenant de test" },
+  { label: "Site ProJD", status: "En ligne", href: "/healthz", detail: "Vitrine et formulaire" },
+  { label: "Démo ERP", status: "Lecture seule", href: demoErpUrl, detail: "Parcours produit" },
+  { label: "Paiement", status: "Préparation", href: "/commander", detail: "Stripe et PayPal" },
+  { label: "Support", status: "Sur demande", href: "/commander", detail: "Activation accompagnée" },
 ];

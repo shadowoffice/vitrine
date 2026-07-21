@@ -6,7 +6,7 @@ import { modules } from "@/lib/site-content";
 
 export const metadata = {
   title: "Modules",
-  description: "Modules Fichero, Fondation et ProJD pour l'ERP construction et l'operation SaaS.",
+  description: "Modules ProJD pour projets, budgets, soumissions, factures, documents, partenaires et rapports.",
 };
 
 export default function ModulesPage() {
@@ -16,10 +16,10 @@ export default function ModulesPage() {
 
       <section className="page-hero">
         <p className="eyebrow">Modules</p>
-        <h1>Blocs fonctionnels</h1>
+        <h1>Modules ProJD</h1>
         <p>
-          Les modules sont organisés autour des responsabilités réelles: acquisition client,
-          gouvernance SaaS, opération ERP et workflows construction.
+          Les modules suivent les responsabilités réelles d’une entreprise de construction:
+          projet, budget, estimation, partenaires, documents, factures et rapports.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href="/commander">
@@ -44,7 +44,7 @@ export default function ModulesPage() {
       </section>
 
       <MarketingCta
-        title="Choisir les bons modules pour un premier tenant"
+        title="Choisir les bons modules pour démarrer"
         text="L'achat sert à sélectionner les modules utiles maintenant et ceux à activer plus tard."
         primaryHref="/commander"
         primaryLabel="Acheter ProJD"

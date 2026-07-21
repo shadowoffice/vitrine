@@ -4,7 +4,7 @@ import { statusTargets } from "@/lib/site-content";
 
 export const metadata = {
   title: "Statut",
-  description: "Points de statut publics pour la vitrine Fichero, Fondation et les tenants ERP.",
+  description: "Points de statut publics pour le site ProJD, la démo ERP, le paiement et le support.",
 };
 
 export default function StatusPage() {
@@ -14,10 +14,10 @@ export default function StatusPage() {
 
       <section className="page-hero">
         <p className="eyebrow">Statut</p>
-        <h1>Écosystème Fichero</h1>
+        <h1>Statut ProJD</h1>
         <p>
-          Cette page donne des raccourcis publics. Les détails opérationnels, incidents et actions
-          runtime restent dans Fondation avec les permissions appropriées.
+          Cette page donne les raccourcis publics utiles: vitrine, démo ERP, paiement et support
+          d’activation.
         </p>
       </section>
 
@@ -36,10 +36,10 @@ export default function StatusPage() {
       <section className="section split-section">
         <div>
           <p className="eyebrow">Transparence</p>
-          <h2>Le public voit les portes d’entrée. Fondation garde les commandes.</h2>
+          <h2>Le public voit les portes d’entrée. Les opérations restent contrôlées.</h2>
           <p>
-            Les opérations comme redémarrage, inspection runtime, DNS, TLS, sauvegardes et rollback
-            doivent rester authentifiées et auditables dans le control plane.
+            Les opérations sensibles comme paiement, activation, accès et intégrations doivent
+            rester validées par l’équipe ProJD.
           </p>
         </div>
         <div className="card">
@@ -52,8 +52,8 @@ export default function StatusPage() {
       </section>
 
       <MarketingCta
-        title="Besoin d'un tenant ProJD?"
-        text="Le formulaire d'achat crée le point de départ; Fondation prend ensuite le relais côté paiement, licence et opérations."
+        title="Besoin d'un espace ProJD?"
+        text="Le formulaire d'achat crée le point de départ; l'équipe ProJD prend ensuite le relais côté paiement, licence et activation."
         primaryHref="/commander"
         primaryLabel="Acheter ProJD"
       />

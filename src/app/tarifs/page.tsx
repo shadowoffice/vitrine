@@ -6,13 +6,13 @@ import { packages } from "@/lib/site-content";
 
 export const metadata = {
   title: "Tarifs et forfaits",
-  description: "Forfaits Fichero pour achat ProJD, tenant ERP et operation SaaS Fondation.",
+  description: "Forfaits ProJD pour lancer un ERP construction avec projets, budgets, soumissions et factures.",
 };
 
 const commercialNotes = [
   "Les prix finaux dépendent du nombre d'utilisateurs, des intégrations et du niveau d'accompagnement.",
-  "Un tenant pilote permet de valider les workflows avant une activation plus large.",
-  "Les modules sensibles comme factures, OCR, runtime et sauvegardes sont activés progressivement.",
+  "Un groupe pilote permet de valider les workflows avant une activation plus large.",
+  "Les modules sensibles comme factures, OCR et intégrations sont activés progressivement.",
 ];
 
 export default function PricingPage() {
@@ -22,10 +22,10 @@ export default function PricingPage() {
 
       <section className="page-hero">
         <p className="eyebrow">Tarifs</p>
-        <h1>Forfaits Fichero</h1>
+        <h1>Forfaits ProJD</h1>
         <p>
-          Les forfaits servent à cadrer la discussion commerciale sans promettre une implantation
-          uniforme pour toutes les entreprises de construction.
+          Les forfaits donnent un point de départ clair pour acheter ProJD, choisir les
+          utilisateurs et préparer l’implantation.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href="/commander">
@@ -63,7 +63,7 @@ export default function PricingPage() {
           <p className="eyebrow">Cadre commercial</p>
           <h2>Un devis propre vient après la qualification.</h2>
           <p>
-            Fichero doit d’abord comprendre le contexte chantier, les outils déjà en place, les
+            ProJD doit d’abord comprendre le contexte chantier, les outils déjà en place, les
             contraintes de domaine et la maturité des données.
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function PricingPage() {
 
       <MarketingCta
         title="Acheter le forfait adapté"
-        text="Le formulaire d'achat donne assez de contexte pour créer le dossier Fondation, réserver le sous-domaine et préparer la licence."
+        text="Le formulaire d'achat donne assez de contexte pour préparer l'espace ProJD, les licences et l'accompagnement."
         primaryHref="/commander"
         primaryLabel="Acheter ProJD"
       />

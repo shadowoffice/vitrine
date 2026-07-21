@@ -2,20 +2,20 @@ import Link from "next/link";
 
 import { ErpPreview } from "./_components/ErpPreview";
 import { MarketingCta } from "./_components/MarketingCta";
+import { ProductShowcaseSlider } from "./_components/ProductShowcaseSlider";
 import { SiteHeader } from "./_components/SiteHeader";
 import {
-  faqItems,
+  decisionCards,
   demoErpUrl,
+  faqItems,
   indicators,
   integrations,
   mainMessage,
   modules,
   packages,
-  productPillars,
+  salesPainPoints,
   securityItems,
-  statusTargets,
   workflow,
-  whyFichero,
 } from "@/lib/site-content";
 
 export default function Home() {
@@ -23,49 +23,48 @@ export default function Home() {
     <main>
       <SiteHeader ctaHref="/commander" ctaLabel="Acheter ProJD" />
 
-      <section id="top" className="hero" aria-labelledby="hero-title">
-        <div className="hero-scene" aria-hidden="true">
-          <div className="scene-board scene-board-main">
-            <div className="scene-topline">
-              <span>Fondation</span>
-              <strong>Command Center</strong>
+      <section className="sales-hero" aria-labelledby="hero-title">
+        <div className="hero-product-scene" aria-hidden="true">
+          <div className="workspace-window workspace-window-main">
+            <div className="workspace-topbar">
+              <span>ProJD</span>
+              <strong>Projet Centre-ville</strong>
             </div>
-            <div className="scene-grid">
-              <span className="scene-stat strong"></span>
-              <span className="scene-stat"></span>
-              <span className="scene-stat accent"></span>
-              <span className="scene-stat wide"></span>
+            <div className="workspace-metrics">
+              <span className="metric-fill-1"></span>
+              <span className="metric-fill-2"></span>
+              <span className="metric-fill-3"></span>
             </div>
-            <div className="scene-table">
+            <div className="workspace-table">
               <span></span>
               <span></span>
               <span></span>
               <span></span>
             </div>
           </div>
-          <div className="scene-board scene-board-side">
-            <span className="scene-chip green">erp.client-1</span>
-            <span className="scene-chip amber">tls actif</span>
-            <span className="scene-chip red">audit</span>
+          <div className="workspace-window workspace-window-side">
+            <span className="pipeline-chip ready">Budget suivi</span>
+            <span className="pipeline-chip warning">7 factures à valider</span>
+            <span className="pipeline-chip active">24 soumissions</span>
           </div>
         </div>
 
         <div className="hero-content">
           <p className="eyebrow">ERP construction Québec</p>
-          <h1 id="hero-title">Fichero</h1>
+          <h1 id="hero-title">ProJD ERP construction</h1>
           <p className="hero-lead">{mainMessage}</p>
           <div className="hero-actions">
             <Link className="button primary" href="/commander">
               Acheter ProJD
             </Link>
             <Link className="button secondary" href={demoErpUrl}>
-              Visiter la démo ERP
+              Visiter la démo
             </Link>
           </div>
         </div>
       </section>
 
-      <section id="plateforme" className="signal-strip" aria-label="Indicateurs Fichero">
+      <section className="signal-strip" aria-label="Indicateurs ProJD">
         {indicators.map((indicator) => (
           <article key={indicator.label}>
             <strong>{indicator.value}</strong>
@@ -76,16 +75,16 @@ export default function Home() {
 
       <section className="section split-section">
         <div>
-          <p className="eyebrow">Pourquoi Fichero</p>
-          <h2>Une vitrine qui mène vers une vraie opération SaaS.</h2>
+          <p className="eyebrow">Pourquoi ProJD</p>
+          <h2>Un ERP pour arrêter de gérer les chantiers dans dix outils séparés.</h2>
           <p>
-            Fichero ne sert pas seulement à être joli. Le site présente l’offre, qualifie l’achat,
-            ouvre un dossier exploitable et garde le fil avec Fondation avant l’activation d’un
-            tenant ProJD payé.
+            ProJD met les coûts, soumissions, documents, factures et partenaires dans un
+            environnement pensé pour la construction. L’objectif est simple: savoir où va l’argent,
+            ce qui bloque et quoi relancer.
           </p>
         </div>
         <div className="pillar-grid why-grid">
-          {whyFichero.map((item) => (
+          {salesPainPoints.map((item) => (
             <article className="card" key={item.title}>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
@@ -94,41 +93,49 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section product-showcase-section">
+        <div className="section-heading">
+          <p className="eyebrow">Vue produit</p>
+          <h2>Un slider vivant pour montrer ce que ProJD rend visible.</h2>
+          <p>
+            Chaque module ramène une partie critique du chantier dans le même fil: budget,
+            soumissions, factures, documents et décisions.
+          </p>
+        </div>
+        <ProductShowcaseSlider />
+      </section>
+
       <section className="section preview-section" aria-labelledby="preview-title">
         <div className="section-heading">
-          <p className="eyebrow">Maquette ERP</p>
-          <h2 id="preview-title">Une première vue concrète du tableau de bord ProJD.</h2>
+          <p className="eyebrow">Tableau de bord</p>
+          <h2 id="preview-title">Une lecture concrète du projet, pas une promesse abstraite.</h2>
           <p>
-            La vitrine montre le type d’expérience attendue: coûts par division, suivi BID,
-            documents, factures et intégrations autour d’un projet de construction.
+            L’interface montre les budgets engagés, les lots BID actifs, les factures à valider et
+            les documents importants au même endroit.
           </p>
         </div>
         <ErpPreview />
         <div className="section-actions">
           <Link className="button primary" href={demoErpUrl}>
-            Ouvrir la démo publique
+            Ouvrir la démo
           </Link>
-          <Link className="button secondary" href="/projd">
-            Voir ProJD
+          <Link className="button secondary" href="/modules">
+            Voir les modules
           </Link>
         </div>
       </section>
 
-      <section className="section split-section">
-        <div>
-          <p className="eyebrow">Architecture claire</p>
-          <h2>La bonne app au bon endroit.</h2>
-          <p>
-            Fichero vend et qualifie. Fondation contrôle les clients, domaines et opérations.
-            ProJD exécute les workflows ERP dans les tenants dédiés.
-          </p>
+      <section className="section">
+        <div className="section-heading">
+          <p className="eyebrow">Pour chaque équipe</p>
+          <h2>La même information utile, adaptée au rôle de chacun.</h2>
         </div>
-        <div className="pillar-grid">
-          {productPillars.map((pillar) => (
-            <Link className="card link-card" href={pillar.href} key={pillar.title}>
-              <h3>{pillar.title}</h3>
-              <p>{pillar.text}</p>
-            </Link>
+        <div className="decision-grid">
+          {decisionCards.map((card) => (
+            <article className="card decision-card" key={card.title}>
+              <span>{card.title}</span>
+              <p>{card.text}</p>
+            </article>
           ))}
         </div>
       </section>
@@ -136,7 +143,7 @@ export default function Home() {
       <section id="modules" className="section">
         <div className="section-heading">
           <p className="eyebrow">Modules</p>
-          <h2>Une suite conçue pour suivre les opérations, pas seulement les fichiers.</h2>
+          <h2>Les blocs essentiels pour un ERP construction qui suit le vrai travail.</h2>
         </div>
         <div className="module-grid">
           {modules.map((module) => (
@@ -150,8 +157,8 @@ export default function Home() {
 
       <section className="section workflow-section">
         <div className="section-heading">
-          <p className="eyebrow">Déploiement</p>
-          <h2>Du premier contact à l’instance ERP active.</h2>
+          <p className="eyebrow">Implantation</p>
+          <h2>Une mise en route progressive, sans tout casser d’un coup.</h2>
         </div>
         <ol className="workflow-list">
           {workflow.map((step, index) => (
@@ -166,36 +173,32 @@ export default function Home() {
       <section id="forfaits" className="section">
         <div className="section-heading">
           <p className="eyebrow">Forfaits</p>
-          <h2>Un positionnement simple pour démarrer les conversations commerciales.</h2>
+          <h2>Un point de départ clair pour vendre et implanter ProJD.</h2>
         </div>
         <div className="pricing-grid">
           {packages.map((plan) => (
             <article className={plan.featured ? "card pricing-card featured" : "card pricing-card"} key={plan.name}>
               <p>{plan.name}</p>
               <h3>{plan.price}</h3>
+              <small>{plan.setup}</small>
               <span>{plan.description}</span>
               <ul>
                 {plan.items.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              <Link className="button secondary" href={`/commander?plan=${plan.code}`}>
+                Choisir ce forfait
+              </Link>
             </article>
           ))}
-        </div>
-        <div className="section-actions">
-          <Link className="button primary" href="/tarifs">
-            Voir les forfaits
-          </Link>
-          <Link className="button secondary" href="/commander">
-            Acheter le logiciel
-          </Link>
         </div>
       </section>
 
       <section className="section two-column-section">
         <div>
           <p className="eyebrow">Intégrations</p>
-          <h2>Procore, SharePoint et Outlook restent connectés au workflow.</h2>
+          <h2>ProJD cohabite avec les outils déjà utilisés par l’équipe.</h2>
           <div className="stack-list">
             {integrations.map((integration) => (
               <article className="card" key={integration.name}>
@@ -206,8 +209,8 @@ export default function Home() {
           </div>
         </div>
         <div>
-          <p className="eyebrow">Sécurité</p>
-          <h2>Des promesses sobres, vérifiables et auditables.</h2>
+          <p className="eyebrow">Contrôle</p>
+          <h2>Des accès et validations qui respectent les données sensibles.</h2>
           <ul className="check-list">
             {securityItems.map((item) => (
               <li key={item}>{item}</li>
@@ -219,7 +222,7 @@ export default function Home() {
       <section className="section two-column-section">
         <div>
           <p className="eyebrow">FAQ</p>
-          <h2>Les questions commerciales qui reviennent vite.</h2>
+          <h2>Les objections commerciales qui arrivent vite.</h2>
           <div className="faq-list">
             {faqItems.map((item) => (
               <details key={item.question}>
@@ -229,28 +232,31 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <div>
-          <p className="eyebrow">Statut</p>
-          <h2>Des points d’entrée simples pour vérifier l’écosystème.</h2>
-          <div className="status-grid compact">
-            {statusTargets.map((target) => (
-              <a href={target.href} key={target.label}>
-                <span>{target.status}</span>
-                <strong>{target.label}</strong>
-                <small>{target.detail}</small>
-              </a>
-            ))}
+        <div className="closing-panel">
+          <p className="eyebrow">Démo</p>
+          <h2>Voir ProJD avant de choisir le forfait.</h2>
+          <p>
+            La démo publique donne une première lecture du produit. Le formulaire d’achat sert
+            ensuite à cadrer le forfait, les utilisateurs et le premier espace de travail.
+          </p>
+          <div className="section-actions">
+            <Link className="button primary" href={demoErpUrl}>
+              Visiter la démo
+            </Link>
+            <Link className="button secondary" href="/commander">
+              Acheter ProJD
+            </Link>
           </div>
         </div>
       </section>
 
       <MarketingCta
-        title="Acheter ProJD et créer le tenant"
-        text="Le formulaire d'achat peut être transmis à Fondation ou gardé en sauvegarde locale si l'intégration n'est pas encore configurée."
-        primaryHref={demoErpUrl}
-        primaryLabel="Visiter la démo publique"
-        secondaryHref="/commander"
-        secondaryLabel="Acheter ProJD"
+        title="Prêt à vendre et implanter ProJD?"
+        text="Choisis un forfait, indique le nombre d'utilisateurs et prépare le premier environnement de travail pour ton équipe."
+        primaryHref="/commander"
+        primaryLabel="Acheter ProJD"
+        secondaryHref={demoErpUrl}
+        secondaryLabel="Visiter la démo"
       />
     </main>
   );

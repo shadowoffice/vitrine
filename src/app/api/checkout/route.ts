@@ -11,7 +11,7 @@ import { siteUrl } from "@/lib/site-content";
 
 export const runtime = "nodejs";
 
-type FondationCheckoutResponse = {
+type ProviderCheckoutResponse = {
   status?: string;
   safeSummary?: string;
   safeError?: string | null;
@@ -55,10 +55,10 @@ const checkoutUrl = (): string | null => {
 const publicSiteUrl = (): string =>
   (process.env.NEXT_PUBLIC_SITE_URL?.trim() || siteUrl).replace(/\/+$/g, "");
 
-const readFondationResponse = async (response: Response): Promise<FondationCheckoutResponse> => {
+const readProviderResponse = async (response: Response): Promise<ProviderCheckoutResponse> => {
   try {
     const payload: unknown = await response.json();
-    return payload && typeof payload === "object" ? payload as FondationCheckoutResponse : {};
+    return payload && typeof payload === "object" ? payload as ProviderCheckoutResponse : {};
   } catch {
     return {};
   }
@@ -79,7 +79,7 @@ const submitCheckout = async (payload: unknown): Promise<CheckoutResponse | null
     },
     body: JSON.stringify(payload),
   });
-  const body = await readFondationResponse(response);
+  const body = await readProviderResponse(response);
   const fallbackRef = typeof (payload as { orderRef?: unknown }).orderRef === "string"
     ? (payload as { orderRef: string }).orderRef
     : orderRef();
@@ -92,7 +92,7 @@ const submitCheckout = async (payload: unknown): Promise<CheckoutResponse | null
       checkoutUrl: null,
       providerSessionId: body.providerSessionId ?? null,
       safeSummary: body.safeSummary ?? "Checkout non créé.",
-      safeError: body.safeError ?? `Fondation a répondu ${response.status}.`,
+      safeError: body.safeError ?? `Le service de paiement a répondu ${response.status}.`,
       customerId: body.customerId ?? null,
       tenantId: body.tenantId ?? null,
       provisioningRequestId: body.provisioningRequestId ?? null,
@@ -171,7 +171,7 @@ export async function POST(request: Request): Promise<Response> {
         provider: parsed.data.paymentProvider,
         checkoutUrl: null,
         safeSummary: "Paiement indisponible.",
-        safeError: "Fondation checkout n'est pas configuré.",
+        safeError: "Le service de paiement n'est pas configuré.",
       } satisfies CheckoutResponse,
       { status: 503 },
     );
