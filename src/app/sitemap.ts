@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { modules } from "@/lib/site-content";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   const routes = [
@@ -11,7 +13,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/statut", priority: 0.68 },
   ];
 
-  return routes.map((route) => ({
+  const moduleRoutes = modules.map((module) => ({
+    path: `/modules/${module.slug}`,
+    priority: 0.76,
+  }));
+
+  return [...routes, ...moduleRoutes].map((route) => ({
     url: `https://fichero.cloud${route.path}`,
     lastModified,
     changeFrequency: "weekly",

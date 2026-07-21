@@ -10,12 +10,13 @@ export const metadata: Metadata = {
     template: "%s | ProJD",
   },
   description:
-    "ProJD centralise projets, budgets, soumissions, factures, documents et rapports pour les entrepreneurs de la construction au Québec.",
+    "ProJD est un ERP construction pour les entrepreneurs du Québec: projets, chantiers, budgets, soumissions, factures, documents et rapports.",
   keywords: [
     "ERP construction Québec",
     "ProJD",
     "logiciel construction",
     "gestion projet construction",
+    "gestion chantier Québec",
     "estimation construction",
     "Procore",
     "SharePoint",
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ProJD | ERP construction pour entrepreneurs québécois",
     description:
-      "ERP construction pour piloter projets, coûts, soumissions, factures, documents et rapports.",
+      "ERP construction pour piloter chantiers, coûts, soumissions, factures, documents et rapports.",
     url: "https://fichero.cloud",
     siteName: "ProJD",
     locale: "fr_CA",
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ProJD",
-    description: "ERP construction avec projets, budgets, soumissions, factures, documents et intégrations.",
+    description: "ERP construction Québec avec chantiers, budgets, soumissions, factures et documents.",
   },
   robots: {
     index: true,

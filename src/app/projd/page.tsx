@@ -68,7 +68,7 @@ export default function ProjdPage() {
         </div>
         <div className="module-grid">
           {modules.slice(0, 6).map((module) => (
-            <Link key={module.name} href="/modules">
+            <Link key={module.slug} href={`/modules/${module.slug}`}>
               <strong>{module.name}</strong>
               <span>{module.text}</span>
             </Link>

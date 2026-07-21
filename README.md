@@ -22,8 +22,9 @@ the marketing story.
 
 Implemented:
 
-- professional ProJD sales home page with animated product hero;
+- professional ProJD sales home page with construction-site visual direction;
 - product slider for budgets, BID, invoices and documents;
+- dedicated module detail pages under `/modules/[slug]`;
 - pages for `/projd`, `/modules`, `/tarifs`, `/demo`, `/statut` and
   `/commander`;
 - legacy `/fondation` route redirected to `/projd`;
@@ -58,6 +59,14 @@ Public pages:
 - `/`
 - `/projd`
 - `/modules`
+- `/modules/projets`
+- `/modules/budgets`
+- `/modules/estimation-bid`
+- `/modules/documents`
+- `/modules/factures-ocr`
+- `/modules/partenaires`
+- `/modules/rapports`
+- `/modules/integrations`
 - `/tarifs`
 - `/commander`
 - `/demo`
