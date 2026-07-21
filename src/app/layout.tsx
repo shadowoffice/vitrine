@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+import { PrivacyAnalytics } from "./_components/PrivacyAnalytics";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,15 +10,32 @@ export const metadata: Metadata = {
     template: "%s | Fichero",
   },
   description:
-    "Fichero réunit vitrine SaaS, pilotage Fondation et ERP ProJD pour les entrepreneurs de la construction au Québec.",
+    "Fichero présente l'offre, Fondation opère les tenants SaaS et ProJD livre l'ERP construction pour les entrepreneurs québécois.",
+  keywords: [
+    "ERP construction Québec",
+    "ProJD",
+    "Fondation SaaS",
+    "Fichero",
+    "Procore",
+    "SharePoint",
+    "Outlook",
+  ],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Fichero",
+    title: "Fichero | ERP construction pour entrepreneurs québécois",
     description:
-      "Une plateforme ERP moderne pour piloter projets, coûts, documents, domaines et instances clients.",
+      "Vitrine SaaS, contrôle Fondation et ERP ProJD pour piloter projets, coûts, documents, domaines et instances clients.",
     url: "https://fichero.cloud",
     siteName: "Fichero",
     locale: "fr_CA",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fichero",
+    description: "ERP construction, contrôle SaaS et intégrations Procore, SharePoint et Outlook.",
   },
   robots: {
     index: true,
@@ -31,7 +50,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr-CA">
-      <body>{children}</body>
+      <body>
+        {children}
+        <PrivacyAnalytics />
+      </body>
     </html>
   );
 }

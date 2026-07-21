@@ -1,92 +1,27 @@
-const navigation = [
-  { label: "Plateforme", href: "#plateforme" },
-  { label: "Modules", href: "#modules" },
-  { label: "Forfaits", href: "#forfaits" },
-  { label: "Contact", href: "#contact" },
-];
+import Link from "next/link";
 
-const indicators = [
-  { value: "24/7", label: "état des instances" },
-  { value: "TLS", label: "domaines prêts" },
-  { value: "ERP", label: "tenants isolés" },
-  { value: "QC", label: "construction" },
-];
-
-const productPillars = [
-  {
-    title: "Vitrine publique",
-    text: "Une entrée claire pour présenter l’offre, qualifier les prospects et guider les demandes de démo.",
-  },
-  {
-    title: "Fondation SaaS",
-    text: "Un plan de contrôle pour les clients, les domaines, le TLS, les environnements et les opérations.",
-  },
-  {
-    title: "ERP ProJD",
-    text: "Des instances ERP dédiées pour les projets, les coûts, les contacts, les documents et les suivis chantier.",
-  },
-];
-
-const modules = [
-  "Clients et tenants",
-  "Projets et budgets",
-  "Documents et SharePoint",
-  "Factures et coûts",
-  "Domaines et certificats",
-  "Audit et opérations",
-  "Portail partenaires",
-  "Rapports exécutifs",
-];
-
-const workflow = [
-  "Qualifier le client",
-  "Préparer son instance ERP",
-  "Brancher domaine et TLS",
-  "Activer les modules",
-  "Suivre santé et coûts",
-];
-
-const packages = [
-  {
-    name: "Départ",
-    price: "Sur mesure",
-    description: "Pour valider le fit avec une première instance ERP et un domaine dédié.",
-    items: ["Démo guidée", "Environnement de test", "Plan d’implantation"],
-  },
-  {
-    name: "Croissance",
-    price: "Équipe projet",
-    description: "Pour centraliser les opérations d’une entreprise de construction active.",
-    items: ["ERP multi-projets", "Routage domaines", "Tableaux de bord"],
-    featured: true,
-  },
-  {
-    name: "Plateforme",
-    price: "Multi-clients",
-    description: "Pour opérer plusieurs tenants, environnements et flux d’intégration.",
-    items: ["Provisioning contrôlé", "Audit complet", "Connecteurs avancés"],
-  },
-];
+import { ErpPreview } from "./_components/ErpPreview";
+import { MarketingCta } from "./_components/MarketingCta";
+import { SiteHeader } from "./_components/SiteHeader";
+import {
+  faqItems,
+  demoErpUrl,
+  indicators,
+  integrations,
+  mainMessage,
+  modules,
+  packages,
+  productPillars,
+  securityItems,
+  statusTargets,
+  workflow,
+  whyFichero,
+} from "@/lib/site-content";
 
 export default function Home() {
   return (
     <main>
-      <header className="site-header" aria-label="Navigation principale">
-        <a className="brand" href="#top" aria-label="Fichero accueil">
-          <span className="brand-mark">F</span>
-          <span>Fichero</span>
-        </a>
-        <nav>
-          {navigation.map((item) => (
-            <a key={item.href} href={item.href}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
-        <a className="header-cta" href="mailto:contact@fichero.cloud?subject=Demande%20de%20démo%20Fichero">
-          Démo
-        </a>
-      </header>
+      <SiteHeader ctaHref="/commander" ctaLabel="Acheter ProJD" />
 
       <section id="top" className="hero" aria-labelledby="hero-title">
         <div className="hero-scene" aria-hidden="true">
@@ -109,7 +44,7 @@ export default function Home() {
             </div>
           </div>
           <div className="scene-board scene-board-side">
-            <span className="scene-chip green">erp.demo</span>
+            <span className="scene-chip green">erp.client-1</span>
             <span className="scene-chip amber">tls actif</span>
             <span className="scene-chip red">audit</span>
           </div>
@@ -118,16 +53,14 @@ export default function Home() {
         <div className="hero-content">
           <p className="eyebrow">ERP construction Québec</p>
           <h1 id="hero-title">Fichero</h1>
-          <p className="hero-lead">
-            Une vitrine SaaS moderne pour présenter, vendre et activer des environnements ERP ProJD sans mélanger le marketing, l’administration et les données de production.
-          </p>
+          <p className="hero-lead">{mainMessage}</p>
           <div className="hero-actions">
-            <a className="button primary" href="mailto:contact@fichero.cloud?subject=Demande%20de%20démo%20Fichero">
-              Demander une démo
-            </a>
-            <a className="button secondary" href="https://demo.erp.fichero.cloud">
-              Voir un ERP
-            </a>
+            <Link className="button primary" href="/commander">
+              Acheter ProJD
+            </Link>
+            <Link className="button secondary" href={demoErpUrl}>
+              Visiter la démo ERP
+            </Link>
           </div>
         </div>
       </section>
@@ -143,18 +76,59 @@ export default function Home() {
 
       <section className="section split-section">
         <div>
-          <p className="eyebrow">Architecture claire</p>
-          <h2>La bonne app au bon endroit</h2>
+          <p className="eyebrow">Pourquoi Fichero</p>
+          <h2>Une vitrine qui mène vers une vraie opération SaaS.</h2>
           <p>
-            Fichero sert d’entrée publique. Fondation orchestre les tenants et les opérations. ProJD livre l’ERP métier. Chaque couche garde sa responsabilité, son rythme de déploiement et sa sécurité.
+            Fichero ne sert pas seulement à être joli. Le site présente l’offre, qualifie l’achat,
+            ouvre un dossier exploitable et garde le fil avec Fondation avant l’activation d’un
+            tenant ProJD payé.
+          </p>
+        </div>
+        <div className="pillar-grid why-grid">
+          {whyFichero.map((item) => (
+            <article className="card" key={item.title}>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section preview-section" aria-labelledby="preview-title">
+        <div className="section-heading">
+          <p className="eyebrow">Maquette ERP</p>
+          <h2 id="preview-title">Une première vue concrète du tableau de bord ProJD.</h2>
+          <p>
+            La vitrine montre le type d’expérience attendue: coûts par division, suivi BID,
+            documents, factures et intégrations autour d’un projet de construction.
+          </p>
+        </div>
+        <ErpPreview />
+        <div className="section-actions">
+          <Link className="button primary" href={demoErpUrl}>
+            Ouvrir la démo publique
+          </Link>
+          <Link className="button secondary" href="/projd">
+            Voir ProJD
+          </Link>
+        </div>
+      </section>
+
+      <section className="section split-section">
+        <div>
+          <p className="eyebrow">Architecture claire</p>
+          <h2>La bonne app au bon endroit.</h2>
+          <p>
+            Fichero vend et qualifie. Fondation contrôle les clients, domaines et opérations.
+            ProJD exécute les workflows ERP dans les tenants dédiés.
           </p>
         </div>
         <div className="pillar-grid">
           {productPillars.map((pillar) => (
-            <article className="card" key={pillar.title}>
+            <Link className="card link-card" href={pillar.href} key={pillar.title}>
               <h3>{pillar.title}</h3>
               <p>{pillar.text}</p>
-            </article>
+            </Link>
           ))}
         </div>
       </section>
@@ -162,11 +136,14 @@ export default function Home() {
       <section id="modules" className="section">
         <div className="section-heading">
           <p className="eyebrow">Modules</p>
-          <h2>Une suite conçue pour les entrepreneurs qui veulent suivre les opérations, pas seulement les fichiers.</h2>
+          <h2>Une suite conçue pour suivre les opérations, pas seulement les fichiers.</h2>
         </div>
         <div className="module-grid">
           {modules.map((module) => (
-            <span key={module}>{module}</span>
+            <Link key={module.name} href="/modules">
+              <strong>{module.name}</strong>
+              <span>{module.text}</span>
+            </Link>
           ))}
         </div>
       </section>
@@ -205,25 +182,76 @@ export default function Home() {
             </article>
           ))}
         </div>
+        <div className="section-actions">
+          <Link className="button primary" href="/tarifs">
+            Voir les forfaits
+          </Link>
+          <Link className="button secondary" href="/commander">
+            Acheter le logiciel
+          </Link>
+        </div>
       </section>
 
-      <section id="contact" className="contact-section">
+      <section className="section two-column-section">
         <div>
-          <p className="eyebrow">Contact</p>
-          <h2>Préparer une démo Fichero</h2>
-          <p>
-            La première version publique peut déjà diriger les prospects vers une discussion, une démo ERP et l’onboarding Fondation.
-          </p>
+          <p className="eyebrow">Intégrations</p>
+          <h2>Procore, SharePoint et Outlook restent connectés au workflow.</h2>
+          <div className="stack-list">
+            {integrations.map((integration) => (
+              <article className="card" key={integration.name}>
+                <h3>{integration.name}</h3>
+                <p>{integration.text}</p>
+              </article>
+            ))}
+          </div>
         </div>
-        <div className="contact-actions">
-          <a className="button primary" href="mailto:contact@fichero.cloud?subject=Demande%20de%20démo%20Fichero">
-            Écrire à Fichero
-          </a>
-          <a className="button secondary" href="https://test.erp.fichero.cloud">
-            Ouvrir le tenant test
-          </a>
+        <div>
+          <p className="eyebrow">Sécurité</p>
+          <h2>Des promesses sobres, vérifiables et auditables.</h2>
+          <ul className="check-list">
+            {securityItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
         </div>
       </section>
+
+      <section className="section two-column-section">
+        <div>
+          <p className="eyebrow">FAQ</p>
+          <h2>Les questions commerciales qui reviennent vite.</h2>
+          <div className="faq-list">
+            {faqItems.map((item) => (
+              <details key={item.question}>
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="eyebrow">Statut</p>
+          <h2>Des points d’entrée simples pour vérifier l’écosystème.</h2>
+          <div className="status-grid compact">
+            {statusTargets.map((target) => (
+              <a href={target.href} key={target.label}>
+                <span>{target.status}</span>
+                <strong>{target.label}</strong>
+                <small>{target.detail}</small>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <MarketingCta
+        title="Acheter ProJD et créer le tenant"
+        text="Le formulaire d'achat peut être transmis à Fondation ou gardé en sauvegarde locale si l'intégration n'est pas encore configurée."
+        primaryHref={demoErpUrl}
+        primaryLabel="Visiter la démo publique"
+        secondaryHref="/commander"
+        secondaryLabel="Acheter ProJD"
+      />
     </main>
   );
 }

@@ -9,11 +9,27 @@ services:
       NEXT_TELEMETRY_DISABLED: "1"
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://fichero.cloud}
+      VITRINE_ORDER_INBOX_PATH: /app/data/erp-orders.jsonl
+      FONDATION_ORDER_INTAKE_URL: ${FONDATION_ORDER_INTAKE_URL:-}
+      FONDATION_CHECKOUT_URL: ${FONDATION_CHECKOUT_URL:-}
+      FONDATION_CHECKOUT_CAPTURE_URL: ${FONDATION_CHECKOUT_CAPTURE_URL:-}
+      FONDATION_ORDER_INTAKE_TOKEN: ${FONDATION_ORDER_INTAKE_TOKEN:-}
     ports:
       - "3103:3000"
+    networks:
+      - default
+      - fondation
+    volumes:
+      - ./data:/app/data
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 20s
+
+networks:
+  fondation:
+    external: true
+    name: fondation_default
