@@ -35,8 +35,8 @@ export const pricingPlans: PricingPlan[] = [
     setupFeeCents: 75000,
     includedSeats: 3,
     extraSeatMonthlyCents: 3900,
-    description: "Pour acheter une première instance ERP, une licence de départ et un domaine dédié.",
-    items: ["3 utilisateurs inclus", "Tenant ProJD", "Licence initiale", "Plan d'implantation"],
+    description: "Pour lancer une première équipe projet avec les bases de suivi ProJD.",
+    items: ["3 utilisateurs inclus", "Espace ProJD initial", "Licence de départ", "Plan d'implantation"],
   },
   {
     code: "croissance",
@@ -58,8 +58,8 @@ export const pricingPlans: PricingPlan[] = [
     setupFeeCents: 300000,
     includedSeats: 25,
     extraSeatMonthlyCents: 3500,
-    description: "Pour opérer plusieurs tenants, environnements et flux d'intégration.",
-    items: ["25 utilisateurs inclus", "Provisioning contrôlé", "Audit complet", "Connecteurs avancés"],
+    description: "Pour plusieurs équipes, projets actifs et flux d'intégration.",
+    items: ["25 utilisateurs inclus", "Plusieurs groupes projet", "Audit complet", "Connecteurs avancés"],
   },
 ];
 

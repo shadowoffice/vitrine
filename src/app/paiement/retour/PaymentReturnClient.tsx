@@ -23,7 +23,7 @@ const getInitialState = ({ provider, paymentStatus, paypalOrderId }: PaymentRetu
       message:
         paymentStatus === "cancelled"
           ? "Le paiement Stripe a été annulé."
-          : "Paiement Stripe reçu. Fondation active le dossier dès que le webhook Stripe confirme la transaction.",
+          : "Paiement Stripe reçu. L'équipe ProJD confirme l'activation dès que la transaction est validée.",
     };
   }
 

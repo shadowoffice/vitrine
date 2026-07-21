@@ -3,7 +3,7 @@ import { PaymentReturnClient } from "./PaymentReturnClient";
 
 export const metadata = {
   title: "Retour paiement ProJD",
-  description: "Confirmation du paiement ProJD et activation du dossier client Fondation.",
+  description: "Confirmation du paiement ProJD et préparation de l'activation.",
 };
 
 type PaymentReturnPageProps = {

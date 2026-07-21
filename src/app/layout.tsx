@@ -6,16 +6,17 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://fichero.cloud"),
   title: {
-    default: "Fichero | ERP construction pour entrepreneurs québécois",
-    template: "%s | Fichero",
+    default: "ProJD | ERP construction pour entrepreneurs québécois",
+    template: "%s | ProJD",
   },
   description:
-    "Fichero présente l'offre, Fondation opère les tenants SaaS et ProJD livre l'ERP construction pour les entrepreneurs québécois.",
+    "ProJD centralise projets, budgets, soumissions, factures, documents et rapports pour les entrepreneurs de la construction au Québec.",
   keywords: [
     "ERP construction Québec",
     "ProJD",
-    "Fondation SaaS",
-    "Fichero",
+    "logiciel construction",
+    "gestion projet construction",
+    "estimation construction",
     "Procore",
     "SharePoint",
     "Outlook",
@@ -24,18 +25,18 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Fichero | ERP construction pour entrepreneurs québécois",
+    title: "ProJD | ERP construction pour entrepreneurs québécois",
     description:
-      "Vitrine SaaS, contrôle Fondation et ERP ProJD pour piloter projets, coûts, documents, domaines et instances clients.",
+      "ERP construction pour piloter projets, coûts, soumissions, factures, documents et rapports.",
     url: "https://fichero.cloud",
-    siteName: "Fichero",
+    siteName: "ProJD",
     locale: "fr_CA",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fichero",
-    description: "ERP construction, contrôle SaaS et intégrations Procore, SharePoint et Outlook.",
+    title: "ProJD",
+    description: "ERP construction avec projets, budgets, soumissions, factures, documents et intégrations.",
   },
   robots: {
     index: true,

@@ -4,7 +4,7 @@ import { demoErpUrl } from "@/lib/site-content";
 
 export const metadata = {
   title: "Acheter ProJD",
-  description: "Acheter une instance ERP ProJD et ouvrir automatiquement un dossier client Fondation.",
+  description: "Acheter ProJD et préparer un espace ERP construction pour une première équipe projet.",
 };
 
 type OrderPageProps = {
@@ -29,17 +29,17 @@ export default async function OrderPage({ searchParams }: OrderPageProps) {
           <p className="eyebrow">Achat ERP</p>
           <h1 id="order-title">Acheter ProJD</h1>
           <p>
-            L’achat ouvre un dossier client dans Fondation. Dès que le paiement est confirmé,
-            Fondation attribue la licence, réserve le sous-domaine et met l’instance ProJD en
-            file d’activation.
+            L’achat prépare l’espace ProJD, les licences et la première activation. Dès que le
+            paiement est confirmé, l’équipe peut cadrer le forfait, les utilisateurs et les modules
+            prioritaires.
           </p>
         </div>
         <div className="order-summary" aria-label="Processus de commande">
           <span>Client</span>
           <span>Paiement</span>
           <span>Licence</span>
-          <span>Tenant ERP</span>
-          <span>Sous-domaine</span>
+          <span>Espace ERP</span>
+          <span>Activation</span>
         </div>
       </section>
 
@@ -48,9 +48,9 @@ export default async function OrderPage({ searchParams }: OrderPageProps) {
           <p className="eyebrow">Onboarding</p>
           <h2>Créer le bon dossier d’achat dès le départ</h2>
           <p>
-            Le formulaire qualifie l’entreprise, le forfait et le sous-domaine souhaité, par
-            exemple client-1 ou client-2. Fondation garde ensuite la gouvernance sur le paiement,
-            les licences, le provisioning, le DNS, le TLS et l’activation de production.
+            Le formulaire qualifie l’entreprise, le forfait, le nombre d’utilisateurs et le
+            sous-domaine souhaité, par exemple client-1 ou client-2. Ces informations accélèrent la
+            préparation du premier espace ProJD.
           </p>
         </div>
         <ErpOrderForm initialPlanCode={initialPlanCode} />

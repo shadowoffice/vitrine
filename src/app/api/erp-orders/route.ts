@@ -11,7 +11,7 @@ import {
 
 export const runtime = "nodejs";
 
-type FondationOrderResponse = {
+type ProviderOrderResponse = {
   status?: string;
   safeSummary?: string;
   safeError?: string | null;
@@ -35,11 +35,11 @@ const readJson = async (request: Request): Promise<unknown> => {
   }
 };
 
-const readFondationResponse = async (response: Response): Promise<FondationOrderResponse> => {
+const readProviderResponse = async (response: Response): Promise<ProviderOrderResponse> => {
   try {
     const payload: unknown = await response.json();
     if (payload && typeof payload === "object") {
-      return payload as FondationOrderResponse;
+      return payload as ProviderOrderResponse;
     }
   } catch {
     return {};
@@ -54,7 +54,7 @@ const storeLocalOrder = async (payload: unknown): Promise<void> => {
   await appendFile(inboxPath, `${JSON.stringify(payload)}\n`, { mode: 0o600 });
 };
 
-const submitToFondation = async (payload: unknown): Promise<ErpOrderResponse | null> => {
+const submitToProviderBridge = async (payload: unknown): Promise<ErpOrderResponse | null> => {
   const intakeUrl = process.env.FONDATION_ORDER_INTAKE_URL?.trim();
   const token = process.env.FONDATION_ORDER_INTAKE_TOKEN?.trim();
   if (!intakeUrl || !token) {
@@ -69,20 +69,20 @@ const submitToFondation = async (payload: unknown): Promise<ErpOrderResponse | n
     },
     body: JSON.stringify(payload),
   });
-  const body = await readFondationResponse(response);
+  const body = await readProviderResponse(response);
   if (!response.ok) {
     return {
       status: "failed",
       orderRef: typeof (payload as { orderRef?: unknown }).orderRef === "string" ? (payload as { orderRef: string }).orderRef : orderRef(),
-      safeSummary: "Commande reçue, mais Fondation a refusé la préparation automatique.",
-      safeError: body.safeError ?? `Fondation a répondu ${response.status}.`,
+      safeSummary: "Commande reçue, mais la préparation automatique a été refusée.",
+      safeError: body.safeError ?? `Le service d'activation a répondu ${response.status}.`,
     };
   }
 
   return {
     status: "accepted",
     orderRef: typeof (payload as { orderRef?: unknown }).orderRef === "string" ? (payload as { orderRef: string }).orderRef : orderRef(),
-    safeSummary: body.safeSummary ?? "Commande ERP transmise à Fondation.",
+    safeSummary: body.safeSummary ?? "Commande ERP transmise à l'équipe ProJD.",
     safeError: body.safeError ?? null,
     customerId: body.customerId ?? null,
     tenantId: body.tenantId ?? null,
@@ -114,28 +114,28 @@ export async function POST(request: Request): Promise<Response> {
     source: `vitrine:fichero.cloud:${parsed.data.requestType}`,
     receivedAt: new Date().toISOString(),
   };
-  const localBackupSummary = "Achat ProJD reçu. Le dossier sera importé dans Fondation.";
-  const reviewRequiredSummary = "Achat ProJD reçu en sauvegarde locale; révision Fondation requise.";
+  const localBackupSummary = "Achat ProJD reçu. Le dossier sera importé par l'équipe ProJD.";
+  const reviewRequiredSummary = "Achat ProJD reçu en sauvegarde locale; révision requise.";
 
   try {
-    const fondationResult = await submitToFondation(orderPayload);
-    if (isErpOrderResponse(fondationResult) && fondationResult.status === "accepted") {
-      return Response.json(fondationResult, { status: 202 });
+    const bridgeResult = await submitToProviderBridge(orderPayload);
+    if (isErpOrderResponse(bridgeResult) && bridgeResult.status === "accepted") {
+      return Response.json(bridgeResult, { status: 202 });
     }
 
     await storeLocalOrder({
       ...orderPayload,
-      fallbackReason: fondationResult?.safeError ?? "Fondation intake not configured.",
+      fallbackReason: bridgeResult?.safeError ?? "Activation intake not configured.",
     });
 
     return Response.json(
       {
-        status: fondationResult?.status === "failed" ? "failed" : "local_backup",
+        status: bridgeResult?.status === "failed" ? "failed" : "local_backup",
         orderRef: ref,
-        safeSummary: fondationResult?.status === "failed" ? reviewRequiredSummary : localBackupSummary,
-        safeError: fondationResult?.safeError ?? null,
+        safeSummary: bridgeResult?.status === "failed" ? reviewRequiredSummary : localBackupSummary,
+        safeError: bridgeResult?.safeError ?? null,
       } satisfies ErpOrderResponse,
-      { status: fondationResult?.status === "failed" ? 202 : 202 },
+      { status: bridgeResult?.status === "failed" ? 202 : 202 },
     );
   } catch (error) {
     try {

@@ -1,42 +1,36 @@
-# Vitrine
+# Vitrine ProJD
 
-Vitrine is the public Fichero website for `https://fichero.cloud`.
+Vitrine is the public sales website for the ProJD construction ERP at
+`https://fichero.cloud`.
 
-It presents the ProJD construction ERP offer, explains the Fondation SaaS
-control plane, exposes pricing, links to the public ERP demo, and routes
-purchase intent into Fondation through server-side intake and checkout routes.
+The public positioning is now focused on ProJD only: projects, budgets, BID,
+documents, invoices, partners, reporting, pricing and purchase intent. Internal
+activation and payment services stay behind server routes and are not part of
+the marketing story.
 
 ## Project Snapshot
 
 - Framework: Next.js App Router, React, TypeScript and plain CSS.
-- Runtime: Node.js server routes plus static public pages.
+- Runtime: public pages plus Node.js server routes.
 - Public domain: `https://fichero.cloud`.
 - Docker service: `fichero-vitrine`.
 - Local exposed port: `3103`.
-- Fondation bridge: token-gated server-to-server calls to Fondation public
-  order and checkout endpoints.
-
-Vitrine is intentionally separate from Fondation and ProJD:
-
-- Vitrine owns the public website, pricing pages and purchase form.
-- Fondation owns customers, tenants, billing, licenses, DNS/TLS, runtime and
-  audit.
-- ProJD owns the tenant ERP product.
+- Internal bridge: token-gated server-to-server calls for order intake and
+  provider checkout.
 
 ## Current Status
 
-The project has moved beyond a simple landing page. The current branch contains
-the public Fichero purchase flow and supporting docs.
-
 Implemented:
 
-- home page with Fichero/Fondation/ProJD positioning;
-- product pages for ProJD and Fondation;
-- modules, pricing, status and demo pages;
-- `/commander` purchase form with plan, seat count, subdomain and provider
-  selection;
-- `/api/checkout` server route for provider checkout creation through
-  Fondation;
+- professional ProJD sales home page with animated product hero;
+- product slider for budgets, BID, invoices and documents;
+- pages for `/projd`, `/modules`, `/tarifs`, `/demo`, `/statut` and
+  `/commander`;
+- legacy `/fondation` route redirected to `/projd`;
+- reusable header, CTA, ERP preview and analytics components;
+- `/commander` purchase form with plan, seat count, desired ERP subdomain and
+  payment provider selection;
+- `/api/checkout` server route for provider checkout creation;
 - `/api/checkout/capture` PayPal return capture handoff;
 - `/api/erp-orders` fallback order intake route;
 - `/paiement/retour` payment-return page;
@@ -46,8 +40,8 @@ Implemented:
 
 Remaining production gate:
 
-- Real Stripe/PayPal provider validation must happen in Fondation before the
-  public purchase flow is considered fully live.
+- real Stripe/PayPal provider validation, webhook signatures and sandbox smoke
+  tests must pass before the public purchase flow is considered fully live.
 
 ## Documentation
 
@@ -63,13 +57,16 @@ Public pages:
 
 - `/`
 - `/projd`
-- `/fondation`
 - `/modules`
 - `/tarifs`
 - `/commander`
 - `/demo`
 - `/statut`
 - `/paiement/retour`
+
+Redirect:
+
+- `/fondation` -> `/projd`
 
 Server routes:
 
@@ -95,7 +92,8 @@ Browser-safe values:
 
 - `NEXT_PUBLIC_SITE_URL`
 
-Do not expose the Fondation intake token through `NEXT_PUBLIC_*` variables.
+The `FONDATION_*` names are internal deployment configuration. Do not expose the
+private intake token through `NEXT_PUBLIC_*` variables or public page content.
 
 ## Local Development
 
@@ -130,9 +128,9 @@ git diff --check
 
 When checkout/order behavior changes, also test:
 
-- missing Fondation environment values;
+- missing internal checkout environment values;
 - invalid purchase form data;
-- Fondation returning a non-2xx response;
+- provider bridge returning a non-2xx response;
 - Stripe return URL shape;
 - PayPal capture route failure.
 
@@ -167,11 +165,12 @@ The safe flow is:
 
 1. visitor submits `/commander`;
 2. Vitrine validates the payload;
-3. Vitrine calls Fondation from a server route with the private intake token;
-4. Fondation creates the customer/tenant preparation record and provider
-   checkout session;
-5. Vitrine redirects to the provider checkout URL returned by Fondation;
-6. Fondation reconciles payment through provider webhook or PayPal capture.
+3. Vitrine calls the internal checkout/order endpoint from a server route with
+   the private intake token;
+4. the internal service creates the preparation record and provider checkout
+   session;
+5. Vitrine redirects to the provider checkout URL returned by that service;
+6. payment completion is reconciled by provider webhooks or PayPal capture.
 
-Vitrine must never activate a subscription, invoice, license, tenant or ERP
-runtime directly.
+Vitrine must never activate a subscription, invoice, license or ERP runtime
+directly.

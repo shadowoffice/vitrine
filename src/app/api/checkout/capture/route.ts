@@ -12,7 +12,7 @@ const captureSchema = z.object({
   providerOrderId: z.string().trim().min(5).max(160),
 });
 
-type FondationCaptureResponse = {
+type ProviderCaptureResponse = {
   status?: string;
   safeSummary?: string;
   safeError?: string | null;
@@ -41,10 +41,10 @@ const readJson = async (request: Request): Promise<unknown> => {
   }
 };
 
-const readFondationResponse = async (response: Response): Promise<FondationCaptureResponse> => {
+const readProviderResponse = async (response: Response): Promise<ProviderCaptureResponse> => {
   try {
     const payload: unknown = await response.json();
-    return payload && typeof payload === "object" ? payload as FondationCaptureResponse : {};
+    return payload && typeof payload === "object" ? payload as ProviderCaptureResponse : {};
   } catch {
     return {};
   }
@@ -70,7 +70,7 @@ export async function POST(request: Request): Promise<Response> {
       {
         status: "failed",
         safeSummary: "Capture PayPal indisponible.",
-        safeError: "Fondation checkout capture n'est pas configuré.",
+        safeError: "La capture PayPal n'est pas configurée.",
       } satisfies CheckoutCaptureResponse,
       { status: 503 },
     );
@@ -84,7 +84,7 @@ export async function POST(request: Request): Promise<Response> {
     },
     body: JSON.stringify(parsed.data),
   });
-  const body = await readFondationResponse(response);
+  const body = await readProviderResponse(response);
   const result: CheckoutCaptureResponse = {
     status: response.ok && body.status === "captured" ? "captured" : "failed",
     safeSummary: body.paymentResult?.safeSummary ?? body.safeSummary ?? "Capture PayPal traitée.",
@@ -97,7 +97,7 @@ export async function POST(request: Request): Promise<Response> {
       {
         status: "failed",
         safeSummary: "Réponse capture invalide.",
-        safeError: "Fondation a retourné une réponse inattendue.",
+        safeError: "Le service de paiement a retourné une réponse inattendue.",
       } satisfies CheckoutCaptureResponse,
       { status: 502 },
     );

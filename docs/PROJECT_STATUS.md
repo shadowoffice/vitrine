@@ -1,61 +1,51 @@
 # Vitrine Project Status
 
-Last updated: 2026-07-20 America/Toronto.
+Last updated: 2026-07-21 America/Toronto.
 
 ## Executive Summary
 
-Vitrine is the public Fichero website at `https://fichero.cloud`. It now acts as
-the front door for the ProJD ERP offer instead of a static landing page. It
-explains the product split, shows pricing, links to the public ERP demo and
-starts purchase intent through Fondation.
+Vitrine is the public website at `https://fichero.cloud`. Its public role is to
+sell the ProJD construction ERP, show a credible product experience, present
+pricing and start purchase intent.
 
-The current PR is draft PR #1:
+The current branch is:
 
 ```text
-https://github.com/shadowoffice/vitrine/pull/1
+feat/projd-sales-vitrine
 ```
 
 ## Current State
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Public home page | done | Fichero/Fondation/ProJD positioning and primary CTAs exist. |
-| Product pages | done | `/projd`, `/fondation`, `/modules`, `/tarifs`, `/demo`, `/statut`. |
+| Public home page | redesigned | ProJD-only sales positioning with animated product hero and slider. |
+| Product pages | updated | `/projd`, `/modules`, `/tarifs`, `/demo`, `/statut` and `/commander`. |
+| Legacy route | redirected | `/fondation` now redirects to `/projd`. |
 | Purchase form | done | `/commander` collects company, contact, plan, seats, subdomain and provider. |
 | Pricing catalog | done | Shared pricing module has starter/croissance/plateforme plans. |
-| Stripe handoff | code ready | `/api/checkout` asks Fondation to create provider checkout. |
-| PayPal handoff | partial | Checkout and return capture route exist; real PayPal provider validation happens in Fondation. |
-| Local fallback intake | done | `/api/erp-orders` can write JSONL backup when Fondation intake is unavailable. |
+| Stripe handoff | code ready | `/api/checkout` asks the internal provider bridge to create checkout. |
+| PayPal handoff | partial | Checkout and return capture route exist; real provider validation remains. |
+| Local fallback intake | done | `/api/erp-orders` can write JSONL backup when the provider bridge is unavailable. |
 | Analytics | basic | First-party no-cookie endpoint exists. No dashboard yet. |
 | Deployment | deployed previously | Docker service `fichero-vitrine` runs on port `3103`; NPM routes `fichero.cloud` to it. |
-| Documentation | improving | README, `AGENTS.md`, `OPENCLAW.md` and status docs now exist. |
+| Documentation | updated | README, project status, architecture and roadmap align with ProJD sales positioning. |
 
-## Current PR Contents
-
-Branch:
-
-```text
-feat/vitrine-public-purchase-flow
-```
-
-Commit:
-
-```text
-8f08062 feat: add Fichero public purchase flow
-```
+## Current Branch Contents
 
 Scope:
 
-- public pages and SEO metadata;
-- reusable header, CTA, ERP preview and analytics components;
-- pricing and order schemas;
-- `/commander` purchase form;
-- `/api/checkout` and `/api/checkout/capture`;
-- `/api/erp-orders` fallback intake;
-- Docker Compose Fondation integration environment;
-- repo-local agent and OpenClaw workflow docs.
+- ProJD sales home page;
+- animated product hero and professional slider;
+- updated public copy across product, modules, pricing, status, order and
+  payment-return pages;
+- public removal of the old platform-control-plane message;
+- reusable slider component;
+- refreshed README and docs;
+- sitemap removal for the legacy platform page.
 
-## Latest Validation
+## Validation
+
+Run before opening or updating a PR:
 
 ```bash
 npm run lint
@@ -64,29 +54,22 @@ npm run build
 git diff --check
 ```
 
-Latest build generated static/dynamic routes for:
+Recommended visual smoke:
 
 - `/`
-- `/commander`
-- `/demo`
-- `/fondation`
-- `/modules`
-- `/paiement/retour`
 - `/projd`
-- `/statut`
+- `/modules`
 - `/tarifs`
-- `/api/analytics`
-- `/api/checkout`
-- `/api/checkout/capture`
-- `/api/erp-orders`
-- `/healthz`
+- `/commander`
+- `/statut`
+- `/sitemap.xml`
 
 ## Known Blockers
 
 Vitrine can collect and submit purchase intent, but the real payment flow is
-only complete after Fondation provider validation is complete.
+only complete after provider validation is complete.
 
-Blocked by Fondation provider secrets:
+Blocked by provider configuration:
 
 - Stripe secret key
 - Stripe webhook secret
@@ -96,11 +79,11 @@ Blocked by Fondation provider secrets:
 
 ## Next Recommended Work
 
-1. Merge and deploy PR #1.
-2. Smoke `https://fichero.cloud/commander` after deploy.
-3. Configure Fondation provider secrets and webhooks.
-4. Run a real sandbox purchase from Vitrine through Fondation.
-5. Add a small operator-facing analytics/status report for orders and failed
-   checkout attempts.
-6. Add final product screenshots or generated visual assets once the ERP demo
-   content is stable.
+1. Review and merge the ProJD sales redesign PR.
+2. Rebuild and redeploy `fichero-vitrine`.
+3. Smoke `https://fichero.cloud/`, `/commander`, `/tarifs` and `/healthz`.
+4. Configure provider secrets and webhooks.
+5. Run a real sandbox purchase from Vitrine through the provider bridge.
+6. Add legal/privacy/contact pages before heavier public traffic.
+7. Add OpenGraph images and real product screenshots when the ERP demo content
+   is stable.

@@ -23,7 +23,7 @@ const orderCopy = {
   notesLabel: "Notes d'achat",
   notesPlaceholder: "Contexte du client, modules visés, contraintes de domaine, facturation ou intégrations à prévoir.",
   consent:
-    "Je confirme vouloir acheter ProJD et j'autorise Fichero à créer le dossier client, préparer la licence et traiter le paiement.",
+    "Je confirme vouloir acheter ProJD et j'autorise l'équipe à préparer le dossier client, la licence et le paiement.",
   submitIdle: "Acheter ProJD",
   submitBusy: "Traitement",
   secondaryHref: demoErpUrl,

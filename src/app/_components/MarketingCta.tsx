@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { saasLoginUrl } from "@/lib/site-content";
+import { demoErpUrl } from "@/lib/site-content";
 
 type MarketingCtaProps = {
   eyebrow?: string;
@@ -18,8 +18,8 @@ export function MarketingCta({
   text,
   primaryHref = "/commander",
   primaryLabel = "Acheter ProJD",
-  secondaryHref = saasLoginUrl,
-  secondaryLabel = "Connexion SaaS",
+  secondaryHref = demoErpUrl,
+  secondaryLabel = "Visiter la démo",
 }: MarketingCtaProps) {
   return (
     <section className="contact-section" aria-label={title}>
@@ -32,9 +32,9 @@ export function MarketingCta({
         <Link className="button primary" href={primaryHref}>
           {primaryLabel}
         </Link>
-        <a className="button secondary" href={secondaryHref}>
+        <Link className="button secondary" href={secondaryHref}>
           {secondaryLabel}
-        </a>
+        </Link>
       </div>
     </section>
   );

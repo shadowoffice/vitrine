@@ -1,18 +1,18 @@
 import Link from "next/link";
 
-import { navigation, saasLoginUrl } from "@/lib/site-content";
+import { navigation } from "@/lib/site-content";
 
 type SiteHeaderProps = {
   ctaHref?: string;
   ctaLabel?: string;
 };
 
-export function SiteHeader({ ctaHref = saasLoginUrl, ctaLabel = "Connexion SaaS" }: SiteHeaderProps) {
+export function SiteHeader({ ctaHref = "/commander", ctaLabel = "Acheter ProJD" }: SiteHeaderProps) {
   return (
     <header className="site-header" aria-label="Navigation principale">
-      <Link className="brand" href="/" aria-label="Fichero accueil">
-        <span className="brand-mark">F</span>
-        <span>Fichero</span>
+      <Link className="brand" href="/" aria-label="ProJD accueil">
+        <span className="brand-mark">P</span>
+        <span>ProJD</span>
       </Link>
       <nav>
         {navigation.map((item) => (
@@ -21,9 +21,9 @@ export function SiteHeader({ ctaHref = saasLoginUrl, ctaLabel = "Connexion SaaS"
           </Link>
         ))}
       </nav>
-      <a className="header-cta" href={ctaHref}>
+      <Link className="header-cta" href={ctaHref}>
         {ctaLabel}
-      </a>
+      </Link>
     </header>
   );
 }

@@ -14,7 +14,7 @@ export function ErpPreview() {
           <span>ProJD</span>
           <strong>Projet Condos Saint-Laurent</strong>
         </div>
-        <span className="preview-badge">Tenant: erp.client-1.fichero.cloud</span>
+        <span className="preview-badge">Projet actif</span>
       </div>
 
       <div className="erp-preview-layout">
