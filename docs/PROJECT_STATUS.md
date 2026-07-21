@@ -18,8 +18,8 @@ feat/projd-sales-vitrine
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Public home page | redesigned | ProJD-only sales positioning with animated product hero and slider. |
-| Product pages | updated | `/projd`, `/modules`, `/tarifs`, `/demo`, `/statut` and `/commander`. |
+| Public home page | redesigned | Shorter ProJD-only sales page with construction-site visual direction. |
+| Product pages | updated | `/projd`, `/modules`, `/modules/[slug]`, `/tarifs`, `/demo`, `/statut` and `/commander`. |
 | Legacy route | redirected | `/fondation` now redirects to `/projd`. |
 | Purchase form | done | `/commander` collects company, contact, plan, seats, subdomain and provider. |
 | Pricing catalog | done | Shared pricing module has starter/croissance/plateforme plans. |
@@ -35,7 +35,8 @@ feat/projd-sales-vitrine
 Scope:
 
 - ProJD sales home page;
-- animated product hero and professional slider;
+- construction-site hero, simplified home page and professional slider;
+- dedicated detail pages for each ProJD module;
 - updated public copy across product, modules, pricing, status, order and
   payment-return pages;
 - public removal of the old platform-control-plane message;
@@ -59,6 +60,14 @@ Recommended visual smoke:
 - `/`
 - `/projd`
 - `/modules`
+- `/modules/projets`
+- `/modules/budgets`
+- `/modules/estimation-bid`
+- `/modules/documents`
+- `/modules/factures-ocr`
+- `/modules/partenaires`
+- `/modules/rapports`
+- `/modules/integrations`
 - `/tarifs`
 - `/commander`
 - `/statut`

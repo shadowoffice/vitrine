@@ -14,12 +14,12 @@ export default function ModulesPage() {
     <main>
       <SiteHeader ctaHref="/commander" ctaLabel="Acheter ProJD" />
 
-      <section className="page-hero">
-        <p className="eyebrow">Modules</p>
-        <h1>Modules ProJD</h1>
+      <section className="page-hero construction-page-hero">
+        <p className="eyebrow">Modules ProJD</p>
+        <h1>Les blocs ERP du chantier</h1>
         <p>
-          Les modules suivent les responsabilités réelles d’une entreprise de construction:
-          projet, budget, estimation, partenaires, documents, factures et rapports.
+          Chaque module couvre une responsabilité concrète: suivre un projet, contrôler les coûts,
+          lancer un appel d’offres, classer les documents ou valider les factures.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href="/commander">
@@ -32,20 +32,29 @@ export default function ModulesPage() {
       </section>
 
       <section className="section">
+        <div className="section-heading compact-heading">
+          <p className="eyebrow">Choisir sans se perdre</p>
+          <h2>Commencer par les modules qui enlèvent le plus de friction.</h2>
+          <p>
+            Les pages détaillées restent courtes: problème chantier, fonctions incluses et parcours
+            de mise en route.
+          </p>
+        </div>
         <div className="module-detail-grid">
           {modules.map((module) => (
-            <article className="card module-detail" key={module.name}>
-              <span>{module.name}</span>
+            <Link className="card module-detail link-card module-summary-card" href={`/modules/${module.slug}`} key={module.slug}>
+              <span>{module.eyebrow}</span>
               <h2>{module.name}</h2>
               <p>{module.text}</p>
-            </article>
+              <small>Lire le module</small>
+            </Link>
           ))}
         </div>
       </section>
 
       <MarketingCta
-        title="Choisir les bons modules pour démarrer"
-        text="L'achat sert à sélectionner les modules utiles maintenant et ceux à activer plus tard."
+        title="Composer un premier périmètre ProJD"
+        text="Le bon départ est souvent simple: projets, budgets, partenaires, documents et factures, puis les autres modules selon le rythme de l'équipe."
         primaryHref="/commander"
         primaryLabel="Acheter ProJD"
       />
