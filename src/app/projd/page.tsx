@@ -4,7 +4,14 @@ import { ErpPreview } from "../_components/ErpPreview";
 import { MarketingCta } from "../_components/MarketingCta";
 import { ProductShowcaseSlider } from "../_components/ProductShowcaseSlider";
 import { SiteHeader } from "../_components/SiteHeader";
-import { demoErpUrl, decisionCards, integrations, modules } from "@/lib/site-content";
+import {
+  decisionCards,
+  demoErpUrl,
+  deploymentSteps,
+  integrations,
+  modules,
+  salesCapabilities,
+} from "@/lib/site-content";
 
 export const metadata = {
   title: "ProJD",
@@ -12,23 +19,24 @@ export const metadata = {
 };
 
 const productHighlights = [
-  "Suivi projet, budget, engagements et coûts réels.",
-  "Assistant BID pour sélectionner, inviter, relancer et suivre les partenaires.",
-  "Documents Procore et SharePoint avec politiques de synchronisation.",
-  "Factures et OCR avec validation humaine avant posting.",
+  "Suivi projet, budget, engagements, documents, demandes et coûts réels.",
+  "Appels d'offres avec lots, invitations, relances et réponses sous-traitants.",
+  "Portail collaboratif pour partager documents, statuts, fichiers et suivis.",
+  "API et instance ProJD Docker isolée pour chaque compagnie cliente.",
 ];
 
 export default function ProjdPage() {
   return (
     <main>
-      <SiteHeader ctaHref="/commander" ctaLabel="Acheter ProJD" />
+      <SiteHeader ctaHref="/commander" ctaLabel="Commander ProJD" />
 
       <section className="page-hero">
-        <p className="eyebrow">Produit ERP</p>
-        <h1>ProJD pour la construction</h1>
+        <p className="eyebrow">Produit ERP SaaS</p>
+        <h1>Vendre ProJD aux compagnies de construction</h1>
         <p>
-          ProJD rassemble projets, budgets, estimation, appels d’offres, factures, documents et
-          rapports dans une interface pensée pour les entrepreneurs québécois.
+          ProJD rassemble projets, suivis, budgets, appels d&apos;offres, sous-traitants, portail,
+          documents, factures, API et instance dédiée dans une offre claire pour les entrepreneurs
+          québécois.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href={demoErpUrl}>
@@ -42,8 +50,8 @@ export default function ProjdPage() {
 
       <section className="section two-column-section">
         <div>
-          <p className="eyebrow">Workflow métier</p>
-          <h2>Un ERP conçu autour du cycle construction.</h2>
+          <p className="eyebrow">Offre commerciale</p>
+          <h2>Une plateforme de travail pour projets et partenaires.</h2>
           <ul className="check-list">
             {productHighlights.map((item) => (
               <li key={item}>{item}</li>
@@ -51,6 +59,26 @@ export default function ProjdPage() {
           </ul>
         </div>
         <ErpPreview />
+      </section>
+
+      <section className="section capability-section">
+        <div className="section-heading">
+          <p className="eyebrow">Fonctions à vendre</p>
+          <h2>Tout ce qu&apos;une compagnie veut voir avant d&apos;acheter.</h2>
+          <p>
+            Le discours doit montrer la valeur terrain: collaborer avec les sous-traitants,
+            garder les documents au bon endroit, suivre les projets et connecter l&apos;ERP aux outils
+            existants.
+          </p>
+        </div>
+        <div className="capability-grid">
+          {salesCapabilities.map((capability) => (
+            <article className="card capability-card" key={capability.title}>
+              <h3>{capability.title}</h3>
+              <p>{capability.text}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="section product-showcase-section">
@@ -64,10 +92,10 @@ export default function ProjdPage() {
       <section className="section">
         <div className="section-heading">
           <p className="eyebrow">Modules ProJD</p>
-          <h2>Les blocs qui forment le coeur de l’ERP.</h2>
+          <h2>Les blocs qui forment le coeur de l&apos;ERP.</h2>
         </div>
         <div className="module-grid">
-          {modules.slice(0, 6).map((module) => (
+          {modules.slice(0, 8).map((module) => (
             <Link key={module.slug} href={`/modules/${module.slug}`}>
               <strong>{module.name}</strong>
               <span>{module.text}</span>
@@ -79,13 +107,28 @@ export default function ProjdPage() {
       <section className="section">
         <div className="section-heading">
           <p className="eyebrow">Équipes</p>
-          <h2>Une même base de données, plusieurs lectures métier.</h2>
+          <h2>Un ERP interne, un portail externe, des accès contrôlés.</h2>
         </div>
         <div className="decision-grid">
           {decisionCards.map((card) => (
             <article className="card decision-card" key={card.title}>
               <span>{card.title}</span>
               <p>{card.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section deployment-section">
+        <div className="section-heading">
+          <p className="eyebrow">Déploiement</p>
+          <h2>Chaque vente devient une instance ProJD préparée par Fondation.</h2>
+        </div>
+        <div className="deployment-grid">
+          {deploymentSteps.map((step, index) => (
+            <article className="deployment-card" key={step}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <p>{step}</p>
             </article>
           ))}
         </div>
@@ -107,12 +150,12 @@ export default function ProjdPage() {
       </section>
 
       <MarketingCta
-        title="Acheter ProJD pour une première équipe"
-        text="La démo publique donne un aperçu immédiat. Le formulaire d'achat sert ensuite à choisir le forfait, le nombre d'utilisateurs et le contexte projet."
+        title="Commander une instance ProJD"
+        text="La démo publique donne un aperçu immédiat. Le formulaire d'achat sert ensuite à choisir le forfait, les utilisateurs, les modules, le portail et le contexte de déploiement."
         primaryHref={demoErpUrl}
         primaryLabel="Visiter la démo publique"
         secondaryHref="/commander"
-        secondaryLabel="Acheter ProJD"
+        secondaryLabel="Commander ProJD"
       />
     </main>
   );

@@ -3,7 +3,13 @@
 import { useId, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 
-import { isCheckoutResponse, type CheckoutResponse } from "@/lib/erp-order";
+import {
+  ficheroErpDomainSuffix,
+  isCheckoutResponse,
+  normalizeDesiredErpPrefix,
+  normalizePromoCode,
+  type CheckoutResponse,
+} from "@/lib/erp-order";
 import {
   buildPricingCart,
   formatMoney,
@@ -23,12 +29,20 @@ const orderCopy = {
   notesLabel: "Notes d'achat",
   notesPlaceholder: "Contexte du client, modules visés, contraintes de domaine, facturation ou intégrations à prévoir.",
   consent:
-    "Je confirme vouloir acheter ProJD et j'autorise l'équipe à préparer le dossier client, la licence et le paiement.",
-  submitIdle: "Acheter ProJD",
+    "Je confirme vouloir commander ProJD et j'autorise l'équipe à préparer le dossier client, la licence et l'activation.",
+  submitIdle: "Commander ProJD",
   submitBusy: "Traitement",
   secondaryHref: demoErpUrl,
   secondaryLabel: "Visiter la démo publique",
 } as const;
+
+const checkoutProviderLabel = (provider: CheckoutResponse["provider"]): string => {
+  if (provider === "promo_code") {
+    return "Code promo";
+  }
+
+  return provider === "stripe" ? "Stripe" : "PayPal";
+};
 
 const getFormText = (formData: FormData, key: string): string => {
   const value = formData.get(key);
@@ -37,6 +51,8 @@ const getFormText = (formData: FormData, key: string): string => {
 
 const toOrderPayload = (formData: FormData) => {
   const estimatedUsers = getFormText(formData, "estimatedUsers");
+  const desiredSubdomain = normalizeDesiredErpPrefix(getFormText(formData, "desiredSubdomain"));
+  const promoCode = normalizePromoCode(getFormText(formData, "promoCode"));
   return {
     requestType: getFormText(formData, "requestType"),
     paymentProvider: getFormText(formData, "paymentProvider"),
@@ -44,9 +60,22 @@ const toOrderPayload = (formData: FormData) => {
     contactName: getFormText(formData, "contactName"),
     email: getFormText(formData, "email"),
     phone: getFormText(formData, "phone"),
+    businessAddressLine1: getFormText(formData, "businessAddressLine1"),
+    businessAddressLine2: getFormText(formData, "businessAddressLine2"),
+    businessCity: getFormText(formData, "businessCity"),
+    businessProvince: getFormText(formData, "businessProvince"),
+    businessPostalCode: getFormText(formData, "businessPostalCode"),
+    businessCountry: getFormText(formData, "businessCountry"),
+    gstNumber: getFormText(formData, "gstNumber"),
+    qstNumber: getFormText(formData, "qstNumber"),
+    businessRegistrationNumber: getFormText(formData, "businessRegistrationNumber"),
+    website: getFormText(formData, "website"),
+    industry: getFormText(formData, "industry"),
+    companySize: getFormText(formData, "companySize"),
     plan: getFormText(formData, "plan"),
     estimatedUsers: estimatedUsers ? Number(estimatedUsers) : undefined,
-    desiredSubdomain: getFormText(formData, "desiredSubdomain"),
+    desiredSubdomain: desiredSubdomain || undefined,
+    promoCode: promoCode || undefined,
     message: getFormText(formData, "message"),
     acceptsContact: formData.get("acceptsContact") === "on",
   };
@@ -62,10 +91,23 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
   const [planCode, setPlanCode] = useState<PricingPlanCode>(initialPlan.code);
   const [seatCount, setSeatCount] = useState(initialPlan.includedSeats);
   const [paymentProvider, setPaymentProvider] = useState<"stripe" | "paypal">("stripe");
+  const [desiredDomainInput, setDesiredDomainInput] = useState("");
+  const [promoCodeInput, setPromoCodeInput] = useState("");
   const baseId = useId();
   const disabled = state.status === "submitting";
   const copy = orderCopy;
   const cart = useMemo(() => buildPricingCart(planCode, seatCount), [planCode, seatCount]);
+  const normalizedPromoCode = useMemo(() => normalizePromoCode(promoCodeInput), [promoCodeInput]);
+  const hasPromoCode = normalizedPromoCode.length >= 4;
+  const promoPreviewDiscountCents = hasPromoCode ? cart.dueTodayCents : 0;
+  const dueTodayPreviewCents = cart.dueTodayCents - promoPreviewDiscountCents;
+  const normalizedDesiredPrefix = useMemo(
+    () => normalizeDesiredErpPrefix(desiredDomainInput),
+    [desiredDomainInput],
+  );
+  const desiredDomainPreview = normalizedDesiredPrefix
+    ? `${normalizedDesiredPrefix}.${ficheroErpDomainSuffix}`
+    : `client1.${ficheroErpDomainSuffix}`;
 
   const statusMessage = useMemo(() => {
     if (state.status === "submitting") {
@@ -77,6 +119,10 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
     }
 
     if (state.status === "success") {
+      if (state.response.status === "promo_activated") {
+        return `${state.response.safeSummary} Aucun paiement externe à faire.`;
+      }
+
       return `${state.response.safeSummary} Redirection vers le paiement...`;
     }
 
@@ -95,11 +141,24 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
         body: JSON.stringify(payload),
       });
       const body: unknown = await response.json();
-      if (!response.ok || !isCheckoutResponse(body) || body.status !== "created" || !body.checkoutUrl) {
+      if (!response.ok || !isCheckoutResponse(body)) {
         const message = isCheckoutResponse(body) && body.safeError
           ? body.safeError
           : "Le paiement n'a pas pu être préparé.";
         setState({ status: "error", message });
+        return;
+      }
+
+      if (body.status === "promo_activated") {
+        setState({ status: "success", response: body });
+        return;
+      }
+
+      if (body.status !== "created" || !body.checkoutUrl) {
+        setState({
+          status: "error",
+          message: body.safeError ?? "Le paiement n'a pas pu être préparé.",
+        });
         return;
       }
 
@@ -147,10 +206,92 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
           />
         </label>
         <label>
-          <span>Sous-domaine ERP</span>
-          <input name="desiredSubdomain" placeholder="ex: client-1" maxLength={80} disabled={disabled} />
+          <span>Préfixe ERP</span>
+          <input
+            name="desiredSubdomain"
+            placeholder="ex: client1"
+            maxLength={120}
+            value={desiredDomainInput}
+            onChange={(event) => setDesiredDomainInput(event.currentTarget.value)}
+            disabled={disabled}
+          />
+          <small className="field-hint">Domaine final: {desiredDomainPreview}</small>
         </label>
       </div>
+
+      <fieldset className="business-details">
+        <legend>Détails entreprise</legend>
+        <div className="form-grid">
+          <label className="field-wide">
+            <span>Adresse entreprise</span>
+            <input
+              name="businessAddressLine1"
+              autoComplete="address-line1"
+              required
+              maxLength={180}
+              disabled={disabled}
+            />
+          </label>
+          <label className="field-wide">
+            <span>Suite ou bureau</span>
+            <input name="businessAddressLine2" autoComplete="address-line2" maxLength={180} disabled={disabled} />
+          </label>
+          <label>
+            <span>Ville</span>
+            <input name="businessCity" autoComplete="address-level2" required maxLength={120} disabled={disabled} />
+          </label>
+          <label>
+            <span>Province</span>
+            <input
+              name="businessProvince"
+              autoComplete="address-level1"
+              required
+              maxLength={80}
+              defaultValue="Québec"
+              disabled={disabled}
+            />
+          </label>
+          <label>
+            <span>Code postal</span>
+            <input name="businessPostalCode" autoComplete="postal-code" required maxLength={24} disabled={disabled} />
+          </label>
+          <label>
+            <span>Pays</span>
+            <input
+              name="businessCountry"
+              autoComplete="country-name"
+              required
+              maxLength={80}
+              defaultValue="Canada"
+              disabled={disabled}
+            />
+          </label>
+          <label>
+            <span>TPS</span>
+            <input name="gstNumber" placeholder="123456789 RT0001" maxLength={40} disabled={disabled} />
+          </label>
+          <label>
+            <span>TVQ</span>
+            <input name="qstNumber" placeholder="1234567890 TQ0001" maxLength={40} disabled={disabled} />
+          </label>
+          <label>
+            <span>NEQ</span>
+            <input name="businessRegistrationNumber" maxLength={80} disabled={disabled} />
+          </label>
+          <label>
+            <span>Site web</span>
+            <input name="website" type="text" inputMode="url" maxLength={200} disabled={disabled} />
+          </label>
+          <label>
+            <span>Secteur</span>
+            <input name="industry" maxLength={120} disabled={disabled} />
+          </label>
+          <label>
+            <span>Taille</span>
+            <input name="companySize" placeholder="ex: 10-25" maxLength={80} disabled={disabled} />
+          </label>
+        </div>
+      </fieldset>
 
       <fieldset className="plan-picker">
         <legend>Forfait</legend>
@@ -177,6 +318,30 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
           </label>
         ))}
       </fieldset>
+
+      <section className="promo-panel" aria-labelledby={`${baseId}-promo-title`}>
+        <div>
+          <h3 id={`${baseId}-promo-title`}>Code promo</h3>
+          <p>Activation test, tenant gratuit ou essai contrôlé par Fondation.</p>
+        </div>
+        <label>
+          <span>Code promo</span>
+          <input
+            name="promoCode"
+            placeholder="Code promo"
+            maxLength={80}
+            value={promoCodeInput}
+            onChange={(event) => setPromoCodeInput(event.currentTarget.value.toUpperCase())}
+            autoComplete="off"
+            disabled={disabled}
+          />
+          <small className="field-hint">
+            {hasPromoCode
+              ? "Code promo prêt à être transmis."
+              : "Laisse vide pour payer avec Stripe ou PayPal."}
+          </small>
+        </label>
+      </section>
 
       <fieldset className="payment-picker">
         <legend>Paiement</legend>
@@ -223,9 +388,15 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
           <span>Mensuel</span>
           <strong>{formatMoney(cart.monthlySubtotalCents)}</strong>
         </div>
+        {hasPromoCode && (
+          <div className="cart-discount">
+            <span>Code promo</span>
+            <strong>-{formatMoney(promoPreviewDiscountCents)}</strong>
+          </div>
+        )}
         <div className="cart-total">
-          <span>Paiement initial</span>
-          <strong>{formatMoney(cart.dueTodayCents)}</strong>
+          <span>{hasPromoCode ? "À payer aujourd'hui" : "Paiement initial"}</span>
+          <strong>{formatMoney(dueTodayPreviewCents)}</strong>
         </div>
       </aside>
 
@@ -241,7 +412,7 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
 
       <div className="form-actions">
         <button className="button primary" type="submit" disabled={disabled}>
-          {disabled ? copy.submitBusy : copy.submitIdle}
+          {disabled ? copy.submitBusy : hasPromoCode ? "Commander avec code promo" : copy.submitIdle}
         </button>
         <a className="button secondary" href={copy.secondaryHref}>
           {copy.secondaryLabel}
@@ -264,7 +435,7 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
             )}
             <div>
               <dt>Paiement</dt>
-              <dd>{state.response.provider === "stripe" ? "Stripe" : "PayPal"}</dd>
+              <dd>{checkoutProviderLabel(state.response.provider)}</dd>
             </div>
           </dl>
         )}

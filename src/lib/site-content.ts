@@ -4,7 +4,7 @@ export const siteUrl = "https://fichero.cloud";
 export const demoErpUrl = "https://demo.erp.fichero.cloud/admin/login";
 
 export const mainMessage =
-  "Un ERP construction conçu pour les entrepreneurs du Québec: suivre les coûts, les lots, les documents et les factures sans perdre le fil du chantier.";
+  "Un ERP construction vendu comme service: chaque compagnie obtient son espace ProJD pour piloter projets, sous-traitants, appels d'offres, documents, coûts et suivis sans disperser le chantier.";
 
 export const navigation = [
   { label: "ProJD", href: "/projd" },
@@ -15,32 +15,33 @@ export const navigation = [
 ];
 
 export const indicators = [
-  { value: "QC", label: "construction Québec" },
-  { value: "BID", label: "lots et soumissions" },
-  { value: "$", label: "coûts engagés" },
-  { value: "OCR", label: "factures assistées" },
+  { value: "ERP", label: "instance dédiée par client" },
+  { value: "BID", label: "appels d'offres et relances" },
+  { value: "PORTAIL", label: "sous-traitants et clients" },
+  { value: "API", label: "intégrations contrôlées" },
 ];
 
 export const salesPainPoints = [
   {
-    title: "Le chantier en une lecture",
-    text: "Projets, budgets, lots, documents et factures restent reliés au bon dossier, au bon fournisseur et au bon code de coût.",
+    title: "Un vrai produit à vendre",
+    text: "ProJD se présente comme un ERP construction complet: projets, coûts, appels d'offres, documents, factures, partenaires, portail et API.",
   },
   {
-    title: "Moins de relances perdues",
-    text: "Les soumissions, validations et factures en attente ressortent clairement avant de devenir des urgences.",
+    title: "Collaboration sans chaos",
+    text: "Les sous-traitants peuvent recevoir les invitations, déposer des documents, répondre aux lots et suivre les demandes sans noyer l'équipe dans les courriels.",
   },
   {
-    title: "Simple à implanter",
-    text: "On démarre avec les modules utiles maintenant, puis on active le reste selon la maturité de l’équipe.",
+    title: "Instance isolée par compagnie",
+    text: "Chaque ERP est monté dans notre environnement avec son domaine, ses licences, ses sauvegardes et son cycle de mise en service.",
   },
 ];
 
 export const constructionSignals = [
   "Entrepreneurs généraux",
-  "Chargés de projet",
-  "Estimation et appels d'offres",
-  "Comptabilité construction",
+  "Gestion de projets",
+  "Sous-traitants",
+  "Appels d'offres",
+  "Documents et API",
 ];
 
 export const showcaseSlides = [
@@ -55,12 +56,12 @@ export const showcaseSlides = [
   },
   {
     key: "bid",
-    kicker: "Assistant BID",
-    title: "Soumissions, relances et réponses partenaires",
-    text: "Prépare les lots, cible les bons sous-traitants et suit les réponses sans perdre le contexte dans les courriels.",
+    kicker: "Appels d'offres",
+    title: "Lots, invitations et réponses sous-traitants",
+    text: "Prépare les lots, cible les bons sous-traitants, partage les documents utiles et suit les réponses sans perdre le contexte dans les courriels.",
     metric: "24",
     metricLabel: "soumissions actives",
-    tags: ["Lots", "Relances", "Comparatifs"],
+    tags: ["Lots", "Portail", "Comparatifs"],
   },
   {
     key: "invoice",
@@ -73,32 +74,66 @@ export const showcaseSlides = [
   },
   {
     key: "documents",
-    kicker: "Documents projet",
-    title: "Plans, contrats et photos rattachés au chantier",
-    text: "Les documents utiles restent accessibles depuis le projet et peuvent cohabiter avec Procore ou SharePoint.",
+    kicker: "Documents et API",
+    title: "Plans, contrats, fichiers et connecteurs",
+    text: "Les documents utiles restent accessibles depuis le projet, peuvent être partagés au portail et cohabitent avec Procore, SharePoint ou une API interne.",
     metric: "1 248",
     metricLabel: "documents indexés",
-    tags: ["Plans", "Contrats", "SharePoint"],
+    tags: ["Plans", "Partage", "API"],
   },
 ];
 
 export const decisionCards = [
   {
     title: "Direction",
-    text: "Une lecture claire des marges, coûts engagés, factures en attente et risques projet.",
+    text: "Une lecture claire des marges, coûts engagés, factures, contrats et risques projet.",
   },
   {
     title: "Chargés de projet",
-    text: "Un espace unique pour budget, documents, soumissions, fournisseurs et suivis.",
+    text: "Un espace unique pour budget, documents, soumissions, fournisseurs, suivis et décisions.",
   },
   {
-    title: "Estimation",
-    text: "Des lots d'appel d'offres structurés, des partenaires ciblés et des relances visibles.",
+    title: "Sous-traitants",
+    text: "Un portail pour recevoir les invitations, documents, demandes et réponses liées aux lots.",
   },
   {
-    title: "Comptabilité",
-    text: "Factures, validations et pièces justificatives reliées au bon projet avant traitement.",
+    title: "TI et intégrations",
+    text: "API, domaines, accès et instance ERP isolée pour connecter ProJD sans exposer le coeur plateforme.",
   },
+];
+
+export const salesCapabilities = [
+  {
+    title: "Gestion de projets",
+    text: "Tableau de bord projet, suivis, coûts, échéances, responsables et décisions importantes.",
+  },
+  {
+    title: "Appels d'offres",
+    text: "Lots, invitations, comparatifs, relances et réponses des sous-traitants dans un même flux.",
+  },
+  {
+    title: "Portail collaboratif",
+    text: "Espace externe pour partager documents, demandes, soumissions, statuts et informations de projet.",
+  },
+  {
+    title: "Documents et API",
+    text: "Partage documentaire, liens SharePoint/Procore et API pour connecter les données utiles.",
+  },
+  {
+    title: "Factures et coûts",
+    text: "Budgets, engagements, coûts réels, factures, validation et pièces justificatives.",
+  },
+  {
+    title: "ERP Docker par client",
+    text: "Chaque compagnie obtient son environnement ProJD monté, suivi, sauvegardé et administré par Fondation.",
+  },
+];
+
+export const deploymentSteps = [
+  "Qualification de la compagnie, des modules et du premier chantier.",
+  "Création du client, du domaine ERP et des licences dans Fondation.",
+  "Montage de l'instance ProJD dans notre environnement Docker.",
+  "Configuration des accès, sous-traitants, documents, API et sauvegardes.",
 ];
 
 export type ModuleSlug =
@@ -108,7 +143,9 @@ export type ModuleSlug =
   | "documents"
   | "factures-ocr"
   | "partenaires"
+  | "portail-collaboration"
   | "rapports"
+  | "api-deploiement"
   | "integrations";
 
 export type ModuleContent = {
@@ -279,6 +316,31 @@ export const modules = [
     related: ["estimation-bid", "projets", "documents"],
   },
   {
+    slug: "portail-collaboration",
+    name: "Portail collaboration",
+    eyebrow: "Sous-traitants et clients",
+    text: "Espace externe pour travailler avec les sous-traitants, partager les documents et suivre les réponses.",
+    summary:
+      "Le portail collaboration donne aux partenaires un accès cadré aux invitations, documents, demandes et réponses sans leur ouvrir tout l'ERP interne.",
+    audience: "Sous-traitants, clients, chargés de projet, estimation et administration.",
+    metric: "42",
+    metricLabel: "partenaires invités",
+    siteSignal: "Les réponses arrivent au bon lot avec les documents utiles.",
+    outcomes: [
+      "Partager seulement l'information nécessaire avec les partenaires.",
+      "Recevoir les réponses, fichiers et confirmations au bon endroit.",
+      "Réduire les relances manuelles et les versions de documents perdues.",
+    ],
+    features: [
+      "Accès externe par rôle et par projet.",
+      "Dépôt de documents, réponses et confirmations.",
+      "Lien direct avec lots, partenaires et suivis projet.",
+      "Historique clair des échanges importants.",
+    ],
+    workflow: ["Inviter le partenaire", "Partager les lots", "Recevoir la réponse", "Suivre la décision"],
+    related: ["estimation-bid", "documents", "partenaires"],
+  },
+  {
     slug: "rapports",
     name: "Rapports",
     eyebrow: "Pilotage",
@@ -302,6 +364,31 @@ export const modules = [
     ],
     workflow: ["Choisir la vue", "Filtrer le projet", "Repérer les écarts", "Partager le suivi"],
     related: ["budgets", "factures-ocr", "projets"],
+  },
+  {
+    slug: "api-deploiement",
+    name: "API et instance ERP",
+    eyebrow: "SaaS isolé",
+    text: "API contrôlée, domaine client, licences et instance ProJD Docker montée pour chaque compagnie.",
+    summary:
+      "Le module API et instance ERP explique comment ProJD est vendu comme un service: un environnement par compagnie, monté dans notre infrastructure, surveillé par Fondation.",
+    audience: "Direction, TI, opérations et responsables d'implantation.",
+    metric: "1",
+    metricLabel: "ERP dédié par client",
+    siteSignal: "Un espace ProJD prêt pour la compagnie, pas un accès partagé générique.",
+    outcomes: [
+      "Isoler chaque compagnie dans son propre contexte ERP.",
+      "Connecter les systèmes externes sans exposer les secrets plateforme.",
+      "Préparer domaines, sauvegardes, licences et mises à jour dès le départ.",
+    ],
+    features: [
+      "Instance ProJD Docker par client.",
+      "Domaine ERP, licences et configuration tenant.",
+      "API serveur pour intégrations validées.",
+      "Suivi Fondation pour santé, backups et provisioning.",
+    ],
+    workflow: ["Qualifier le besoin", "Créer le tenant", "Monter l'ERP", "Activer API et accès"],
+    related: ["integrations", "documents", "rapports"],
   },
   {
     slug: "integrations",
@@ -335,10 +422,10 @@ export const getModuleBySlug = (slug: string): ModuleContent | undefined =>
 
 export const workflow = [
   "Choisir le forfait",
-  "Configurer les projets",
-  "Importer les partenaires",
-  "Activer les modules",
-  "Suivre coûts et livrables",
+  "Qualifier les modules",
+  "Monter l'instance ERP",
+  "Activer portail et API",
+  "Suivre projets, coûts et partenaires",
 ];
 
 export const packages = pricingPlans.map((plan) => ({
@@ -357,15 +444,15 @@ export const packages = pricingPlans.map((plan) => ({
 export const integrations = [
   {
     name: "Procore",
-    text: "Rapprocher projets, photos, documents et références externes sans perdre le suivi financier ProJD.",
+    text: "Rapprocher projets, photos, documents et références externes sans perdre le suivi ERP ProJD.",
   },
   {
     name: "SharePoint",
     text: "Garder les bibliothèques existantes tout en attachant les documents utiles au bon projet.",
   },
   {
-    name: "Outlook",
-    text: "Préparer les invitations, relances BID et suivis fournisseurs depuis les workflows projet.",
+    name: "API ProJD",
+    text: "Connecter données projet, partenaires, documents et suivis par des endpoints serveur contrôlés.",
   },
 ];
 

@@ -3,8 +3,9 @@ import { ErpOrderForm } from "./ErpOrderForm";
 import { demoErpUrl } from "@/lib/site-content";
 
 export const metadata = {
-  title: "Acheter ProJD",
-  description: "Acheter ProJD et préparer un espace ERP construction pour une première équipe projet.",
+  title: "Commander ProJD",
+  description:
+    "Commander une instance ProJD ERP pour une compagnie de construction avec portail, modules et activation Fondation.",
 };
 
 type OrderPageProps = {
@@ -26,20 +27,22 @@ export default async function OrderPage({ searchParams }: OrderPageProps) {
 
       <section className="order-hero" aria-labelledby="order-title">
         <div>
-          <p className="eyebrow">Achat ERP</p>
-          <h1 id="order-title">Acheter ProJD</h1>
+          <p className="eyebrow">Commande ERP</p>
+          <h1 id="order-title">Commander une instance ProJD</h1>
           <p>
-            L’achat prépare l’espace ProJD, les licences et la première activation. Dès que le
-            paiement est confirmé, l’équipe peut cadrer le forfait, les utilisateurs et les modules
-            prioritaires.
+            La commande prépare l&apos;espace ProJD de la compagnie, les licences, le portail
+            collaboratif, les modules et la première activation. Un paiement Stripe ou PayPal
+            déclenche le flux fournisseur; un code promo Fondation valide active le tenant gratuit
+            comme une commande déjà payée.
           </p>
         </div>
         <div className="order-summary" aria-label="Processus de commande">
           <span>Client</span>
+          <span>Forfait</span>
+          <span>Portail et modules</span>
           <span>Paiement</span>
           <span>Licence</span>
-          <span>Espace ERP</span>
-          <span>Activation</span>
+          <span>ERP Docker</span>
         </div>
       </section>
 
@@ -49,8 +52,9 @@ export default async function OrderPage({ searchParams }: OrderPageProps) {
           <h2>Créer le bon dossier d’achat dès le départ</h2>
           <p>
             Le formulaire qualifie l’entreprise, le forfait, le nombre d’utilisateurs et le
-            sous-domaine souhaité, par exemple client-1 ou client-2. Ces informations accélèrent la
-            préparation du premier espace ProJD.
+            préfixe ERP souhaité, par exemple client1 pour client1.erp.fichero.cloud. Fondation
+            pourra ensuite préparer le tenant, le domaine, les accès, les licences, les sauvegardes
+            et les prochaines étapes d&apos;intégration.
           </p>
         </div>
         <ErpOrderForm initialPlanCode={initialPlanCode} />

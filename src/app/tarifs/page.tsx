@@ -6,30 +6,31 @@ import { packages } from "@/lib/site-content";
 
 export const metadata = {
   title: "Tarifs et forfaits",
-  description: "Forfaits ProJD pour lancer un ERP construction avec projets, budgets, soumissions et factures.",
+  description:
+    "Forfaits ProJD pour lancer un ERP construction avec projets, portail, appels d'offres, documents, API et instance dédiée.",
 };
 
 const commercialNotes = [
-  "Les prix finaux dépendent du nombre d'utilisateurs, des intégrations et du niveau d'accompagnement.",
-  "Un groupe pilote permet de valider les workflows avant une activation plus large.",
-  "Les modules sensibles comme factures, OCR et intégrations sont activés progressivement.",
+  "Les prix finaux dépendent du nombre d'utilisateurs, du portail, des intégrations et du niveau d'accompagnement.",
+  "Un groupe pilote permet de valider les workflows projets et sous-traitants avant une activation plus large.",
+  "Les modules sensibles comme factures, API, documents et intégrations sont activés progressivement.",
 ];
 
 export default function PricingPage() {
   return (
     <main>
-      <SiteHeader ctaHref="/commander" ctaLabel="Acheter ProJD" />
+      <SiteHeader ctaHref="/commander" ctaLabel="Commander ProJD" />
 
       <section className="page-hero">
         <p className="eyebrow">Tarifs</p>
         <h1>Forfaits ProJD</h1>
         <p>
           Les forfaits donnent un point de départ clair pour acheter ProJD, choisir les
-          utilisateurs et préparer l’implantation.
+          utilisateurs, cadrer le portail et préparer l&apos;instance ERP de la compagnie.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href="/commander">
-            Acheter ProJD
+            Commander ProJD
           </Link>
           <Link className="button secondary" href="/projd">
             Voir ProJD
@@ -64,7 +65,8 @@ export default function PricingPage() {
           <h2>Un devis propre vient après la qualification.</h2>
           <p>
             ProJD doit d’abord comprendre le contexte chantier, les outils déjà en place, les
-            contraintes de domaine et la maturité des données.
+            contraintes de domaine, les sous-traitants à inviter, les besoins API et la maturité
+            des données.
           </p>
         </div>
         <ul className="check-list">
@@ -76,9 +78,9 @@ export default function PricingPage() {
 
       <MarketingCta
         title="Acheter le forfait adapté"
-        text="Le formulaire d'achat donne assez de contexte pour préparer l'espace ProJD, les licences et l'accompagnement."
+        text="Le formulaire d'achat donne assez de contexte pour préparer l'espace ProJD, les licences, le portail, l'instance Docker et l'accompagnement."
         primaryHref="/commander"
-        primaryLabel="Acheter ProJD"
+        primaryLabel="Commander ProJD"
       />
     </main>
   );
