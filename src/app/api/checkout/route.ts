@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import {
+  checkoutProviders,
   erpOrderSchema,
   formatOrderIssues,
   isCheckoutResponse,
@@ -15,7 +16,7 @@ type ProviderCheckoutResponse = {
   status?: string;
   safeSummary?: string;
   safeError?: string | null;
-  provider?: "stripe" | "paypal";
+  provider?: CheckoutResponse["provider"];
   checkoutUrl?: string | null;
   providerSessionId?: string | null;
   orderRef?: string | null;
@@ -27,6 +28,20 @@ type ProviderCheckoutResponse = {
   amountCents?: number;
   monthlyPriceCents?: number;
   currency?: string;
+};
+
+type PaymentProvider = "stripe" | "paypal";
+
+const isCheckoutProvider = (value: unknown): value is CheckoutResponse["provider"] =>
+  typeof value === "string" && (checkoutProviders as readonly string[]).includes(value);
+
+const payloadPaymentProvider = (payload: unknown): PaymentProvider => {
+  if (payload && typeof payload === "object") {
+    const provider = (payload as { provider?: unknown }).provider;
+    return provider === "paypal" ? "paypal" : "stripe";
+  }
+
+  return "stripe";
 };
 
 const orderRef = (): string => {
@@ -83,12 +98,34 @@ const submitCheckout = async (payload: unknown): Promise<CheckoutResponse | null
   const fallbackRef = typeof (payload as { orderRef?: unknown }).orderRef === "string"
     ? (payload as { orderRef: string }).orderRef
     : orderRef();
+  const fallbackProvider = payloadPaymentProvider(payload);
+  const provider = isCheckoutProvider(body.provider) ? body.provider : null;
 
-  if (!response.ok || body.status !== "created" || !body.checkoutUrl || !body.provider) {
+  if (response.ok && body.status === "promo_activated" && provider === "promo_code") {
+    return {
+      status: "promo_activated",
+      orderRef: body.orderRef ?? fallbackRef,
+      provider,
+      checkoutUrl: null,
+      providerSessionId: body.providerSessionId ?? null,
+      safeSummary: body.safeSummary ?? "Commande activée par code promo.",
+      safeError: body.safeError ?? null,
+      customerId: body.customerId ?? null,
+      tenantId: body.tenantId ?? null,
+      provisioningRequestId: body.provisioningRequestId ?? null,
+      tenantSlug: body.tenantSlug ?? null,
+      primaryDomain: body.primaryDomain ?? null,
+      amountCents: body.amountCents,
+      monthlyPriceCents: body.monthlyPriceCents,
+      currency: body.currency,
+    };
+  }
+
+  if (!response.ok || body.status !== "created" || !body.checkoutUrl || !provider || provider === "promo_code") {
     return {
       status: "failed",
       orderRef: body.orderRef ?? fallbackRef,
-      provider: (payload as { provider?: "stripe" | "paypal" }).provider ?? "stripe",
+      provider: provider ?? fallbackProvider,
       checkoutUrl: null,
       providerSessionId: body.providerSessionId ?? null,
       safeSummary: body.safeSummary ?? "Checkout non créé.",
@@ -107,7 +144,7 @@ const submitCheckout = async (payload: unknown): Promise<CheckoutResponse | null
   return {
     status: "created",
     orderRef: body.orderRef ?? fallbackRef,
-    provider: body.provider,
+    provider,
     checkoutUrl: body.checkoutUrl,
     providerSessionId: body.providerSessionId ?? null,
     safeSummary: body.safeSummary ?? "Checkout créé.",
@@ -149,11 +186,26 @@ export async function POST(request: Request): Promise<Response> {
     contactName: parsed.data.contactName,
     email: parsed.data.email,
     phone: parsed.data.phone,
+    businessAddressLine1: parsed.data.businessAddressLine1,
+    businessAddressLine2: parsed.data.businessAddressLine2,
+    businessCity: parsed.data.businessCity,
+    businessProvince: parsed.data.businessProvince,
+    businessPostalCode: parsed.data.businessPostalCode,
+    businessCountry: parsed.data.businessCountry,
+    gstNumber: parsed.data.gstNumber,
+    qstNumber: parsed.data.qstNumber,
+    businessRegistrationNumber: parsed.data.businessRegistrationNumber,
+    website: parsed.data.website,
+    industry: parsed.data.industry,
+    companySize: parsed.data.companySize,
     plan: parsed.data.plan,
     seatCount: cart.seatCount,
     desiredSubdomain: parsed.data.desiredSubdomain,
+    promoCode: parsed.data.promoCode,
     message: parsed.data.message,
-    source: `vitrine:fichero.cloud:checkout:${parsed.data.paymentProvider}`,
+    source: parsed.data.promoCode
+      ? "vitrine:fichero.cloud:checkout:promo_code"
+      : `vitrine:fichero.cloud:checkout:${parsed.data.paymentProvider}`,
     orderRef: ref,
     successUrl:
       parsed.data.paymentProvider === "stripe"
@@ -177,5 +229,8 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  return Response.json(result, { status: result.status === "created" ? 201 : 422 });
+  return Response.json(
+    result,
+    { status: result.status === "created" ? 201 : result.status === "promo_activated" ? 202 : 422 },
+  );
 }

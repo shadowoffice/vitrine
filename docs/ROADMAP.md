@@ -9,6 +9,9 @@
   - `/`
   - `/projd`
   - `/modules`
+  - `/modules/projets`
+  - `/modules/budgets`
+  - `/modules/estimation-bid`
   - `/tarifs`
   - `/commander`
   - `/demo`
@@ -44,8 +47,8 @@ Depends on Stripe/PayPal configuration in the internal provider bridge.
 
 ## Priority 5 - SEO And Content Depth
 
-- Expand module pages into deeper ProJD construction workflows.
-- Add pages for estimation, documents, invoices, partners and reporting.
+- Add richer examples and screenshots to the module pages as the ERP demo data
+  becomes stable.
 - Add OpenGraph images.
 - Add richer schema metadata where appropriate.
 - Keep sitemap and robots aligned with public launch state.

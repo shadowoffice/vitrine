@@ -7,7 +7,7 @@ type SiteHeaderProps = {
   ctaLabel?: string;
 };
 
-export function SiteHeader({ ctaHref = "/commander", ctaLabel = "Acheter ProJD" }: SiteHeaderProps) {
+export function SiteHeader({ ctaHref = "/commander", ctaLabel = "Commander ProJD" }: SiteHeaderProps) {
   return (
     <header className="site-header" aria-label="Navigation principale">
       <Link className="brand" href="/" aria-label="ProJD accueil">

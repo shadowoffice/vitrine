@@ -5,6 +5,7 @@ const budgetRows = [
 ];
 
 const bidItems = ["Électricité", "Ventilation", "Revêtements", "Toiture"];
+const portalItems = ["Documents partagés", "Réponses reçues", "Demandes en attente", "Accès API"];
 
 export function ErpPreview() {
   return (
@@ -12,9 +13,9 @@ export function ErpPreview() {
       <div className="erp-preview-topbar">
         <div>
           <span>ProJD</span>
-          <strong>Projet Condos Saint-Laurent</strong>
+          <strong>Construction Nord ERP</strong>
         </div>
-        <span className="preview-badge">Projet actif</span>
+        <span className="preview-badge">Instance dédiée</span>
       </div>
 
       <div className="erp-preview-layout">
@@ -22,23 +23,24 @@ export function ErpPreview() {
           <span className="active">Vue projet</span>
           <span>Budget</span>
           <span>Appels d’offres</span>
+          <span>Portail</span>
           <span>Documents</span>
-          <span>Factures</span>
+          <span>API</span>
         </aside>
 
         <div className="preview-main">
           <div className="preview-metrics">
             <article>
-              <span>Budget engagé</span>
-              <strong>68 %</strong>
+              <span>Projets actifs</span>
+              <strong>18</strong>
             </article>
             <article>
               <span>Soumissions</span>
               <strong>24</strong>
             </article>
             <article>
-              <span>Factures à valider</span>
-              <strong>7</strong>
+              <span>Partenaires portail</span>
+              <strong>42</strong>
             </article>
           </div>
 
@@ -74,7 +76,7 @@ export function ErpPreview() {
           <div className="preview-footer-grid">
             <div className="preview-panel">
               <div className="preview-panel-heading">
-                <strong>Assistant BID</strong>
+                <strong>Appels d&apos;offres</strong>
                 <span>4 lots actifs</span>
               </div>
               <div className="bid-list">
@@ -85,12 +87,12 @@ export function ErpPreview() {
             </div>
             <div className="preview-panel sync-panel">
               <div className="preview-panel-heading">
-                <strong>Intégrations</strong>
-                <span>Synchronisation contrôlée</span>
+                <strong>Portail et API</strong>
+                <span>Collaboration contrôlée</span>
               </div>
-              <span>Procore</span>
-              <span>SharePoint</span>
-              <span>Outlook</span>
+              {portalItems.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
             </div>
           </div>
         </div>
