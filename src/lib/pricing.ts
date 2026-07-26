@@ -35,8 +35,13 @@ export const pricingPlans: PricingPlan[] = [
     setupFeeCents: 75000,
     includedSeats: 3,
     extraSeatMonthlyCents: 3900,
-    description: "Pour lancer une première équipe projet avec les bases de suivi ProJD.",
-    items: ["3 utilisateurs inclus", "Espace ProJD initial", "Licence de départ", "Plan d'implantation"],
+    description: "Pour valider ProJD avec une première équipe et un périmètre de travail ciblé.",
+    items: [
+      "3 accès inclus",
+      "1 équipe pilote",
+      "Modules essentiels",
+      "Plan d’implantation accompagné",
+    ],
   },
   {
     code: "croissance",
@@ -46,8 +51,13 @@ export const pricingPlans: PricingPlan[] = [
     setupFeeCents: 150000,
     includedSeats: 10,
     extraSeatMonthlyCents: 3900,
-    description: "Pour centraliser les opérations d'une entreprise de construction active.",
-    items: ["10 utilisateurs inclus", "ERP multi-projets", "Routage domaines", "Support implantation"],
+    description: "Pour réunir plusieurs projets, l’estimation et les opérations courantes.",
+    items: [
+      "10 accès inclus",
+      "Gestion multi-projets",
+      "BID et portail partenaires",
+      "Cadrage des intégrations",
+    ],
     featured: true,
   },
   {
@@ -58,8 +68,13 @@ export const pricingPlans: PricingPlan[] = [
     setupFeeCents: 300000,
     includedSeats: 25,
     extraSeatMonthlyCents: 3500,
-    description: "Pour plusieurs équipes, projets actifs et flux d'intégration.",
-    items: ["25 utilisateurs inclus", "Plusieurs groupes projet", "Audit complet", "Connecteurs avancés"],
+    description: "Pour plusieurs équipes et un déploiement ERP plus large.",
+    items: [
+      "25 accès inclus",
+      "Plusieurs équipes métier",
+      "API ERP sur activation",
+      "Plan de déploiement avancé",
+    ],
   },
 ];
 

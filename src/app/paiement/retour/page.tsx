@@ -1,9 +1,14 @@
-import { SiteHeader } from "../../_components/SiteHeader";
+import type { Metadata } from "next";
+
 import { PaymentReturnClient } from "./PaymentReturnClient";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Retour paiement ProJD",
   description: "Confirmation du paiement ProJD et préparation de l'activation.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 type PaymentReturnPageProps = {
@@ -21,8 +26,7 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
   const params = searchParams ? await searchParams : {};
 
   return (
-    <main>
-      <SiteHeader ctaHref="/commander" ctaLabel="Acheter ProJD" />
+    <main className="site-main">
       <PaymentReturnClient
         provider={firstQueryValue(params.provider)}
         paymentStatus={firstQueryValue(params.status)}

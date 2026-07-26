@@ -150,7 +150,14 @@ export const isErpOrderResponse = (value: unknown): value is ErpOrderResponse =>
   }
 
   const candidate = value as Partial<ErpOrderResponse>;
-  return typeof candidate.status === "string" && typeof candidate.orderRef === "string";
+  return (
+    (candidate.status === "accepted" ||
+      candidate.status === "local_backup" ||
+      candidate.status === "failed") &&
+    typeof candidate.orderRef === "string" &&
+    typeof candidate.safeSummary === "string" &&
+    (candidate.safeError === null || typeof candidate.safeError === "string")
+  );
 };
 
 export const isCheckoutResponse = (value: unknown): value is CheckoutResponse => {
@@ -159,7 +166,19 @@ export const isCheckoutResponse = (value: unknown): value is CheckoutResponse =>
   }
 
   const candidate = value as Partial<CheckoutResponse>;
-  return typeof candidate.status === "string" && typeof candidate.orderRef === "string";
+  return (
+    (candidate.status === "created" ||
+      candidate.status === "promo_activated" ||
+      candidate.status === "local_backup" ||
+      candidate.status === "failed") &&
+    typeof candidate.orderRef === "string" &&
+    (candidate.provider === "stripe" ||
+      candidate.provider === "paypal" ||
+      candidate.provider === "promo_code") &&
+    (candidate.checkoutUrl === null || typeof candidate.checkoutUrl === "string") &&
+    typeof candidate.safeSummary === "string" &&
+    (candidate.safeError === null || typeof candidate.safeError === "string")
+  );
 };
 
 export const isCheckoutCaptureResponse = (value: unknown): value is CheckoutCaptureResponse => {
@@ -168,5 +187,9 @@ export const isCheckoutCaptureResponse = (value: unknown): value is CheckoutCapt
   }
 
   const candidate = value as Partial<CheckoutCaptureResponse>;
-  return typeof candidate.status === "string" && typeof candidate.safeSummary === "string";
+  return (
+    (candidate.status === "captured" || candidate.status === "failed") &&
+    typeof candidate.safeSummary === "string" &&
+    (candidate.safeError === null || typeof candidate.safeError === "string")
+  );
 };

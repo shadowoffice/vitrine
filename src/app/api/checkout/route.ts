@@ -211,7 +211,7 @@ export async function POST(request: Request): Promise<Response> {
       parsed.data.paymentProvider === "stripe"
         ? `${baseUrl}/paiement/retour?provider=stripe&session_id={CHECKOUT_SESSION_ID}`
         : `${baseUrl}/paiement/retour?provider=paypal`,
-    cancelUrl: `${baseUrl}/commander?plan=${parsed.data.plan}&payment=cancelled`,
+    cancelUrl: `${baseUrl}/commander/achat?plan=${parsed.data.plan}&payment=cancelled`,
   };
 
   const result = await submitCheckout(checkoutPayload);

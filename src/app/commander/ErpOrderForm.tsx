@@ -99,8 +99,6 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
   const cart = useMemo(() => buildPricingCart(planCode, seatCount), [planCode, seatCount]);
   const normalizedPromoCode = useMemo(() => normalizePromoCode(promoCodeInput), [promoCodeInput]);
   const hasPromoCode = normalizedPromoCode.length >= 4;
-  const promoPreviewDiscountCents = hasPromoCode ? cart.dueTodayCents : 0;
-  const dueTodayPreviewCents = cart.dueTodayCents - promoPreviewDiscountCents;
   const normalizedDesiredPrefix = useMemo(
     () => normalizeDesiredErpPrefix(desiredDomainInput),
     [desiredDomainInput],
@@ -162,8 +160,21 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
         return;
       }
 
+      let checkoutUrl: URL;
+      try {
+        checkoutUrl = new URL(body.checkoutUrl);
+      } catch {
+        setState({ status: "error", message: "L'adresse du service de paiement est invalide." });
+        return;
+      }
+
+      if (checkoutUrl.protocol !== "https:") {
+        setState({ status: "error", message: "La redirection de paiement n'est pas sécurisée." });
+        return;
+      }
+
       setState({ status: "success", response: body });
-      window.location.assign(body.checkoutUrl);
+      window.location.assign(checkoutUrl.toString());
     } catch {
       setState({ status: "error", message: "La connexion au service de paiement est indisponible." });
     }
@@ -219,15 +230,17 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
         </label>
       </div>
 
-      <fieldset className="business-details">
-        <legend>Détails entreprise</legend>
+      <details className="business-details">
+        <summary>
+          <span>Détails administratifs</span>
+          <small>Optionnels à cette étape</small>
+        </summary>
         <div className="form-grid">
           <label className="field-wide">
             <span>Adresse entreprise</span>
             <input
               name="businessAddressLine1"
               autoComplete="address-line1"
-              required
               maxLength={180}
               disabled={disabled}
             />
@@ -238,14 +251,13 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
           </label>
           <label>
             <span>Ville</span>
-            <input name="businessCity" autoComplete="address-level2" required maxLength={120} disabled={disabled} />
+            <input name="businessCity" autoComplete="address-level2" maxLength={120} disabled={disabled} />
           </label>
           <label>
             <span>Province</span>
             <input
               name="businessProvince"
               autoComplete="address-level1"
-              required
               maxLength={80}
               defaultValue="Québec"
               disabled={disabled}
@@ -253,14 +265,13 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
           </label>
           <label>
             <span>Code postal</span>
-            <input name="businessPostalCode" autoComplete="postal-code" required maxLength={24} disabled={disabled} />
+            <input name="businessPostalCode" autoComplete="postal-code" maxLength={24} disabled={disabled} />
           </label>
           <label>
             <span>Pays</span>
             <input
               name="businessCountry"
               autoComplete="country-name"
-              required
               maxLength={80}
               defaultValue="Canada"
               disabled={disabled}
@@ -291,7 +302,7 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
             <input name="companySize" placeholder="ex: 10-25" maxLength={80} disabled={disabled} />
           </label>
         </div>
-      </fieldset>
+      </details>
 
       <fieldset className="plan-picker">
         <legend>Forfait</legend>
@@ -322,7 +333,7 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
       <section className="promo-panel" aria-labelledby={`${baseId}-promo-title`}>
         <div>
           <h3 id={`${baseId}-promo-title`}>Code promo</h3>
-          <p>Activation test, tenant gratuit ou essai contrôlé par Fondation.</p>
+          <p>Si un code vous a été fourni, il sera vérifié côté serveur avant tout ajustement.</p>
         </div>
         <label>
           <span>Code promo</span>
@@ -337,7 +348,7 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
           />
           <small className="field-hint">
             {hasPromoCode
-              ? "Code promo prêt à être transmis."
+              ? "Code prêt à être vérifié. Aucun rabais n'est présumé."
               : "Laisse vide pour payer avec Stripe ou PayPal."}
           </small>
         </label>
@@ -389,14 +400,14 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
           <strong>{formatMoney(cart.monthlySubtotalCents)}</strong>
         </div>
         {hasPromoCode && (
-          <div className="cart-discount">
+          <div>
             <span>Code promo</span>
-            <strong>-{formatMoney(promoPreviewDiscountCents)}</strong>
+            <strong>À valider</strong>
           </div>
         )}
         <div className="cart-total">
-          <span>{hasPromoCode ? "À payer aujourd'hui" : "Paiement initial"}</span>
-          <strong>{formatMoney(dueTodayPreviewCents)}</strong>
+          <span>Total catalogue</span>
+          <strong>{formatMoney(cart.dueTodayCents)}</strong>
         </div>
       </aside>
 

@@ -19,11 +19,11 @@ type PaymentReturnClientProps = {
 const getInitialState = ({ provider, paymentStatus, paypalOrderId }: PaymentReturnClientProps): ReturnState => {
   if (provider === "stripe") {
     return {
-      status: paymentStatus === "cancelled" ? "error" : "success",
+      status: paymentStatus === "cancelled" ? "error" : "processing",
       message:
         paymentStatus === "cancelled"
           ? "Le paiement Stripe a été annulé."
-          : "Paiement Stripe reçu. L'équipe ProJD confirme l'activation dès que la transaction est validée.",
+          : "Paiement transmis. La confirmation serveur est en cours; cette page ne confirme ni la transaction ni l'activation.",
     };
   }
 
@@ -98,7 +98,7 @@ export function PaymentReturnClient(props: PaymentReturnClientProps) {
         <p className="payment-domain">Domaine prévu: {state.primaryDomain}</p>
       )}
       <div className="hero-actions">
-        <Link className="button primary" href="/commander">
+        <Link className="button primary" href="/commander/achat">
           Retour au panier
         </Link>
         <Link className="button secondary" href="/statut">

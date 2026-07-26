@@ -1,132 +1,116 @@
 # Vitrine ProJD
 
-Vitrine is the public sales website for the ProJD construction ERP at
+Vitrine est le site public de vente de l’ERP construction ProJD sur
 `https://fichero.cloud`.
 
-The public positioning is now focused on ProJD only: projects, budgets, BID,
-documents, invoices, partners, reporting, pricing and purchase intent. Internal
-activation and payment services stay behind server routes and are not part of
-the marketing story.
+La stratégie commerciale est une vente assistée :
 
-## Project Snapshot
+1. le visiteur découvre le produit, les solutions, les tarifs et les guides;
+2. `/commander` recueille une demande de proposition courte;
+3. l’équipe ProJD qualifie le périmètre et prépare une présentation;
+4. le checkout historique `/commander/achat` est utilisé seulement lorsqu’une
+   proposition est déjà cadrée.
 
-- Framework: Next.js App Router, React, TypeScript and plain CSS.
-- Runtime: public pages plus Node.js server routes.
-- Public domain: `https://fichero.cloud`.
-- Docker service: `fichero-vitrine`.
-- Local exposed port: `3103`.
-- Internal bridge: token-gated server-to-server calls for order intake and
-  provider checkout.
+Vitrine ne confirme jamais elle-même un paiement, une licence ou une activation
+ERP.
 
-## Current Status
+## Stack
 
-Implemented:
+- Next.js App Router, React, TypeScript strict et CSS global;
+- pages publiques majoritairement rendues côté serveur;
+- routes Node.js pour propositions, analytics et handoff de paiement;
+- conteneur `fichero-vitrine`, exposé localement sur le port `3103`;
+- Fondation comme autorité pour checkout, paiement, licence et activation;
+- ProJD comme application ERP locataire.
 
-- professional ProJD sales home page with construction-site visual direction;
-- product slider for budgets, BID, invoices and documents;
-- dedicated module detail pages under `/modules/[slug]`;
-- pages for `/projd`, `/modules`, `/tarifs`, `/demo`, `/statut` and
-  `/commander`;
-- legacy `/fondation` route redirected to `/projd`;
-- reusable header, CTA, ERP preview and analytics components;
-- `/commander` purchase form with plan, seat count, desired ERP subdomain and
-  payment provider selection;
-- `/api/checkout` server route for provider checkout creation;
-- `/api/checkout/capture` PayPal return capture handoff;
-- `/api/erp-orders` fallback order intake route;
-- `/paiement/retour` payment-return page;
-- first-party no-cookie analytics endpoint;
-- Docker Compose deployment to port `3103`;
-- repo-local `AGENTS.md` and `OPENCLAW.md`.
+## Contenu canonique
 
-Remaining production gate:
+- `src/lib/site-content.ts` : navigation, solutions, modules, disponibilité,
+  intégrations, ressources, documentation et guides;
+- `src/lib/pricing.ts` : forfaits et calculs de panier;
+- `src/lib/proposal.ts` : schéma de demande de proposition;
+- `src/lib/erp-order.ts` : contrat du checkout historique.
 
-- real Stripe/PayPal provider validation, webhook signatures and sandbox smoke
-  tests must pass before the public purchase flow is considered fully live.
+Les niveaux publics sont :
 
-## Documentation
+- `available` — périmètre actuellement utilisable;
+- `evolving` — première tranche utilisable, mais encore en évolution;
+- `activation` — fonction dépendante du tenant, des licences, permissions ou
+  connecteurs à valider.
 
-- `docs/PROJECT_STATUS.md` - current state, validation and blockers.
-- `docs/ARCHITECTURE.md` - routes, data flow, environment and safety model.
-- `docs/ROADMAP.md` - next work for public site and purchase flow.
-- `AGENTS.md` - agent rules for working in this repository.
-- `OPENCLAW.md` - branch, PR, validation and deployment workflow.
+Voir [CONTENT_TRUTH_MATRIX.md](docs/CONTENT_TRUTH_MATRIX.md) avant de modifier
+une promesse produit.
 
-## Routes
+## Routes principales
 
-Public pages:
+- `/` — accueil commercial court;
+- `/projd` — présentation produit;
+- `/solutions` — parcours par rôle;
+- `/modules` et `/modules/[slug]` — catalogue fonctionnel;
+- `/tarifs` — repères de prix et entrée vers la proposition;
+- `/ressources` — hub documentation, guides, sécurité et démo;
+- `/presentation` — présentation commerciale interactive en six diapositives;
+- `/documentation` — référence fonctionnelle;
+- `/guides` et `/guides/[slug]` — parcours pratiques;
+- `/demo` — présentation guidée et accès à la démo fictive;
+- `/securite`, `/confidentialite`, `/conditions`, `/statut` — confiance publique;
+- `/commander` — demande de proposition assistée.
 
-- `/`
-- `/projd`
-- `/modules`
-- `/modules/projets`
-- `/modules/budgets`
-- `/modules/estimation-bid`
-- `/modules/documents`
-- `/modules/factures-ocr`
-- `/modules/partenaires`
-- `/modules/rapports`
-- `/modules/integrations`
-- `/tarifs`
-- `/commander`
-- `/demo`
-- `/statut`
-- `/paiement/retour`
+Routes opérationnelles non indexables :
 
-Redirect:
+- `/commander/achat` — checkout historique après qualification;
+- `/paiement/retour` — état de retour fournisseur.
 
-- `/fondation` -> `/projd`
+Redirection conservée :
 
-Server routes:
+- `/fondation` vers `/projd`.
 
-- `/api/analytics`
-- `/api/erp-orders`
-- `/api/checkout`
-- `/api/checkout/capture`
-- `/healthz`
-- `/robots.txt`
-- `/sitemap.xml`
+La carte complète vit dans [SITE_MAP.md](docs/SITE_MAP.md).
 
-## Environment
+## Routes serveur
 
-Server-only values:
+- `POST /api/proposals` — valide et conserve une proposition dans une boîte
+  JSONL locale;
+- `POST /api/checkout` — demande à Fondation de créer un checkout fournisseur;
+- `POST /api/checkout/capture` — handoff de capture PayPal;
+- `POST /api/erp-orders` — intake historique avec fallback JSONL;
+- `POST /api/analytics` — mesure first-party sans cookie;
+- `/healthz`, `/robots.txt`, `/sitemap.xml`.
 
-- `FONDATION_ORDER_INTAKE_URL`
-- `FONDATION_CHECKOUT_URL`
-- `FONDATION_CHECKOUT_CAPTURE_URL`
-- `FONDATION_ORDER_INTAKE_TOKEN`
-- `VITRINE_ORDER_INBOX_PATH`
+## Environnement
 
-Browser-safe values:
+Valeurs serveur :
 
-- `NEXT_PUBLIC_SITE_URL`
+- `VITRINE_PROPOSAL_INBOX_PATH` — défaut `/app/data/proposals.jsonl`;
+- `VITRINE_ORDER_INBOX_PATH`;
+- `FONDATION_ORDER_INTAKE_URL`;
+- `FONDATION_CHECKOUT_URL`;
+- `FONDATION_CHECKOUT_CAPTURE_URL`;
+- `FONDATION_ORDER_INTAKE_TOKEN`.
 
-The `FONDATION_*` names are internal deployment configuration. Do not expose the
-private intake token through `NEXT_PUBLIC_*` variables or public page content.
+Valeur publique :
 
-## Local Development
+- `NEXT_PUBLIC_SITE_URL`.
 
-Install dependencies:
+Ne jamais déplacer un secret Fondation dans une variable `NEXT_PUBLIC_*`.
+
+## Sécurité du paiement
+
+- `/commander/achat` et `/paiement/retour` restent `noindex`;
+- une URL de retour Stripe ne prouve jamais qu’un paiement est réussi;
+- Stripe doit rester « en vérification » jusqu’à une confirmation serveur ou
+  webhook provenant de Fondation;
+- PayPal n’est confirmé qu’après la réponse serveur de capture;
+- Vitrine ne crée ni abonnement, ni facture, ni licence, ni runtime ERP.
+
+## Développement et validation
 
 ```bash
 npm install
-```
-
-Run the local dev server:
-
-```bash
 npm run dev
 ```
 
-Default local URL:
-
-```text
-http://localhost:3000
-```
-
-## Validation
-
-Run before opening or updating a PR:
+Avant PR ou déploiement :
 
 ```bash
 npm run lint
@@ -135,17 +119,7 @@ npm run build
 git diff --check
 ```
 
-When checkout/order behavior changes, also test:
-
-- missing internal checkout environment values;
-- invalid purchase form data;
-- provider bridge returning a non-2xx response;
-- Stripe return URL shape;
-- PayPal capture route failure.
-
-## Docker
-
-Build and start:
+Pour le runtime :
 
 ```bash
 docker compose up -d --build
@@ -153,33 +127,5 @@ docker compose ps
 curl -fsS http://127.0.0.1:3103/healthz
 ```
 
-Production routing is handled by Nginx Proxy Manager on TrueNAS:
-
-```text
-fichero.cloud -> http://192.168.0.19:3103
-```
-
-Public smoke:
-
-```bash
-curl -fsSI https://fichero.cloud | sed -n '1,12p'
-curl -fsS https://fichero.cloud/healthz
-```
-
-## Checkout Safety
-
-Vitrine does not complete purchases by itself.
-
-The safe flow is:
-
-1. visitor submits `/commander`;
-2. Vitrine validates the payload;
-3. Vitrine calls the internal checkout/order endpoint from a server route with
-   the private intake token;
-4. the internal service creates the preparation record and provider checkout
-   session;
-5. Vitrine redirects to the provider checkout URL returned by that service;
-6. payment completion is reconciled by provider webhooks or PayPal capture.
-
-Vitrine must never activate a subscription, invoice, license or ERP runtime
-directly.
+Tester aussi les erreurs de proposition, l’absence de configuration Fondation,
+les refus fournisseur, l’annulation du checkout et les retours Stripe/PayPal.

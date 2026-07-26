@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AvailabilityBadge } from "../../_components/AvailabilityBadge";
+import { Breadcrumbs } from "../../_components/Breadcrumbs";
 import { MarketingCta } from "../../_components/MarketingCta";
-import { SiteHeader } from "../../_components/SiteHeader";
 import {
-  demoErpUrl,
   getModuleBySlug,
   modules,
   type ModuleContent,
@@ -23,19 +23,27 @@ export function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: ModulePageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ModulePageProps): Promise<Metadata> {
   const { slug } = await params;
   const moduleContent = getModuleBySlug(slug);
 
   if (!moduleContent) {
     return {
       title: "Module introuvable",
+      robots: {
+        index: false,
+      },
     };
   }
 
   return {
-    title: `${moduleContent.name} | Modules ProJD`,
+    title: moduleContent.name,
     description: moduleContent.summary,
+    alternates: {
+      canonical: `/modules/${moduleContent.slug}`,
+    },
   };
 }
 
@@ -55,63 +63,76 @@ export default async function ModuleDetailPage({ params }: ModulePageProps) {
   const relatedModules = getRelatedModules(moduleContent);
 
   return (
-    <main>
-      <SiteHeader ctaHref="/commander" ctaLabel="Acheter ProJD" />
-
-      <section className="page-hero module-hero">
-        <p className="eyebrow">{moduleContent.eyebrow}</p>
-        <h1>{moduleContent.name}</h1>
-        <p>{moduleContent.summary}</p>
-        <div className="hero-actions">
-          <Link className="button primary" href="/commander">
-            Acheter ProJD
-          </Link>
-          <Link className="button secondary" href="/modules">
-            Tous les modules
-          </Link>
+    <main id="contenu">
+      <section className="module-detail-hero">
+        <Breadcrumbs
+          items={[
+            { label: "Modules", href: "/modules" },
+            { label: moduleContent.name },
+          ]}
+        />
+        <div className="module-detail-heading">
+          <div>
+            <div className="module-title-row">
+              <span className="module-code module-code-large">
+                {moduleContent.code}
+              </span>
+              <AvailabilityBadge
+                availability={moduleContent.availability}
+                note={moduleContent.availabilityNote}
+              />
+            </div>
+            <p className="eyebrow">{moduleContent.eyebrow}</p>
+            <h1>{moduleContent.name}</h1>
+            <p>{moduleContent.summary}</p>
+            <div className="hero-actions">
+              <Link className="button primary" href="/demo">
+                Voir dans la démo
+              </Link>
+              <Link className="button secondary" href="/commander">
+                Ajouter à ma proposition
+              </Link>
+            </div>
+          </div>
+          <aside className="module-proof-card">
+            <span>État du module</span>
+            <strong>{moduleContent.availabilityNote}</strong>
+            <p>{moduleContent.proof}</p>
+          </aside>
         </div>
       </section>
 
-      <section className="section module-story-section">
+      <section className="compact-section module-value-section">
         <div>
           <p className="eyebrow">Pour qui</p>
           <h2>{moduleContent.audience}</h2>
-          <p>{moduleContent.siteSignal}</p>
         </div>
-        <div className="module-site-panel">
-          <span>{moduleContent.metricLabel}</span>
-          <strong>{moduleContent.metric}</strong>
-          <small>Signal chantier à surveiller</small>
-        </div>
-      </section>
-
-      <section className="section module-explain-grid">
-        <div>
-          <p className="eyebrow">Ce que ça règle</p>
-          <h2>Moins de suivi manuel, plus de contexte projet.</h2>
-          <ul className="check-list">
-            {moduleContent.outcomes.map((outcome) => (
-              <li key={outcome}>{outcome}</li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="eyebrow">Dans ProJD</p>
-          <h2>Fonctions incluses dans le module.</h2>
-          <ul className="check-list">
-            {moduleContent.features.map((feature) => (
-              <li key={feature}>{feature}</li>
-            ))}
-          </ul>
+        <div className="module-value-grid">
+          <article>
+            <span>Résultats recherchés</span>
+            <ul className="check-list">
+              {moduleContent.outcomes.map((outcome) => (
+                <li key={outcome}>{outcome}</li>
+              ))}
+            </ul>
+          </article>
+          <article>
+            <span>Dans ProJD</span>
+            <ul className="check-list">
+              {moduleContent.features.map((feature) => (
+                <li key={feature}>{feature}</li>
+              ))}
+            </ul>
+          </article>
         </div>
       </section>
 
-      <section className="section start-section module-workflow-section">
-        <div>
-          <p className="eyebrow">Parcours simple</p>
-          <h2>La mise en route reste courte.</h2>
+      <section className="compact-section workflow-section">
+        <div className="section-intro">
+          <p className="eyebrow">Parcours type</p>
+          <h2>Quatre étapes pour garder le flux lisible.</h2>
         </div>
-        <ol className="start-list">
+        <ol className="workflow-rail workflow-rail-four">
           {moduleContent.workflow.map((step, index) => (
             <li key={step}>
               <span>{String(index + 1).padStart(2, "0")}</span>
@@ -121,29 +142,40 @@ export default async function ModuleDetailPage({ params }: ModulePageProps) {
         </ol>
       </section>
 
-      <section className="section">
-        <div className="section-heading compact-heading">
-          <p className="eyebrow">Modules reliés</p>
-          <h2>Les autres blocs qui complètent souvent ce module.</h2>
+      <section className="compact-section related-section">
+        <div className="section-heading-row">
+          <div>
+            <p className="eyebrow">Modules reliés</p>
+            <h2>Compléter le même workflow.</h2>
+          </div>
+          <Link className="text-link" href="/modules">
+            Tous les modules <span aria-hidden="true">→</span>
+          </Link>
         </div>
-        <div className="pillar-grid">
+        <div className="related-module-grid">
           {relatedModules.map((relatedModule) => (
-            <Link className="card link-card module-related-card" href={`/modules/${relatedModule.slug}`} key={relatedModule.slug}>
-              <span>{relatedModule.eyebrow}</span>
-              <h3>{relatedModule.name}</h3>
-              <p>{relatedModule.text}</p>
+            <Link
+              href={`/modules/${relatedModule.slug}`}
+              key={relatedModule.slug}
+            >
+              <span className="module-code">{relatedModule.code}</span>
+              <div>
+                <strong>{relatedModule.name}</strong>
+                <p>{relatedModule.text}</p>
+              </div>
+              <small aria-hidden="true">↗</small>
             </Link>
           ))}
         </div>
       </section>
 
       <MarketingCta
-        title={`Voir ${moduleContent.name} dans un parcours ProJD`}
-        text="La démo publique montre le produit. Le formulaire d'achat sert à cadrer les modules et le premier chantier à préparer."
-        primaryHref={demoErpUrl}
-        primaryLabel="Visiter la démo"
-        secondaryHref="/commander"
-        secondaryLabel="Acheter ProJD"
+        title={`Évaluer ${moduleContent.name} avec votre équipe.`}
+        text="La démo utilise des données fictives. Une proposition sert ensuite à cadrer vos rôles, vos sources et les règles de mise en service."
+        primaryHref="/commander"
+        primaryLabel="Configurer une proposition"
+        secondaryHref="/demo"
+        secondaryLabel="Préparer la démo"
       />
     </main>
   );

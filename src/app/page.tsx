@@ -1,195 +1,193 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ErpPreview } from "./_components/ErpPreview";
 import { MarketingCta } from "./_components/MarketingCta";
-import { ProductShowcaseSlider } from "./_components/ProductShowcaseSlider";
-import { SiteHeader } from "./_components/SiteHeader";
 import {
-  constructionSignals,
-  deploymentSteps,
-  demoErpUrl,
-  indicators,
-  mainMessage,
-  modules,
-  salesCapabilities,
-  salesPainPoints,
+  operationalProof,
+  productPillars,
+  solutionRoles,
+  siteUrl,
 } from "@/lib/site-content";
 
-const startSteps = [
-  "Qualifier la compagnie, les projets et le volume d'utilisateurs.",
-  "Monter l'instance ProJD dans notre environnement.",
-  "Activer portail, documents, appels d'offres, API et suivis.",
-];
+export const metadata: Metadata = {
+  title: "ERP construction pour entrepreneurs québécois",
+  description:
+    "ProJD relie projets, finances, contrats, appels d’offres, partenaires et documents dans un ERP de construction à implantation accompagnée.",
+  alternates: {
+    canonical: "/",
+  },
+};
+
+const productSignals = [
+  "Projets",
+  "Finance",
+  "Contrats",
+  "Estimation",
+  "Partenaires",
+  "Rapports",
+] as const;
+
+const productJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "ProJD",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  url: siteUrl,
+  description:
+    "ERP de construction pour les projets, la finance, les contrats, les appels d’offres et les partenaires.",
+  offers: {
+    "@type": "AggregateOffer",
+    priceCurrency: "CAD",
+    lowPrice: "249",
+    highPrice: "999",
+    offerCount: "3",
+  },
+};
 
 export default function Home() {
-  const featuredModules = modules.slice(0, 6);
-
   return (
-    <main>
-      <SiteHeader ctaHref="/commander" ctaLabel="Commander ProJD" />
+    <main id="contenu">
+      <script
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c"),
+        }}
+        type="application/ld+json"
+      />
 
-      <section className="sales-hero construction-hero" aria-labelledby="hero-title">
-        <div className="hero-product-scene construction-site-scene" aria-hidden="true">
-          <div className="site-brief-panel">
-            <span>ERP client</span>
-            <strong>construction-nord.erp.fichero.cloud</strong>
-            <div>
-              <small>Projets</small>
-              <b>18</b>
-            </div>
-            <div>
-              <small>Appels d&apos;offres</small>
-              <b>24</b>
-            </div>
-            <div>
-              <small>Portail</small>
-              <b>42</b>
-            </div>
+      <section className="home-hero" aria-labelledby="home-title">
+        <div className="home-hero-copy">
+          <div className="release-note">
+            <span aria-hidden="true" />
+            Produit en évolution · implantation accompagnée
           </div>
-          <div className="site-safety-strip">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-
-        <div className="hero-content">
-          <p className="eyebrow">ERP construction vendu comme service</p>
-          <h1 id="hero-title">ProJD pour compagnies de construction</h1>
-          <p className="hero-lead">{mainMessage}</p>
-          <div className="construction-audience" aria-label="Publics visés">
-            {constructionSignals.map((signal) => (
-              <span key={signal}>{signal}</span>
-            ))}
-          </div>
+          <p className="eyebrow">ERP construction · Québec</p>
+          <h1 id="home-title">
+            Le chantier sous contrôle.
+            <span> Les décisions au même endroit.</span>
+          </h1>
+          <p className="hero-lead">
+            ProJD relie vos projets, vos finances, vos contrats et vos appels
+            d&apos;offres dans un environnement de gestion conçu pour la
+            construction.
+          </p>
           <div className="hero-actions">
-            <Link className="button primary" href="/commander">
-              Commander un ERP ProJD
+            <Link className="button primary" href="/demo">
+              Voir la démo
             </Link>
-            <Link className="button secondary" href={demoErpUrl}>
-              Voir la démo ERP
+            <Link className="button secondary" href="/modules">
+              Explorer les modules
             </Link>
           </div>
+          <p className="hero-supporting-copy">
+            Procore peut rester sur le terrain. SharePoint peut garder les
+            documents. ProJD coordonne le travail ERP du bureau.
+          </p>
+        </div>
+        <div className="home-hero-product">
+          <ErpPreview />
         </div>
       </section>
 
-      <section className="signal-strip" aria-label="Indicateurs ProJD">
-        {indicators.map((indicator) => (
-          <article key={indicator.label}>
-            <strong>{indicator.value}</strong>
-            <span>{indicator.label}</span>
-          </article>
-        ))}
-      </section>
-
-      <section className="section split-section">
+      <section className="product-signal-bar" aria-label="Périmètre ProJD">
+        <span>Un seul environnement</span>
         <div>
-          <p className="eyebrow">Positionnement</p>
-          <h2>Une vitrine pour vendre ProJD aux entrepreneurs.</h2>
+          {productSignals.map((signal) => (
+            <strong key={signal}>{signal}</strong>
+          ))}
+        </div>
+      </section>
+
+      <section className="compact-section outcome-section">
+        <div className="section-intro">
+          <p className="eyebrow">Un ERP fait pour travailler</p>
+          <h2>Moins de ressaisie. Plus de contexte pour décider.</h2>
           <p>
-            ProJD n&apos;est pas présenté comme un simple formulaire. C&apos;est un ERP SaaS pour gérer les
-            projets, les suivis, les sous-traitants, les appels d&apos;offres, les documents et les
-            intégrations d&apos;une compagnie de construction.
+            Chaque bloc répond à un flux réel du chantier et reste relié au
+            projet, aux entreprises et aux personnes concernées.
           </p>
         </div>
-        <div className="pillar-grid why-grid">
-          {salesPainPoints.map((item) => (
-            <article className="card" key={item.title}>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
+        <div className="outcome-grid">
+          {productPillars.map((pillar) => (
+            <article className="outcome-card" key={pillar.code}>
+              <span>{pillar.code}</span>
+              <h3>{pillar.title}</h3>
+              <p>{pillar.text}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="section capability-section">
-        <div className="section-heading compact-heading">
-          <p className="eyebrow">Ce qu&apos;on vend</p>
-          <h2>Un ERP complet avec portail et environnement dédié.</h2>
-          <p>
-            Le message public doit montrer ce que la compagnie achète: une plateforme de travail,
-            pas seulement une liste de modules.
-          </p>
-        </div>
-        <div className="capability-grid">
-          {salesCapabilities.map((capability) => (
-            <article className="card capability-card" key={capability.title}>
-              <h3>{capability.title}</h3>
-              <p>{capability.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="modules" className="section">
-        <div className="section-heading compact-heading">
-          <p className="eyebrow">Modules clés</p>
-          <h2>Les modules restent simples à comprendre.</h2>
-          <p>
-            Le site vend l&apos;expérience complète, puis les modules expliquent les blocs: projet,
-            budget, appel d&apos;offres, portail, documents, factures et API.
-          </p>
-        </div>
-        <div className="module-grid module-grid-featured">
-          {featuredModules.map((module) => (
-            <Link key={module.slug} href={`/modules/${module.slug}`}>
-              <strong>{module.name}</strong>
-              <span>{module.text}</span>
-            </Link>
-          ))}
-        </div>
-        <div className="section-actions">
-          <Link className="button secondary" href="/modules">
-            Tous les modules
+      <section className="compact-section role-section">
+        <div className="section-heading-row">
+          <div>
+            <p className="eyebrow">Par équipe</p>
+            <h2>La bonne lecture pour chaque rôle.</h2>
+          </div>
+          <Link className="text-link" href="/solutions">
+            Voir toutes les solutions <span aria-hidden="true">→</span>
           </Link>
         </div>
-      </section>
-
-      <section className="section product-showcase-section">
-        <div className="section-heading compact-heading">
-          <p className="eyebrow">Vue produit</p>
-          <h2>Un aperçu rapide des informations à surveiller.</h2>
-        </div>
-        <ProductShowcaseSlider />
-      </section>
-
-      <section className="section start-section">
-        <div>
-          <p className="eyebrow">Mise en service</p>
-          <h2>Chaque client obtient son ERP dans notre environnement.</h2>
-        </div>
-        <ol className="start-list">
-          {startSteps.map((step, index) => (
-            <li key={step}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <strong>{step}</strong>
-            </li>
+        <div className="role-grid">
+          {solutionRoles.map((solution) => (
+            <Link
+              className="role-card"
+              href={`/solutions#${solution.slug}`}
+              key={solution.slug}
+            >
+              <span>{solution.code}</span>
+              <div>
+                <strong>{solution.role}</strong>
+                <p>{solution.headline}</p>
+              </div>
+              <small aria-hidden="true">↗</small>
+            </Link>
           ))}
-        </ol>
+        </div>
       </section>
 
-      <section className="section deployment-section">
-        <div className="section-heading compact-heading">
-          <p className="eyebrow">Fondation + Docker</p>
-          <h2>Du formulaire d&apos;achat à l&apos;instance ProJD prête à utiliser.</h2>
+      <section className="compact-section evidence-section">
+        <div className="evidence-copy">
+          <p className="eyebrow">Ce qui est démontrable aujourd’hui</p>
+          <h2>Une base opérationnelle, avec des limites affichées clairement.</h2>
+          <p>
+            ProJD est proposé avec un déploiement accompagné. Les modules
+            disponibles sont présentés comme tels; les fonctions en évolution
+            ne sont jamais vendues comme terminées.
+          </p>
+          <Link className="button light" href="/projd">
+            Voir la présentation produit
+          </Link>
         </div>
-        <div className="deployment-grid">
-          {deploymentSteps.map((step, index) => (
-            <article className="deployment-card" key={step}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <p>{step}</p>
-            </article>
-          ))}
+        <div className="evidence-lists">
+          <div>
+            <strong>Disponible</strong>
+            <ul>
+              {operationalProof.available.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="evolving-list">
+            <strong>En évolution</strong>
+            <ul>
+              {operationalProof.evolving.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
       <MarketingCta
-        title="Voir si ProJD convient à ton chantier"
-        text="La démo montre le produit. La commande sert à qualifier la compagnie, choisir les modules, préparer le portail et monter l'ERP ProJD du client."
-        primaryHref={demoErpUrl}
-        primaryLabel="Visiter la démo"
-        secondaryHref="/commander"
-        secondaryLabel="Commander un ERP"
+        eyebrow="Votre contexte"
+        title="Voyez ProJD avec vos vrais workflows de construction."
+        text="Choisissez les équipes, les modules et les intégrations à présenter. Le déploiement commence par un périmètre pilote clair."
+        primaryHref="/commander"
+        primaryLabel="Configurer une proposition"
+        secondaryHref="/demo"
+        secondaryLabel="Préparer la démo"
       />
     </main>
   );
