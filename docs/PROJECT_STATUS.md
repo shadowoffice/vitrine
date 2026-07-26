@@ -15,8 +15,9 @@ avant le paiement. `/commander` prépare maintenant une proposition courte;
 l’ancien parcours de commande est isolé sous `/commander/achat` et reste
 `noindex`.
 
-Les changements sont présents dans le worktree et validés localement. Le
-déploiement reste à faire.
+La refonte a été fusionnée dans `main` au commit `6fb688d` et déployée sur
+`https://fichero.cloud` le 2026-07-26. Le conteneur public est sain et l'image
+précédente est conservée localement pour rollback.
 
 ## État actuel
 
@@ -66,6 +67,12 @@ Validation locale du 2026-07-26 :
 - proposition acceptée localement, origine étrangère refusée et honeypot sans
   écriture;
 - démo externe et `/healthz` répondent HTTP 200.
+- image Docker de production vérifiée sans `.env`, données locales, cache
+  Graphify ni dépendance native Sharp;
+- smoke public réussi sur les routes principales, la validation des API et
+  `/healthz`;
+- rendu public vérifié avec Chromium en desktop et mobile, menu mobile inclus,
+  sans erreur de console.
 
 Smoke recommandé :
 
@@ -103,7 +110,7 @@ Scénarios d’échec :
 - retour Stripe sans confirmation serveur;
 - capture PayPal refusée.
 
-## Gates avant production
+## Suivis de production
 
 - traiter, sécuriser, sauvegarder et purger la boîte
   `VITRINE_PROPOSAL_INBOX_PATH`;
@@ -113,4 +120,5 @@ Scénarios d’échec :
   fictives;
 - exécuter les achats Stripe et PayPal en sandbox avec webhooks réels;
 - confirmer que Fondation réconcilie paiement, licence et activation;
-- déployer la version validée et refaire les smoke tests sur l’URL publique.
+- surveiller les journaux, les demandes reçues et les retours de paiement après
+  la mise en ligne.
