@@ -3,161 +3,147 @@ import { formatMoney, pricingPlans } from "./pricing";
 export const siteUrl = "https://fichero.cloud";
 export const demoErpUrl = "https://demo.erp.fichero.cloud/admin/login";
 
-export const mainMessage =
-  "Un ERP construction vendu comme service: chaque compagnie obtient son espace ProJD pour piloter projets, sous-traitants, appels d'offres, documents, coûts et suivis sans disperser le chantier.";
-
 export const navigation = [
-  { label: "ProJD", href: "/projd" },
+  { label: "Produit", href: "/projd" },
+  { label: "Solutions", href: "/solutions" },
   { label: "Modules", href: "/modules" },
+  { label: "Ressources", href: "/ressources" },
   { label: "Tarifs", href: "/tarifs" },
-  { label: "Démo ERP", href: demoErpUrl },
-  { label: "Statut", href: "/statut" },
-];
+] as const;
 
-export const indicators = [
-  { value: "ERP", label: "instance dédiée par client" },
-  { value: "BID", label: "appels d'offres et relances" },
-  { value: "PORTAIL", label: "sous-traitants et clients" },
-  { value: "API", label: "intégrations contrôlées" },
-];
+export const productPillars = [
+  {
+    code: "PR",
+    title: "Pilotage projet",
+    text: "Projets, échéances, risques, actions, RFIs et suivis de coordination.",
+  },
+  {
+    code: "FI",
+    title: "Finance construction",
+    text: "Budgets, engagements, coûts directs, factures et écarts par phase.",
+  },
+  {
+    code: "BID",
+    title: "Estimation et appels d’offres",
+    text: "Lots, partenaires, invitations, documents, réponses et comparatifs.",
+  },
+] as const;
 
-export const salesPainPoints = [
-  {
-    title: "Un vrai produit à vendre",
-    text: "ProJD se présente comme un ERP construction complet: projets, coûts, appels d'offres, documents, factures, partenaires, portail et API.",
-  },
-  {
-    title: "Collaboration sans chaos",
-    text: "Les sous-traitants peuvent recevoir les invitations, déposer des documents, répondre aux lots et suivre les demandes sans noyer l'équipe dans les courriels.",
-  },
-  {
-    title: "Instance isolée par compagnie",
-    text: "Chaque ERP est monté dans notre environnement avec son domaine, ses licences, ses sauvegardes et son cycle de mise en service.",
-  },
-];
+export const operationalProof = {
+  available: [
+    "Cockpit projet et suivi exécutif",
+    "Budgets, engagements et coûts directs",
+    "Appels d’offres et portail partenaires",
+    "Factures fournisseurs et approbation",
+    "Rapports financiers et hebdomadaires",
+  ],
+  evolving: [
+    "OCR des factures avec validation humaine",
+    "Synchronisation étendue Procore, SharePoint et Outlook",
+  ],
+} as const;
 
-export const constructionSignals = [
-  "Entrepreneurs généraux",
-  "Gestion de projets",
-  "Sous-traitants",
-  "Appels d'offres",
-  "Documents et API",
-];
+export type SolutionRole = {
+  slug: "direction" | "projets" | "estimation" | "comptabilite";
+  code: string;
+  role: string;
+  headline: string;
+  description: string;
+  priorities: string[];
+  modules: ModuleSlug[];
+};
 
-export const showcaseSlides = [
+export const solutionRoles = [
   {
-    key: "budget",
-    kicker: "Contrôle des coûts",
-    title: "Budget, engagé et réel dans une seule lecture",
-    text: "Repère les dépassements avant la fin du mois et garde les divisions critiques visibles pour le chargé de projet.",
-    metric: "68 %",
-    metricLabel: "budget engagé",
-    tags: ["Codes de coût", "Engagements", "Écarts"],
+    slug: "direction",
+    code: "DIR",
+    role: "Direction",
+    headline: "Voir où l’entreprise gagne, bloque ou dérive.",
+    description:
+      "Une lecture portefeuille des finances, risques, échéances et appels d’offres qui demandent une décision.",
+    priorities: [
+      "Santé financière des projets",
+      "Risques et actions en retard",
+      "Rapports prêts pour les réunions",
+    ],
+    modules: ["projets", "budgets", "rapports"],
   },
   {
-    key: "bid",
-    kicker: "Appels d'offres",
-    title: "Lots, invitations et réponses sous-traitants",
-    text: "Prépare les lots, cible les bons sous-traitants, partage les documents utiles et suit les réponses sans perdre le contexte dans les courriels.",
-    metric: "24",
-    metricLabel: "soumissions actives",
-    tags: ["Lots", "Portail", "Comparatifs"],
+    slug: "projets",
+    code: "GDP",
+    role: "Gestion de projets",
+    headline: "Garder les suivis du chantier reliés au bon projet.",
+    description:
+      "Actions, risques, RFIs, submittals, documents, coûts et responsabilités dans un cockpit commun.",
+    priorities: [
+      "Suivi quotidien et hebdomadaire",
+      "Responsables et dates cibles",
+      "Contexte projet traçable",
+    ],
+    modules: ["projets", "documents", "contrats"],
   },
   {
-    key: "invoice",
-    kicker: "Factures et OCR",
-    title: "Factures lues, classées et validées avant posting",
-    text: "L'assistance OCR accélère la saisie, mais la validation humaine garde le contrôle sur les montants et les fournisseurs.",
-    metric: "7",
-    metricLabel: "factures à valider",
-    tags: ["OCR", "Validation", "Posting"],
+    slug: "estimation",
+    code: "EST",
+    role: "Estimation",
+    headline: "Passer du budget préliminaire à une décision documentée.",
+    description:
+      "Importer le budget, préparer les lots, cibler les partenaires, suivre les réponses et comparer les prix.",
+    priorities: [
+      "Lots et budget source",
+      "Invitations Microsoft 365",
+      "Comparaison et attribution",
+    ],
+    modules: ["estimation-bid", "partenaires", "portail-collaboration"],
   },
   {
-    key: "documents",
-    kicker: "Documents et API",
-    title: "Plans, contrats, fichiers et connecteurs",
-    text: "Les documents utiles restent accessibles depuis le projet, peuvent être partagés au portail et cohabitent avec Procore, SharePoint ou une API interne.",
-    metric: "1 248",
-    metricLabel: "documents indexés",
-    tags: ["Plans", "Partage", "API"],
+    slug: "comptabilite",
+    code: "CPT",
+    role: "Comptabilité",
+    headline: "Rattacher chaque coût au bon fournisseur et au bon chantier.",
+    description:
+      "Fournisseurs, factures PDF, ventilation, approbation, âge des comptes et lecture financière projet.",
+    priorities: [
+      "Factures et pièces justificatives",
+      "Approbation contrôlée",
+      "Budget versus coûts réels",
+    ],
+    modules: ["factures-ocr", "budgets", "rapports"],
   },
-];
+] satisfies SolutionRole[];
 
-export const decisionCards = [
-  {
-    title: "Direction",
-    text: "Une lecture claire des marges, coûts engagés, factures, contrats et risques projet.",
-  },
-  {
-    title: "Chargés de projet",
-    text: "Un espace unique pour budget, documents, soumissions, fournisseurs, suivis et décisions.",
-  },
-  {
-    title: "Sous-traitants",
-    text: "Un portail pour recevoir les invitations, documents, demandes et réponses liées aux lots.",
-  },
-  {
-    title: "TI et intégrations",
-    text: "API, domaines, accès et instance ERP isolée pour connecter ProJD sans exposer le coeur plateforme.",
-  },
-];
+export const availabilityCodes = ["available", "evolving", "activation"] as const;
+export type AvailabilityCode = (typeof availabilityCodes)[number];
 
-export const salesCapabilities = [
-  {
-    title: "Gestion de projets",
-    text: "Tableau de bord projet, suivis, coûts, échéances, responsables et décisions importantes.",
-  },
-  {
-    title: "Appels d'offres",
-    text: "Lots, invitations, comparatifs, relances et réponses des sous-traitants dans un même flux.",
-  },
-  {
-    title: "Portail collaboratif",
-    text: "Espace externe pour partager documents, demandes, soumissions, statuts et informations de projet.",
-  },
-  {
-    title: "Documents et API",
-    text: "Partage documentaire, liens SharePoint/Procore et API pour connecter les données utiles.",
-  },
-  {
-    title: "Factures et coûts",
-    text: "Budgets, engagements, coûts réels, factures, validation et pièces justificatives.",
-  },
-  {
-    title: "ERP Docker par client",
-    text: "Chaque compagnie obtient son environnement ProJD monté, suivi, sauvegardé et administré par Fondation.",
-  },
-];
-
-export const deploymentSteps = [
-  "Qualification de la compagnie, des modules et du premier chantier.",
-  "Création du client, du domaine ERP et des licences dans Fondation.",
-  "Montage de l'instance ProJD dans notre environnement Docker.",
-  "Configuration des accès, sous-traitants, documents, API et sauvegardes.",
-];
+export const availabilityLabels = {
+  available: "Disponible",
+  evolving: "En évolution",
+  activation: "Sur activation",
+} satisfies Record<AvailabilityCode, string>;
 
 export type ModuleSlug =
   | "projets"
   | "budgets"
+  | "contrats"
   | "estimation-bid"
   | "documents"
   | "factures-ocr"
   | "partenaires"
   | "portail-collaboration"
   | "rapports"
-  | "api-deploiement"
   | "integrations";
 
 export type ModuleContent = {
   slug: ModuleSlug;
+  code: string;
   name: string;
   eyebrow: string;
   text: string;
   summary: string;
   audience: string;
-  metric: string;
-  metricLabel: string;
-  siteSignal: string;
+  availability: AvailabilityCode;
+  availabilityNote: string;
+  proof: string;
   outcomes: string[];
   features: string[];
   workflow: string[];
@@ -167,328 +153,623 @@ export type ModuleContent = {
 export const modules = [
   {
     slug: "projets",
-    name: "Projets",
-    eyebrow: "Gestion chantier",
-    text: "Fiches projet, phases, responsables, statut, échéances et vue exécutive.",
+    code: "PRJ",
+    name: "Projets et coordination",
+    eyebrow: "Pilotage chantier",
+    text: "Portefeuille, cockpit projet, risques, actions, RFIs, submittals et rapports hebdomadaires.",
     summary:
-      "Le module Projets garde le chantier au centre: coordonnées, échéances, équipe, documents clés, budget et décisions importantes.",
-    audience: "Chargés de projet, direction et coordination chantier.",
-    metric: "12",
-    metricLabel: "projets actifs",
-    siteSignal: "Vue projet claire avant la réunion de chantier.",
+      "ProJD garde les informations de coordination, les responsabilités et les signaux financiers rattachés à une fiche projet canonique.",
+    audience: "Chargés de projet, coordination et direction.",
+    availability: "available",
+    availabilityNote: "Cockpit global et suivi détaillé par projet.",
+    proof: "Cockpit, kit de démarrage, import RFI/submittal et rapport hebdomadaire sont disponibles.",
     outcomes: [
-      "Voir rapidement l’état d’un chantier sans fouiller dans plusieurs fichiers.",
-      "Rattacher budget, documents, factures et partenaires au bon projet.",
-      "Préparer les réunions avec une liste courte de points à suivre.",
+      "Préparer une réunion sans reconstruire le contexte à partir de plusieurs fichiers.",
+      "Voir les actions bloquées, en retard ou à échéance rapprochée.",
+      "Conserver la provenance des éléments importés depuis Procore.",
     ],
     features: [
-      "Fiche projet avec phase, responsable, dates et statut.",
-      "Résumé des coûts, lots actifs, factures et documents liés.",
-      "Notes internes pour garder le contexte des décisions.",
-      "Vue exécutive pour suivre les projets qui demandent de l’attention.",
+      "Portefeuille et santé des projets.",
+      "Actions, risques, jalons, RFIs et submittals.",
+      "Responsables, priorités, échéances et états.",
+      "Rapport hebdomadaire imprimable et export CSV.",
     ],
-    workflow: ["Créer le projet", "Ajouter l’équipe", "Importer les documents", "Suivre budget et lots"],
-    related: ["budgets", "documents", "rapports"],
+    workflow: ["Créer le projet", "Affecter l’équipe", "Démarrer le kit de suivi", "Réviser chaque semaine"],
+    related: ["budgets", "contrats", "documents"],
   },
   {
     slug: "budgets",
-    name: "Budgets",
-    eyebrow: "Contrôle des coûts",
-    text: "Codes de coût, budgets, engagements, coûts réels et écarts à surveiller.",
+    code: "FIN",
+    name: "Finance construction",
+    eyebrow: "Coûts et marges",
+    text: "Phases, codes de coût, budgets, engagements, coûts directs et dépenses de bureau.",
     summary:
-      "Le module Budgets montre ce qui est prévu, engagé et réellement dépensé pour garder les écarts visibles avant la fin du mois.",
-    audience: "Direction, chargés de projet et comptabilité construction.",
-    metric: "68 %",
-    metricLabel: "budget engagé",
-    siteSignal: "Dépassements repérés avant qu’ils sortent au rapport mensuel.",
+      "Une structure financière conçue pour lire le budget prévu, les montants engagés et les coûts réels au niveau du projet.",
+    audience: "Direction, chargés de projet et comptabilité.",
+    availability: "available",
+    availabilityNote: "Socle financier et sommaires imprimables disponibles.",
+    proof: "Les montants révisés sont calculés côté serveur et les sommaires utilisent les données ERP existantes.",
     outcomes: [
-      "Comparer budget, engagé et réel par division ou code de coût.",
-      "Repérer les postes qui demandent validation ou correction.",
-      "Garder une trace des engagements liés aux fournisseurs.",
+      "Comparer budget et coûts par phase ou code de coût.",
+      "Relier les engagements et coûts directs au bon chantier.",
+      "Faire ressortir les écarts avant la revue mensuelle.",
     ],
     features: [
-      "Codes de coût et divisions construction.",
-      "Budget initial, révisions, engagements et réel.",
-      "Alertes visuelles sur les écarts importants.",
-      "Lecture consolidée pour direction et comptabilité.",
+      "Phases et catalogue de codes de coût.",
+      "Budgets initiaux, révisions et prévisions.",
+      "Engagements, coûts directs et frais de bureau.",
+      "Sommaire financier imprimable et export CSV.",
     ],
-    workflow: ["Importer le budget", "Associer les engagements", "Valider les coûts", "Analyser les écarts"],
-    related: ["factures-ocr", "projets", "rapports"],
+    workflow: ["Structurer les codes", "Importer le budget", "Rattacher les coûts", "Analyser les écarts"],
+    related: ["projets", "factures-ocr", "rapports"],
+  },
+  {
+    slug: "contrats",
+    code: "CTR",
+    name: "Contrats",
+    eyebrow: "Contrat-chantier",
+    text: "Fiche contrat, phases, clients, directives, avenants, addenda et analyse consolidée.",
+    summary:
+      "Le premier espace Contrats reprend les flux pratiques d’un ERP construction traditionnel tout en réutilisant les projets, entreprises et phases de ProJD.",
+    audience: "Administration de contrats, chargés de projet et direction.",
+    availability: "evolving",
+    availabilityNote: "Premier périmètre opérationnel; les flux de facturation continuent d’évoluer.",
+    proof: "Contrat-chantier, directives, avenants, addenda, importation de devis et analyse initiale sont accessibles.",
+    outcomes: [
+      "Éviter une seconde fiche projet déconnectée du reste de l’ERP.",
+      "Garder directives, avenants et addenda dans le contexte du contrat.",
+      "Croiser budgets, engagements, factures et partenaires dans l’analyse.",
+    ],
+    features: [
+      "Fiche Contrat-chantier et paramètres de phase.",
+      "Changements, directives et avenants.",
+      "Addenda reliés aux appels d’offres.",
+      "Analyse consolidée à partir des données existantes.",
+    ],
+    workflow: ["Ouvrir le contrat", "Configurer les phases", "Suivre les changements", "Analyser l’exposition"],
+    related: ["projets", "budgets", "estimation-bid"],
   },
   {
     slug: "estimation-bid",
+    code: "BID",
     name: "Estimation et BID",
-    eyebrow: "Appels d'offres",
-    text: "Sélection partenaires, invitations, relances, suivi des réponses et attribution.",
+    eyebrow: "Appels d’offres",
+    text: "Budget préliminaire, lots, sélection partenaires, courriels, portail, réponses et comparaison.",
     summary:
-      "Le module Estimation et BID structure les lots, les invitations et les relances pour éviter que les soumissions se perdent dans les courriels.",
-    audience: "Estimateurs, chargés de projet et responsables achats.",
-    metric: "24",
-    metricLabel: "soumissions actives",
-    siteSignal: "Relances visibles avant la fermeture d’un lot.",
+      "Un parcours d’appel d’offres continu, de l’import du budget jusqu’à la recommandation documentée.",
+    audience: "Estimateurs, responsables achats et chargés de projet.",
+    availability: "available",
+    availabilityNote: "Parcours BID, portail et comparaison disponibles.",
+    proof: "Import XLSX, assistant BID, modèles Microsoft 365, documents, accusés et dépôts privés sont en place.",
     outcomes: [
-      "Préparer des lots clairs avec les partenaires ciblés.",
-      "Suivre qui a répondu, refusé ou doit être relancé.",
-      "Comparer les réponses sans perdre le contexte du projet.",
+      "Transformer les lignes de sous-traitance approuvées en lots suivis.",
+      "Savoir qui a ouvert, accusé réception, répondu ou doit être relancé.",
+      "Comparer budget, cible et soumissions avec une décision conservée.",
     ],
     features: [
-      "Lots d’appel d’offres par projet.",
-      "Liste de partenaires et spécialités.",
-      "Statuts d’invitation, réponse, relance et attribution.",
-      "Comparatifs simples pour décider plus vite.",
+      "Import de budget préliminaire avec provenance.",
+      "Sélection de partenaires par spécialité et historique.",
+      "Courriels Microsoft 365 et liens de portail sécurisés.",
+      "Comparaison des offres et recommandation d’attribution.",
     ],
-    workflow: ["Créer les lots", "Choisir les partenaires", "Envoyer les invitations", "Comparer les réponses"],
-    related: ["partenaires", "documents", "budgets"],
+    workflow: ["Valider le budget", "Préparer les lots", "Inviter les partenaires", "Comparer les offres"],
+    related: ["partenaires", "portail-collaboration", "documents"],
   },
   {
     slug: "documents",
-    name: "Documents",
-    eyebrow: "Plans et pièces",
-    text: "Plans, contrats, photos, pièces jointes et synchronisation documentaire contrôlée.",
+    code: "DOC",
+    name: "Documents et synchronisation",
+    eyebrow: "Procore et SharePoint",
+    text: "Références, mappages, règles de synchronisation, fichiers de projet et contrôles de confidentialité.",
     summary:
-      "Le module Documents garde les plans, contrats, photos et pièces justificatives rattachés au bon projet et au bon contexte.",
-    audience: "Chargés de projet, coordination, chantier et administration.",
-    metric: "1 248",
-    metricLabel: "documents indexés",
-    siteSignal: "Un plan ou contrat retrouvé sans ouvrir trois plateformes.",
+      "ProJD conserve le contexte ERP et la provenance des fichiers tout en préparant une cohabitation contrôlée avec Procore et SharePoint.",
+    audience: "Gestion de projets, coordination, administration et TI.",
+    availability: "evolving",
+    availabilityNote: "Socle de synchronisation disponible; certains connecteurs exigent les accès du client.",
+    proof: "Mappages projet/fichier, aperçu de synchronisation et contrôles sync/no-sync/privé existent déjà.",
     outcomes: [
-      "Retrouver rapidement les documents importants du projet.",
-      "Relier les pièces aux factures, lots, partenaires ou décisions.",
-      "Cohabiter avec SharePoint ou Procore sans perdre le suivi ERP.",
+      "Retrouver la provenance et la destination d’un document.",
+      "Éviter de synchroniser un fichier marqué privé ou hors périmètre.",
+      "Rattacher plans, devis et pièces au bon flux métier.",
     ],
     features: [
-      "Plans, contrats, photos et pièces jointes.",
-      "Classement par projet, partenaire, lot ou facture.",
-      "Références vers SharePoint ou Procore.",
-      "Historique des documents utiles aux décisions.",
+      "Mappages Procore vers SharePoint.",
+      "Aperçu avant synchronisation.",
+      "Contrôles sync, no-sync et employé privé.",
+      "Fichiers d’appel d’offres et dépôts partenaires cloisonnés.",
     ],
-    workflow: ["Classer les documents", "Lier au projet", "Associer aux lots", "Retrouver au besoin"],
-    related: ["projets", "estimation-bid", "factures-ocr"],
+    workflow: ["Définir les sources", "Mapper les projets", "Prévisualiser", "Activer progressivement"],
+    related: ["projets", "estimation-bid", "integrations"],
   },
   {
     slug: "factures-ocr",
-    name: "Factures et OCR",
-    eyebrow: "Comptabilité chantier",
-    text: "Réception des factures, lecture assistée, validation humaine et posting contrôlé.",
+    code: "AP",
+    name: "Comptes fournisseurs",
+    eyebrow: "Factures • OCR en évolution",
+    text: "Fournisseurs, factures PDF, ventilation, approbation, dénonciations et âge des comptes.",
     summary:
-      "Le module Factures et OCR accélère la lecture des factures tout en gardant une validation humaine avant les actions comptables.",
-    audience: "Comptabilité, administration projet et direction financière.",
-    metric: "7",
-    metricLabel: "factures à valider",
-    siteSignal: "Factures rapprochées du bon projet avant traitement.",
+      "Le flux actuel structure les factures d’achat et leur approbation; l’OCR avec validation humaine fait partie de la prochaine évolution.",
+    audience: "Comptabilité, administration de projets et direction financière.",
+    availability: "evolving",
+    availabilityNote: "Saisie, PDF et approbation disponibles; OCR non encore automatisé.",
+    proof: "La facture d’achat, son PDF, ses allocations et la file d’approbation sont déjà utilisables.",
     outcomes: [
-      "Réduire la saisie manuelle répétitive.",
-      "Associer chaque facture au bon fournisseur, projet et code de coût.",
-      "Bloquer les anomalies avant le traitement final.",
+      "Rattacher la facture au fournisseur, au projet et au code de coût.",
+      "Conserver la pièce PDF avec le dossier comptable.",
+      "Faire approuver ou rejeter avec une trace d’audit.",
     ],
     features: [
-      "Lecture assistée OCR pour les informations principales.",
-      "Validation humaine des montants, fournisseurs et codes.",
-      "Lien avec documents et pièces justificatives.",
-      "Statuts de réception, validation et traitement.",
+      "Fiches fournisseurs et données de suivi.",
+      "Factures PDF avec aperçu et impression.",
+      "Ventilation par projet, phase et code de coût.",
+      "File d’approbation et rapport d’âge des comptes.",
     ],
-    workflow: ["Recevoir la facture", "Lire par OCR", "Valider les champs", "Préparer le traitement"],
+    workflow: ["Identifier le fournisseur", "Joindre la facture", "Ventiler les coûts", "Faire approuver"],
     related: ["budgets", "documents", "rapports"],
   },
   {
     slug: "partenaires",
-    name: "Partenaires",
-    eyebrow: "Sous-traitants",
-    text: "Répertoire de sous-traitants, spécialités, statuts, notes et historique.",
+    code: "PAR",
+    name: "Réseau partenaires",
+    eyebrow: "Sous-traitants et fournisseurs",
+    text: "Fiches partenaires, spécialités, contacts, préférences, statuts et historique de soumissions.",
     summary:
-      "Le module Partenaires centralise les sous-traitants, fournisseurs, spécialités et notes utiles pour mieux choisir qui inviter ou relancer.",
+      "Un répertoire exploitable pour choisir les bons partenaires et garder le contexte de chaque relation.",
     audience: "Estimation, achats, chargés de projet et administration.",
-    metric: "318",
-    metricLabel: "partenaires suivis",
-    siteSignal: "Le bon sous-traitant invité pour le bon lot.",
+    availability: "available",
+    availabilityNote: "Répertoire, imports et spécialités disponibles.",
+    proof: "Les imports autorisés ConstructBuy, contacts, spécialités et notes internes sont structurés dans ProJD.",
     outcomes: [
-      "Garder un répertoire utile pour les prochains appels d’offres.",
-      "Voir les spécialités, notes et historiques de participation.",
-      "Mieux cibler les invitations BID.",
+      "Cibler les partenaires par spécialité plutôt qu’à partir d’une liste plate.",
+      "Garder les contacts, préférences et notes internes au même endroit.",
+      "Bloquer les partenaires fermés ou exclus des nouvelles invitations.",
     ],
     features: [
-      "Fiches partenaires avec spécialités et coordonnées.",
-      "Notes internes et historique de soumissions.",
-      "Statuts actifs, à vérifier ou à éviter.",
-      "Lien avec lots, projets et documents.",
+      "Import CSV/ZIP avec provenance.",
+      "Catalogue de spécialités et recherche.",
+      "Statuts actif, privilégié, fermé ou bloqué.",
+      "Contacts d’équipe et historique des invitations.",
     ],
-    workflow: ["Créer la fiche", "Associer les spécialités", "Noter l’historique", "Cibler les invitations"],
-    related: ["estimation-bid", "projets", "documents"],
+    workflow: ["Importer ou créer", "Classer les spécialités", "Valider le statut", "Cibler les lots"],
+    related: ["estimation-bid", "portail-collaboration", "projets"],
   },
   {
     slug: "portail-collaboration",
-    name: "Portail collaboration",
-    eyebrow: "Sous-traitants et clients",
-    text: "Espace externe pour travailler avec les sous-traitants, partager les documents et suivre les réponses.",
+    code: "EXT",
+    name: "Portail partenaires",
+    eyebrow: "Collaboration externe",
+    text: "Invitations ciblées, documents, accusés de réception, réponses et dépôts privés.",
     summary:
-      "Le portail collaboration donne aux partenaires un accès cadré aux invitations, documents, demandes et réponses sans leur ouvrir tout l'ERP interne.",
-    audience: "Sous-traitants, clients, chargés de projet, estimation et administration.",
-    metric: "42",
-    metricLabel: "partenaires invités",
-    siteSignal: "Les réponses arrivent au bon lot avec les documents utiles.",
+      "Le portail donne au partenaire uniquement le contexte de son invitation, sans ouvrir l’administration interne de ProJD.",
+    audience: "Sous-traitants, estimateurs et administration.",
+    availability: "available",
+    availabilityNote: "Flux par lien sécurisé disponible.",
+    proof: "Les liens sont hachés, expirants et limités à l’invitation; les fichiers d’un partenaire restent privés.",
     outcomes: [
-      "Partager seulement l'information nécessaire avec les partenaires.",
-      "Recevoir les réponses, fichiers et confirmations au bon endroit.",
-      "Réduire les relances manuelles et les versions de documents perdues.",
+      "Réduire les échanges dispersés autour d’un appel d’offres.",
+      "Exiger l’accusé de réception des documents importants.",
+      "Recevoir montant et fichiers sans les exposer aux autres partenaires.",
     ],
     features: [
-      "Accès externe par rôle et par projet.",
-      "Dépôt de documents, réponses et confirmations.",
-      "Lien direct avec lots, partenaires et suivis projet.",
-      "Historique clair des échanges importants.",
+      "Lien signé, ciblé et expirant.",
+      "Documents et addenda avec accusé requis.",
+      "Réponse intéressé/refusé et dépôt de soumission.",
+      "Aperçu employé sans consommer le lien public.",
     ],
-    workflow: ["Inviter le partenaire", "Partager les lots", "Recevoir la réponse", "Suivre la décision"],
-    related: ["estimation-bid", "documents", "partenaires"],
+    workflow: ["Envoyer le lien", "Faire accuser les documents", "Recevoir la réponse", "Comparer l’offre"],
+    related: ["estimation-bid", "partenaires", "documents"],
   },
   {
     slug: "rapports",
-    name: "Rapports",
-    eyebrow: "Pilotage",
-    text: "Vues pour estimation, projets, comptabilité, direction et suivi mensuel.",
+    code: "RPT",
+    name: "Rapports et direction",
+    eyebrow: "Décision",
+    text: "Portefeuille, santé financière, rapport hebdomadaire, comparatifs et exports lisibles.",
     summary:
-      "Le module Rapports transforme les données de chantier en vues simples pour décider quoi surveiller, relancer ou corriger.",
-    audience: "Direction, gestion de projet, estimation et comptabilité.",
-    metric: "5",
-    metricLabel: "vues métier",
-    siteSignal: "Une réunion de gestion avec des chiffres lisibles.",
+      "Des vues calculées à partir des données de travail pour préparer les réunions de direction et de projet.",
+    audience: "Direction, gestion de projets, estimation et comptabilité.",
+    availability: "available",
+    availabilityNote: "Premiers rapports imprimables et exports CSV disponibles.",
+    proof: "Les sommaires financiers, rapports hebdomadaires et vues exécutives utilisent les données ERP existantes.",
     outcomes: [
-      "Voir les coûts, lots, factures et documents qui demandent attention.",
-      "Préparer les suivis mensuels sans refaire les fichiers à la main.",
-      "Donner une lecture différente selon le rôle.",
+      "Commencer par le résumé avant d’ouvrir le détail.",
+      "Repérer les projets, coûts et actions qui demandent une décision.",
+      "Partager un rapport imprimable avec la date et le contexte source.",
     ],
     features: [
-      "Vues direction, projet, estimation et comptabilité.",
-      "Filtres par projet, statut, partenaire et période.",
-      "Suivi des écarts, validations et retards.",
-      "Export préparé pour les suivis internes.",
+      "Tableau de bord exécutif et portefeuille.",
+      "Sommaire financier par projet.",
+      "Rapport hebdomadaire de coordination.",
+      "Impression et exports CSV ciblés.",
     ],
-    workflow: ["Choisir la vue", "Filtrer le projet", "Repérer les écarts", "Partager le suivi"],
-    related: ["budgets", "factures-ocr", "projets"],
-  },
-  {
-    slug: "api-deploiement",
-    name: "API et instance ERP",
-    eyebrow: "SaaS isolé",
-    text: "API contrôlée, domaine client, licences et instance ProJD Docker montée pour chaque compagnie.",
-    summary:
-      "Le module API et instance ERP explique comment ProJD est vendu comme un service: un environnement par compagnie, monté dans notre infrastructure, surveillé par Fondation.",
-    audience: "Direction, TI, opérations et responsables d'implantation.",
-    metric: "1",
-    metricLabel: "ERP dédié par client",
-    siteSignal: "Un espace ProJD prêt pour la compagnie, pas un accès partagé générique.",
-    outcomes: [
-      "Isoler chaque compagnie dans son propre contexte ERP.",
-      "Connecter les systèmes externes sans exposer les secrets plateforme.",
-      "Préparer domaines, sauvegardes, licences et mises à jour dès le départ.",
-    ],
-    features: [
-      "Instance ProJD Docker par client.",
-      "Domaine ERP, licences et configuration tenant.",
-      "API serveur pour intégrations validées.",
-      "Suivi Fondation pour santé, backups et provisioning.",
-    ],
-    workflow: ["Qualifier le besoin", "Créer le tenant", "Monter l'ERP", "Activer API et accès"],
-    related: ["integrations", "documents", "rapports"],
+    workflow: ["Choisir la vue", "Filtrer le périmètre", "Valider les écarts", "Partager le rapport"],
+    related: ["projets", "budgets", "factures-ocr"],
   },
   {
     slug: "integrations",
-    name: "Intégrations",
-    eyebrow: "Écosystème",
-    text: "Connexions préparées avec Procore, SharePoint, Outlook et données internes.",
+    code: "INT",
+    name: "Intégrations et API",
+    eyebrow: "Écosystème contrôlé",
+    text: "Procore, Microsoft 365, SharePoint et API ERP activés selon les permissions disponibles.",
     summary:
-      "Le module Intégrations aide ProJD à cohabiter avec les outils déjà en place sans faire disparaître le suivi financier et opérationnel.",
-    audience: "Direction, opérations, TI et responsables d’implantation.",
-    metric: "3",
-    metricLabel: "connecteurs visés",
-    siteSignal: "L’ERP garde le suivi même quand les documents vivent ailleurs.",
+      "ProJD reste la couche de workflow et de lecture ERP tandis que les systèmes connectés gardent leurs responsabilités.",
+    audience: "TI, opérations, direction et responsables d’implantation.",
+    availability: "activation",
+    availabilityNote: "Activation selon l’environnement, les licences et les permissions du client.",
+    proof: "Les mécanismes OAuth/API, Microsoft Graph, mappages et API ERP en lecture existent avec des garde-fous.",
     outcomes: [
-      "Rapprocher les informations utiles sans remplacer tous les outils.",
-      "Garder ProJD comme lecture ERP du projet.",
-      "Activer progressivement selon la qualité des données.",
+      "Connecter progressivement les sources réellement utiles.",
+      "Conserver la provenance et les dates de synchronisation.",
+      "Dégrader proprement le flux lorsqu’un outil ou une permission manque.",
     ],
     features: [
-      "Références Procore pour projets et documents pertinents.",
-      "Liens SharePoint pour bibliothèques existantes.",
-      "Préparation des relances et suivis Outlook.",
-      "Approche progressive pour éviter les migrations risquées.",
+      "Socle Procore OAuth/API et contrôles de capacité.",
+      "Microsoft Graph et mappages SharePoint.",
+      "API ERP en lecture avec scopes et audit.",
+      "Instance distincte et activation accompagnée.",
     ],
-    workflow: ["Identifier les outils", "Choisir les données", "Tester la synchronisation", "Activer par étape"],
-    related: ["documents", "estimation-bid", "rapports"],
+    workflow: ["Évaluer les accès", "Choisir le périmètre", "Tester en bac à sable", "Activer et surveiller"],
+    related: ["documents", "projets", "estimation-bid"],
   },
 ] satisfies ModuleContent[];
 
-export const getModuleBySlug = (slug: string): ModuleContent | undefined =>
-  modules.find((module) => module.slug === slug);
+const legacyModuleAliases: Partial<Record<string, ModuleSlug>> = {
+  "api-deploiement": "integrations",
+};
 
-export const workflow = [
-  "Choisir le forfait",
-  "Qualifier les modules",
-  "Monter l'instance ERP",
-  "Activer portail et API",
-  "Suivre projets, coûts et partenaires",
-];
+export const getModuleBySlug = (slug: string): ModuleContent | undefined => {
+  const canonicalSlug = legacyModuleAliases[slug] ?? slug;
+  return modules.find((module) => module.slug === canonicalSlug);
+};
+
+export const featuredModuleSlugs = [
+  "projets",
+  "budgets",
+  "estimation-bid",
+  "partenaires",
+  "factures-ocr",
+  "rapports",
+] satisfies ModuleSlug[];
+
+export const getFeaturedModules = (): ModuleContent[] =>
+  featuredModuleSlugs
+    .map((slug) => getModuleBySlug(slug))
+    .filter((module): module is ModuleContent => Boolean(module));
 
 export const packages = pricingPlans.map((plan) => ({
   code: plan.code,
-  name: plan.name,
+  name: plan.publicName,
   price: `${formatMoney(plan.monthlyPriceCents)}/mois`,
-  setup: `${formatMoney(plan.setupFeeCents)} mise en route`,
+  setup: `${formatMoney(plan.setupFeeCents)} de mise en route`,
   description: plan.description,
-  items: [
-    ...plan.items,
-    `${formatMoney(plan.extraSeatMonthlyCents)}/mois par utilisateur additionnel`,
-  ],
+  includedSeats: plan.includedSeats,
+  items: plan.items,
   featured: plan.featured,
 }));
 
 export const integrations = [
   {
+    code: "PC",
     name: "Procore",
-    text: "Rapprocher projets, photos, documents et références externes sans perdre le suivi ERP ProJD.",
+    status: "Selon les outils activés",
+    text: "Projets, RFIs, submittals et documents sont rapprochés avec contrôle de capacité et provenance.",
   },
   {
-    name: "SharePoint",
-    text: "Garder les bibliothèques existantes tout en attachant les documents utiles au bon projet.",
+    code: "M365",
+    name: "Microsoft 365",
+    status: "Microsoft Graph",
+    text: "SharePoint pour les fichiers et Microsoft 365 pour les invitations d’appels d’offres.",
   },
   {
+    code: "API",
     name: "API ProJD",
-    text: "Connecter données projet, partenaires, documents et suivis par des endpoints serveur contrôlés.",
+    status: "Lecture contrôlée",
+    text: "Projets, entreprises et contacts exposés uniquement avec scopes, jetons et audit.",
   },
-];
+] as const;
+
+export type GuideSlug =
+  | "demarrer-un-projet"
+  | "lancer-un-appel-offres"
+  | "suivre-un-budget"
+  | "traiter-une-facture";
+
+export type GuideStep = {
+  title: string;
+  text: string;
+  checks: string[];
+};
+
+export type GuideContent = {
+  slug: GuideSlug;
+  code: string;
+  title: string;
+  category: string;
+  duration: string;
+  summary: string;
+  audience: string;
+  outcome: string;
+  steps: GuideStep[];
+  note: string;
+  relatedModules: ModuleSlug[];
+};
+
+export const guides = [
+  {
+    slug: "demarrer-un-projet",
+    code: "G01",
+    title: "Démarrer un projet dans ProJD",
+    category: "Prise en main",
+    duration: "8 min",
+    summary:
+      "Créer la fiche canonique, affecter l’équipe, relier les sources et lancer le premier suivi.",
+    audience: "Chargés de projet et coordination",
+    outcome: "Un projet prêt pour la coordination hebdomadaire, sans structure parallèle.",
+    steps: [
+      {
+        title: "Créer la fiche projet",
+        text: "Saisir le code, le client, les dates, le responsable et le statut qui serviront à tous les modules.",
+        checks: ["Code de projet unique", "Client canonique", "Responsable et dates"],
+      },
+      {
+        title: "Préparer l’équipe et les paramètres",
+        text: "Associer les employés, vérifier les accès ERP et compléter le contexte du chantier.",
+        checks: ["Équipe projet", "Rôles internes", "Paramètres du chantier"],
+      },
+      {
+        title: "Relier Procore ou SharePoint au besoin",
+        text: "Créer les mappages uniquement lorsque les accès et la destination documentaire sont confirmés.",
+        checks: ["Projet source identifié", "Bibliothèque cible validée", "Aperçu de synchronisation"],
+      },
+      {
+        title: "Lancer le kit de suivi",
+        text: "Créer les suivis de démarrage, puis utiliser le rapport hebdomadaire pour la première réunion.",
+        checks: ["Actions et risques", "Jalons et réunions", "Rapport hebdomadaire"],
+      },
+    ],
+    note: "Les références externes conservent leur source; Procore ou SharePoint ne deviennent pas des miroirs incontrôlés.",
+    relatedModules: ["projets", "documents", "rapports"],
+  },
+  {
+    slug: "lancer-un-appel-offres",
+    code: "G02",
+    title: "Lancer un appel d’offres",
+    category: "Estimation",
+    duration: "10 min",
+    summary:
+      "Passer d’un budget approuvé à des invitations suivies, puis comparer les réponses reçues.",
+    audience: "Estimateurs et responsables achats",
+    outcome: "Un lot documenté, des partenaires ciblés et une décision traçable.",
+    steps: [
+      {
+        title: "Valider le budget source",
+        text: "Importer le classeur préliminaire et soumettre le budget avant de générer les lots.",
+        checks: ["Provenance du fichier", "Codes budget", "Approbation requise"],
+      },
+      {
+        title: "Préparer le lot et ses documents",
+        text: "Définir le périmètre, la fermeture, les instructions et les documents que le partenaire doit accuser.",
+        checks: ["Portée claire", "Date de fermeture", "Addenda et accusés"],
+      },
+      {
+        title: "Choisir les partenaires",
+        text: "Filtrer le répertoire par spécialité, statut et historique avant de préparer l’envoi.",
+        checks: ["Spécialités", "Contacts actifs", "Partenaires admissibles"],
+      },
+      {
+        title: "Envoyer et suivre",
+        text: "Utiliser le modèle Microsoft 365, puis suivre ouverture, accusés, réponse et relance.",
+        checks: ["Courriel rendu", "Lien expirant", "État de réponse"],
+      },
+      {
+        title: "Comparer et documenter",
+        text: "Comparer budget, cible et montants reçus, puis conserver la recommandation et la note de décision.",
+        checks: ["Écarts de prix", "Pièces reçues", "Recommandation"],
+      },
+    ],
+    note: "Chaque partenaire voit uniquement son invitation et ses fichiers; les notes internes ne sont jamais rendues dans le portail.",
+    relatedModules: ["estimation-bid", "partenaires", "portail-collaboration"],
+  },
+  {
+    slug: "suivre-un-budget",
+    code: "G03",
+    title: "Suivre un budget de chantier",
+    category: "Finance",
+    duration: "7 min",
+    summary:
+      "Structurer les phases et codes, rattacher les engagements et lire les écarts du projet.",
+    audience: "Chargés de projet, direction et comptabilité",
+    outcome: "Une lecture commune du prévu, de l’engagé et du réel.",
+    steps: [
+      {
+        title: "Structurer les dimensions",
+        text: "Définir les phases et codes de coût que l’équipe utilisera pour toutes les écritures du projet.",
+        checks: ["Phases actives", "Codes cohérents", "Types de coût"],
+      },
+      {
+        title: "Charger le budget",
+        text: "Créer ou importer les lignes avec budget initial, ajustements approuvés et prévisions.",
+        checks: ["Montants en Decimal", "Sources identifiées", "Révisions validées"],
+      },
+      {
+        title: "Rattacher engagements et coûts",
+        text: "Associer les engagements, coûts directs et factures au même axe projet-phase-code.",
+        checks: ["Fournisseur", "Engagement", "Ventilation"],
+      },
+      {
+        title: "Réviser le sommaire",
+        text: "Utiliser la vue financière et l’export CSV pour préparer la revue de projet.",
+        checks: ["Budget révisé", "Coûts réels", "Écarts à traiter"],
+      },
+    ],
+    note: "Les montants révisés sont calculés côté serveur; le navigateur ne décide jamais d’un total financier.",
+    relatedModules: ["budgets", "projets", "rapports"],
+  },
+  {
+    slug: "traiter-une-facture",
+    code: "G04",
+    title: "Traiter une facture fournisseur",
+    category: "Comptabilité",
+    duration: "6 min",
+    summary:
+      "Enregistrer la pièce PDF, la ventiler et la faire approuver avec une trace exploitable.",
+    audience: "Comptabilité et administration de projets",
+    outcome: "Une facture reliée au bon fournisseur et au bon chantier avant approbation.",
+    steps: [
+      {
+        title: "Valider le fournisseur",
+        text: "Choisir l’entreprise canonique et vérifier ses conditions, références et données de suivi.",
+        checks: ["Fournisseur actif", "Conditions de paiement", "Références"],
+      },
+      {
+        title: "Saisir la facture et joindre le PDF",
+        text: "Entrer les références et montants, puis conserver la pièce dans l’espace prévu.",
+        checks: ["Numéro de facture", "Dates et totaux", "PDF consultable"],
+      },
+      {
+        title: "Ventiler le coût",
+        text: "Rattacher la facture au projet, à la phase, au code de coût et à l’engagement lorsque pertinent.",
+        checks: ["Projet", "Phase et code", "Engagement ou bon"],
+      },
+      {
+        title: "Soumettre à l’approbation",
+        text: "Faire approuver ou rejeter la facture, puis surveiller le solde dans l’âge des comptes.",
+        checks: ["État d’approbation", "Trace d’audit", "Solde fournisseur"],
+      },
+    ],
+    note: "L’OCR automatisé est en évolution. Lorsqu’il sera activé, aucune donnée extraite ne sera comptabilisée sans validation humaine.",
+    relatedModules: ["factures-ocr", "budgets", "documents"],
+  },
+] satisfies GuideContent[];
+
+export const getGuideBySlug = (slug: string): GuideContent | undefined =>
+  guides.find((guide) => guide.slug === slug);
+
+export const resourceCards = [
+  {
+    code: "PRE",
+    title: "Présentation interactive",
+    text: "Six diapositives pour comprendre le positionnement, les flux disponibles et le mode d’implantation.",
+    href: "/presentation",
+    action: "Lancer la présentation",
+  },
+  {
+    code: "DOC",
+    title: "Documentation",
+    text: "Architecture produit, état des modules, intégrations et règles de fonctionnement.",
+    href: "/documentation",
+    action: "Consulter la documentation",
+  },
+  {
+    code: "GUI",
+    title: "Guides pratiques",
+    text: "Des parcours courts pour les projets, les budgets, les appels d’offres et les factures.",
+    href: "/guides",
+    action: "Parcourir les guides",
+  },
+  {
+    code: "DEM",
+    title: "Démo ProJD",
+    text: "Un environnement distinct avec des données fictives pour voir les principaux espaces de travail.",
+    href: "/demo",
+    action: "Préparer la visite",
+  },
+  {
+    code: "SEC",
+    title: "Sécurité et données",
+    text: "Autorité serveur, portail cloisonné, audit et limites assumées des intégrations.",
+    href: "/securite",
+    action: "Voir les garde-fous",
+  },
+] as const;
+
+export const documentationSections = [
+  {
+    code: "01",
+    title: "Prise en main",
+    text: "Comprendre l’organisation générale et préparer un premier projet.",
+    items: ["Navigation par métier", "Projet canonique", "Équipe et accès", "Kit de suivi"],
+    href: "/guides/demarrer-un-projet",
+  },
+  {
+    code: "02",
+    title: "Flux métier",
+    text: "Relier les étapes plutôt que d’utiliser chaque écran comme un outil isolé.",
+    items: ["Projet → finance", "Budget → BID", "Partenaire → portail", "Facture → approbation"],
+    href: "/guides",
+  },
+  {
+    code: "03",
+    title: "Intégrations",
+    text: "Activer les connecteurs avec un périmètre, une provenance et un comportement d’échec explicites.",
+    items: ["Procore", "SharePoint", "Microsoft 365", "API ProJD"],
+    href: "/modules/integrations",
+  },
+] as const;
 
 export const securityItems = [
-  "Accès par rôle pour protéger coûts, factures, documents et paramètres sensibles.",
-  "Historique des actions importantes pour garder une trace claire des décisions.",
-  "Validation humaine avant les actions comptables ou les changements critiques.",
-  "Intégrations activées progressivement selon la maturité des données.",
-];
+  {
+    code: "AUTH",
+    title: "Accès et rôles",
+    text: "Les surfaces administratives demandent une session; les permissions plus fines continuent d’être renforcées.",
+  },
+  {
+    code: "AUDIT",
+    title: "Traçabilité métier",
+    text: "Les changements importants conservent acteur, source, entité et résumé sûr.",
+  },
+  {
+    code: "PORTAL",
+    title: "Portail cloisonné",
+    text: "Les liens partenaires sont ciblés, expirants, limités et séparés des routes administratives.",
+  },
+  {
+    code: "SYNC",
+    title: "Intégrations prudentes",
+    text: "Les synchronisations sont idempotentes, capables de reprendre et explicites lorsqu’un accès manque.",
+  },
+] as const;
 
 export const faqItems = [
   {
     question: "ProJD remplace-t-il Procore?",
     answer:
-      "Pas nécessairement. ProJD devient la couche ERP et suivi financier; Procore peut rester connecté pour les données et documents pertinents.",
+      "Pas obligatoirement. ProJD porte les workflows ERP, la normalisation et les rapports; Procore peut rester une source de données terrain selon les accès disponibles.",
   },
   {
-    question: "Peut-on commencer avec une seule équipe?",
+    question: "Peut-on commencer avec une équipe pilote?",
     answer:
-      "Oui. Le meilleur départ est souvent un premier groupe projet avec quelques utilisateurs, puis une expansion par modules.",
+      "Oui. L’implantation la plus saine commence par un projet, quelques responsables et un flux prioritaire avant d’élargir.",
   },
   {
-    question: "Que se passe-t-il après l'achat?",
+    question: "L’OCR des factures est-il déjà automatique?",
     answer:
-      "L'équipe ProJD confirme le paiement, prépare l'espace client, active les licences et accompagne la première configuration.",
+      "Non. La saisie, le PDF, la ventilation et l’approbation existent; l’OCR est encore en évolution et restera soumis à une validation humaine.",
   },
   {
-    question: "Les prix sont-ils définitifs?",
+    question: "Les intégrations sont-elles incluses automatiquement?",
     answer:
-      "Les forfaits cadrent l'achat initial. Les intégrations, imports historiques et besoins d'accompagnement peuvent ajuster le devis final.",
+      "Elles sont cadrées selon le forfait, l’environnement Microsoft/Procore, les permissions et le périmètre de données à synchroniser.",
   },
-];
+] as const;
 
 export const statusTargets = [
-  { label: "Site ProJD", status: "En ligne", href: "/healthz", detail: "Vitrine et formulaire" },
-  { label: "Démo ERP", status: "Lecture seule", href: demoErpUrl, detail: "Parcours produit" },
-  { label: "Paiement", status: "Préparation", href: "/commander", detail: "Stripe et PayPal" },
-  { label: "Support", status: "Sur demande", href: "/commander", detail: "Activation accompagnée" },
-];
+  {
+    label: "Site ProJD",
+    status: "Point d’accès",
+    href: "/healthz",
+    detail: "Vérification de la vitrine",
+  },
+  {
+    label: "Démo ERP",
+    status: "Données fictives",
+    href: demoErpUrl,
+    detail: "Environnement distinct",
+  },
+  {
+    label: "Configuration",
+    status: "Accompagnée",
+    href: "/commander",
+    detail: "Forfait et implantation",
+  },
+] as const;

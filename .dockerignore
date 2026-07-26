@@ -1,5 +1,8 @@
 .git
+.env*
 .next
+/data
+/graphify-out
 node_modules
 npm-debug.log
 output

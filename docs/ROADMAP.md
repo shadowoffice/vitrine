@@ -1,61 +1,54 @@
-# Vitrine Roadmap
+# Feuille de route Vitrine
 
-## Priority 1 - Merge And Deploy ProJD Sales Redesign
+## Priorité 1 — Déployer la refonte multipage
 
-- Review the `feat/projd-sales-vitrine` branch.
-- Merge once validation passes.
-- Rebuild `fichero-vitrine`.
-- Smoke:
-  - `/`
-  - `/projd`
-  - `/modules`
-  - `/modules/projets`
-  - `/modules/budgets`
-  - `/modules/estimation-bid`
-  - `/tarifs`
-  - `/commander`
-  - `/demo`
-  - `/healthz`
-  - `/sitemap.xml`
+- publier la version validée de la branche de refonte;
+- refaire les smoke tests sur l’URL publique;
+- vérifier les journaux de propositions, d’analytics et de checkout;
+- confirmer que l’accueil public reste court après le déploiement.
 
-## Priority 2 - Real Provider Smoke
+## Priorité 2 — Opérer la vente assistée
 
-Depends on Stripe/PayPal configuration in the internal provider bridge.
+- traiter `/commander` comme CTA commercial principal;
+- documenter le responsable et le délai de suivi des propositions;
+- protéger, sauvegarder, faire tourner et purger
+  `VITRINE_PROPOSAL_INBOX_PATH`;
+- ajouter une exportation ou une vue interne des propositions;
+- mesurer proposition commencée, envoyée et échouée sans identifiant visiteur;
+- ajouter protection anti-abus si le trafic le justifie.
 
-- Run Stripe sandbox purchase from `/commander`.
-- Confirm redirect to Stripe.
-- Confirm webhook reconciliation.
-- Confirm invoice/subscription/license records.
-- Run PayPal sandbox order/capture.
-- Confirm PayPal return page behavior.
+## Priorité 3 — Consolider la vérité produit
 
-## Priority 3 - Public Trust Content
+- synchroniser `docs/CONTENT_TRUTH_MATRIX.md` avec l’état réel de ProJD;
+- garder `site-content.ts` comme contenu canonique;
+- identifier clairement `available`, `evolving` et `activation`;
+- ne jamais présenter OCR, conformité ou connecteurs comme universellement
+  actifs;
+- ajouter de vraies captures utilisant uniquement les données fictives de démo.
 
-- Add privacy, contact and legal pages when legal copy is ready.
-- Add implementation timeline copy for buyers.
-- Add customer-facing FAQ about billing, support and data handling.
-- Add real product screenshots or generated product visuals once the ERP demo
-  content is stable.
+## Priorité 4 — Consolider confiance et SEO
 
-## Priority 4 - Analytics And Intake Operations
+- valider confidentialité et conditions avec le responsable légal;
+- ajouter une méthode de contact officielle;
+- maintenir les nouvelles routes dans le sitemap;
+- enrichir les données structurées au besoin;
+- vérifier les canonicals et maintenir `noindex` sur
+  `/commander/achat` et `/paiement/retour`;
+- transformer les guides en points d’entrée SEO utiles, sans contenu générique.
 
-- Add an internal view or export for local JSONL order backups.
-- Add lightweight analytics summary for page views, checkout starts and failed
-  checkouts.
-- Add structured event names for pricing CTA clicks and slider engagement.
-- Add bot/spam controls if public traffic increases.
+## Priorité 5 — Qualifier le checkout historique
 
-## Priority 5 - SEO And Content Depth
+- conserver `/commander/achat` après la proposition, jamais comme CTA principal;
+- tester Stripe et PayPal en sandbox;
+- vérifier signatures webhook, idempotence et erreurs fournisseur;
+- ne jamais confirmer Stripe à partir d’un paramètre URL;
+- afficher un succès uniquement depuis un état serveur autoritaire;
+- confirmer facture, abonnement, licence et activation dans Fondation.
 
-- Add richer examples and screenshots to the module pages as the ERP demo data
-  becomes stable.
-- Add OpenGraph images.
-- Add richer schema metadata where appropriate.
-- Keep sitemap and robots aligned with public launch state.
+## Priorité 6 — Exploitation
 
-## Priority 6 - Ecosystem Links
-
-- Keep `demo.erp.fichero.cloud` as the read-only ProJD demo entry.
-- Keep public navigation focused on ProJD.
-- Avoid adding direct app/runtime entry points until routing and support process
-  are stable.
+- rebuild et redéployer `fichero-vitrine`;
+- vérifier `https://fichero.cloud` et `/healthz`;
+- surveiller les erreurs de proposition, checkout et analytics;
+- tenir `README.md`, `SITE_MAP.md`, `ARCHITECTURE.md` et l’état projet alignés
+  après chaque changement de parcours.

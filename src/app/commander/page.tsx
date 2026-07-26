@@ -1,63 +1,71 @@
-import { SiteHeader } from "../_components/SiteHeader";
-import { ErpOrderForm } from "./ErpOrderForm";
-import { demoErpUrl } from "@/lib/site-content";
+import type { Metadata } from "next";
+import Link from "next/link";
 
-export const metadata = {
-  title: "Commander ProJD",
+import { ProposalForm } from "./ProposalForm";
+
+export const metadata: Metadata = {
+  title: "Configurer une proposition",
   description:
-    "Commander une instance ProJD ERP pour une compagnie de construction avec portail, modules et activation Fondation.",
+    "Préparez une proposition ProJD autour de votre équipe, de votre priorité métier et de vos outils actuels.",
+  alternates: {
+    canonical: "/commander",
+  },
 };
 
-type OrderPageProps = {
+type ProposalPageProps = {
   searchParams?: Promise<{
     plan?: string | string[];
   }>;
 };
 
-const firstQueryValue = (value: string | string[] | undefined): string | undefined =>
-  Array.isArray(value) ? value[0] : value;
+const firstQueryValue = (
+  value: string | string[] | undefined,
+): string | undefined => (Array.isArray(value) ? value[0] : value);
 
-export default async function OrderPage({ searchParams }: OrderPageProps) {
+const preparationPoints = [
+  "Un problème métier prioritaire",
+  "Une équipe et un projet pilote",
+  "Les intégrations à vérifier",
+] as const;
+
+export default async function ProposalPage({
+  searchParams,
+}: ProposalPageProps) {
   const params = searchParams ? await searchParams : {};
   const initialPlanCode = firstQueryValue(params.plan);
 
   return (
-    <main>
-      <SiteHeader ctaHref={demoErpUrl} ctaLabel="Voir la démo ERP" />
-
-      <section className="order-hero" aria-labelledby="order-title">
-        <div>
-          <p className="eyebrow">Commande ERP</p>
-          <h1 id="order-title">Commander une instance ProJD</h1>
+    <main id="contenu">
+      <section className="proposal-page">
+        <div className="proposal-copy">
+          <p className="eyebrow">Proposition ProJD</p>
+          <h1>Commencer par le bon périmètre.</h1>
           <p>
-            La commande prépare l&apos;espace ProJD de la compagnie, les licences, le portail
-            collaboratif, les modules et la première activation. Un paiement Stripe ou PayPal
-            déclenche le flux fournisseur; un code promo Fondation valide active le tenant gratuit
-            comme une commande déjà payée.
+            Donnez-nous assez de contexte pour préparer une démonstration et
+            une proposition cohérentes. Les renseignements fiscaux et le
+            paiement viennent seulement après la qualification.
+          </p>
+          <ul>
+            {preparationPoints.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
+          </ul>
+          <div className="proposal-assurance">
+            <span aria-hidden="true">✓</span>
+            <p>
+              <strong>Formulaire court</strong>
+              Aucun numéro de taxe, adresse complète ou carte de paiement à
+              cette étape.
+            </p>
+          </div>
+          <p className="existing-offer-link">
+            Une proposition est déjà approuvée?{" "}
+            <Link href={`/commander/achat${initialPlanCode ? `?plan=${initialPlanCode}` : ""}`}>
+              Finaliser la commande
+            </Link>
           </p>
         </div>
-        <div className="order-summary" aria-label="Processus de commande">
-          <span>Client</span>
-          <span>Forfait</span>
-          <span>Portail et modules</span>
-          <span>Paiement</span>
-          <span>Licence</span>
-          <span>ERP Docker</span>
-        </div>
-      </section>
-
-      <section className="order-section" aria-label="Formulaire de commande ERP">
-        <div className="order-copy">
-          <p className="eyebrow">Onboarding</p>
-          <h2>Créer le bon dossier d’achat dès le départ</h2>
-          <p>
-            Le formulaire qualifie l’entreprise, le forfait, le nombre d’utilisateurs et le
-            préfixe ERP souhaité, par exemple client1 pour client1.erp.fichero.cloud. Fondation
-            pourra ensuite préparer le tenant, le domaine, les accès, les licences, les sauvegardes
-            et les prochaines étapes d&apos;intégration.
-          </p>
-        </div>
-        <ErpOrderForm initialPlanCode={initialPlanCode} />
+        <ProposalForm initialPlanCode={initialPlanCode} />
       </section>
     </main>
   );

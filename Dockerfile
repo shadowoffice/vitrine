@@ -25,6 +25,10 @@ COPY --from=build /app/public ./public
 COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Image optimization is globally disabled; keep the vulnerable native Sharp
+# toolchain out of the production runtime.
+RUN rm -rf node_modules/sharp node_modules/@img
+
 USER nextjs
 EXPOSE 3000
 

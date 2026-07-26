@@ -1,7 +1,5 @@
 import Link from "next/link";
 
-import { demoErpUrl } from "@/lib/site-content";
-
 type MarketingCtaProps = {
   eyebrow?: string;
   title: string;
@@ -13,22 +11,22 @@ type MarketingCtaProps = {
 };
 
 export function MarketingCta({
-  eyebrow = "Prochaine étape",
+  eyebrow = "Passer à l’action",
   title,
   text,
   primaryHref = "/commander",
-  primaryLabel = "Acheter ProJD",
-  secondaryHref = demoErpUrl,
-  secondaryLabel = "Visiter la démo",
+  primaryLabel = "Configurer ProJD",
+  secondaryHref = "/demo",
+  secondaryLabel = "Voir la démo",
 }: MarketingCtaProps) {
   return (
-    <section className="contact-section" aria-label={title}>
+    <section className="conversion-panel" aria-label={title}>
       <div>
         <p className="eyebrow">{eyebrow}</p>
         <h2>{title}</h2>
         <p>{text}</p>
       </div>
-      <div className="contact-actions">
+      <div className="conversion-actions">
         <Link className="button primary" href={primaryHref}>
           {primaryLabel}
         </Link>

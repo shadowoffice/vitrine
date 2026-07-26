@@ -1,12 +1,15 @@
 import type { MetadataRoute } from "next";
 
+import { siteUrl } from "@/lib/site-content";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/"],
+      disallow: ["/api/", "/paiement/", "/commander/achat"],
     },
-    sitemap: "https://fichero.cloud/sitemap.xml",
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   };
 }

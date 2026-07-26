@@ -1,52 +1,51 @@
-# Vitrine Project Status
+# État du projet Vitrine
 
-Last updated: 2026-07-21 America/Toronto.
+Dernière mise à jour : 2026-07-26, America/Toronto.
 
-## Executive Summary
-
-Vitrine is the public website at `https://fichero.cloud`. Its public role is to
-sell the ProJD construction ERP, show a credible product experience, present
-pricing and start purchase intent.
-
-The current branch is:
+Branche de travail :
 
 ```text
-feat/projd-sales-vitrine
+feat/projd-professional-vitrine
 ```
 
-## Current State
+## Résumé
 
-| Area | Status | Notes |
+La refonte transforme Vitrine en site B2B multipage et place la vente assistée
+avant le paiement. `/commander` prépare maintenant une proposition courte;
+l’ancien parcours de commande est isolé sous `/commander/achat` et reste
+`noindex`.
+
+Les changements sont présents dans le worktree et validés localement. Le
+déploiement reste à faire.
+
+## État actuel
+
+| Domaine | État | Note |
 | --- | --- | --- |
-| Public home page | redesigned | Shorter ProJD-only sales page with construction-site visual direction. |
-| Product pages | updated | `/projd`, `/modules`, `/modules/[slug]`, `/tarifs`, `/demo`, `/statut` and `/commander`. |
-| Legacy route | redirected | `/fondation` now redirects to `/projd`. |
-| Purchase form | done | `/commander` collects company, contact, plan, seats, subdomain and provider. |
-| Pricing catalog | done | Shared pricing module has starter/croissance/plateforme plans. |
-| Stripe handoff | code ready | `/api/checkout` asks the internal provider bridge to create checkout. |
-| PayPal handoff | partial | Checkout and return capture route exist; real provider validation remains. |
-| Local fallback intake | done | `/api/erp-orders` can write JSONL backup when the provider bridge is unavailable. |
-| Analytics | basic | First-party no-cookie endpoint exists. No dashboard yet. |
-| Deployment | deployed previously | Docker service `fichero-vitrine` runs on port `3103`; NPM routes `fichero.cloud` to it. |
-| Documentation | updated | README, project status, architecture and roadmap align with ProJD sales positioning. |
+| Shell global | en place | En-tête, menu mobile, pied de page et skip link refondus. |
+| Accueil | en place | Cinq blocs courts avec aperçu ERP et renvois spécialisés. |
+| Produit et solutions | en place | `/projd`, `/solutions`, `/modules` et détails réécrits. |
+| Vérité produit | en place | `site-content.ts` porte `available`, `evolving`, `activation`. |
+| Ressources | en place | `/ressources`, `/presentation`, `/documentation`, `/guides` et `/demo`. |
+| Confiance | en place | Sécurité, confidentialité et conditions existent; validation juridique finale requise. |
+| Proposition | en place | `/commander` vers `/api/proposals` et boîte JSONL locale. |
+| Checkout historique | isolé | `/commander/achat` est `noindex`; Fondation reste l’autorité. |
+| Retour Stripe | sûr côté message | Affiche une vérification, jamais un succès déduit de l’URL. |
+| Retour PayPal | partiel | Capture serveur présente; validation fournisseur réelle requise. |
+| SEO | en place | Canonicals, sitemap, robots, image OG, 404 et données structurées de l’accueil. |
+| Visuels | en place, à enrichir | Identité et aperçu ERP fictif en CSS; vraie capture ProJD encore souhaitable. |
+| Analytics | basique | Page views first-party; pas encore de tableau de bord conversion. |
 
-## Current Branch Contents
+## Contrats importants
 
-Scope:
+- `src/lib/site-content.ts` reste le contenu public canonique.
+- Les forfaits restent `starter`, `croissance`, `plateforme`.
+- La proposition est l’entrée commerciale prioritaire.
+- Le checkout ne doit jamais activer directement ProJD.
+- Une URL Stripe ne confirme jamais la transaction.
+- OCR, connecteurs et activation sont décrits selon leur niveau réel.
 
-- ProJD sales home page;
-- construction-site hero, simplified home page and professional slider;
-- dedicated detail pages for each ProJD module;
-- updated public copy across product, modules, pricing, status, order and
-  payment-return pages;
-- public removal of the old platform-control-plane message;
-- reusable slider component;
-- refreshed README and docs;
-- sitemap removal for the legacy platform page.
-
-## Validation
-
-Run before opening or updating a PR:
+## Validation requise
 
 ```bash
 npm run lint
@@ -55,44 +54,63 @@ npm run build
 git diff --check
 ```
 
-Recommended visual smoke:
+Validation locale du 2026-07-26 :
+
+- ESLint réussi;
+- TypeScript strict réussi;
+- build Next.js réussi, 44 pages générées;
+- `git diff --check` réussi;
+- Chromium vérifié à 1440 × 1000 et 390 × 844;
+- aucun débordement global sur les routes principales;
+- menu mobile et clavier de la présentation vérifiés;
+- proposition acceptée localement, origine étrangère refusée et honeypot sans
+  écriture;
+- démo externe et `/healthz` répondent HTTP 200.
+
+Smoke recommandé :
 
 - `/`
 - `/projd`
+- `/solutions`
 - `/modules`
 - `/modules/projets`
-- `/modules/budgets`
-- `/modules/estimation-bid`
-- `/modules/documents`
 - `/modules/factures-ocr`
-- `/modules/partenaires`
-- `/modules/rapports`
 - `/modules/integrations`
 - `/tarifs`
+- `/ressources`
+- `/presentation`
+- `/documentation`
+- `/guides`
+- `/guides/demarrer-un-projet`
+- `/demo`
+- `/securite`
+- `/confidentialite`
+- `/conditions`
 - `/commander`
+- `/commander/achat`
+- `/paiement/retour`
 - `/statut`
 - `/sitemap.xml`
+- `/healthz`
 
-## Known Blockers
+Scénarios d’échec :
 
-Vitrine can collect and submit purchase intent, but the real payment flow is
-only complete after provider validation is complete.
+- payload de proposition invalide, volumineux ou honeypot;
+- boîte JSONL non inscriptible;
+- configuration Fondation absente;
+- checkout refusé;
+- paiement annulé;
+- retour Stripe sans confirmation serveur;
+- capture PayPal refusée.
 
-Blocked by provider configuration:
+## Gates avant production
 
-- Stripe secret key
-- Stripe webhook secret
-- PayPal client ID
-- PayPal client secret
-- PayPal webhook ID
-
-## Next Recommended Work
-
-1. Review and merge the ProJD sales redesign PR.
-2. Rebuild and redeploy `fichero-vitrine`.
-3. Smoke `https://fichero.cloud/`, `/commander`, `/tarifs` and `/healthz`.
-4. Configure provider secrets and webhooks.
-5. Run a real sandbox purchase from Vitrine through the provider bridge.
-6. Add legal/privacy/contact pages before heavier public traffic.
-7. Add OpenGraph images and real product screenshots when the ERP demo content
-   is stable.
+- traiter, sécuriser, sauvegarder et purger la boîte
+  `VITRINE_PROPOSAL_INBOX_PATH`;
+- valider le contenu légal et une méthode de contact officielle;
+- faire valider juridiquement confidentialité et conditions;
+- remplacer ou compléter l’aperçu CSS par une vraie capture ProJD avec données
+  fictives;
+- exécuter les achats Stripe et PayPal en sandbox avec webhooks réels;
+- confirmer que Fondation réconcilie paiement, licence et activation;
+- déployer la version validée et refaire les smoke tests sur l’URL publique.
