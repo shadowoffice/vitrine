@@ -30,6 +30,8 @@ dans [IMPROVEMENTS_50_STATUS.md](docs/IMPROVEMENTS_50_STATUS.md).
 - Playwright, Chromium et Axe pour les parcours bureau/mobile et
   l’accessibilité automatisée;
 - conteneur `fichero-vitrine`, exposé localement sur le port `3103`;
+- traces et métriques OpenTelemetry envoyées au Collector privé, logs JSON
+  envoyés à Loki par Promtail et visualisation dans Grafana;
 - Fondation comme autorité commerciale et SaaS; ProJD comme application ERP
   locataire.
 
@@ -146,6 +148,27 @@ Sécurité et stockage, serveur seulement :
   `/app/data/analytics-events.jsonl`;
 - `VITRINE_ANALYTICS_MAX_FILE_BYTES` — défaut `5242880`;
 - `VITRINE_ANALYTICS_ROTATION_FILES` — défaut `5`.
+
+Observabilité, serveur seulement :
+
+- `OTEL_ENABLED` — défaut Compose `true`, désactivé hors Compose tant qu’il
+  n’est pas explicitement configuré;
+- `OTEL_SERVICE_NAME` — défaut `vitrine`;
+- `OTEL_EXPORTER_OTLP_ENDPOINT` — défaut Docker privé
+  `http://otel-collector:4318`;
+- `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` et
+  `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` — remplacements facultatifs;
+- `OTEL_TRACE_SAMPLE_RATIO` — défaut `0.1`;
+- `OTEL_METRIC_EXPORT_INTERVAL_MS` — défaut `60000`;
+- `VITRINE_RELEASE` et `VITRINE_REVISION` — métadonnées de déploiement.
+
+L’indisponibilité du Collector ne doit jamais rendre `/healthz`, `/readyz` ou
+le site indisponibles. Les traces et métriques quittent le conteneur par le
+réseau Docker partagé avec Fondation; aucun port OTLP public n’est requis.
+Les logs restent sur stdout en JSON expurgé. Lorsqu’un span est actif, ils
+incluent `traceId` et `spanId`, sans en faire des labels Loki à forte
+cardinalité. Les appels vers Fondation propagent `traceparent` et
+`tracestate`, sans journaliser les jetons ni les corps.
 
 `FONDATION_CHECKOUT_URL` et `FONDATION_CHECKOUT_CAPTURE_URL` peuvent être
 dérivées d’une `FONDATION_ORDER_INTAKE_URL` terminant par `/erp-orders`. Les

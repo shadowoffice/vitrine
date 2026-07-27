@@ -9,6 +9,7 @@ import {
   type ServerEnv,
 } from "./env";
 import { logServerEvent } from "./logging";
+import { injectTraceHeaders } from "./observability";
 
 const maxFoundationResponseBytes = 128 * 1024;
 
@@ -162,13 +163,13 @@ export const requestFoundation = async <T>(
   try {
     const response = await fetch(url, {
       method: options.method,
-      headers: {
+      headers: injectTraceHeaders({
         accept: "application/json",
         authorization: `Bearer ${token}`,
         "content-type": "application/json",
         "idempotency-key": options.idempotencyKey,
         "x-request-id": options.requestId,
-      },
+      }),
       body:
         options.method === "POST" ? JSON.stringify(options.body ?? {}) : undefined,
       cache: "no-store",
