@@ -44,6 +44,12 @@ export async function generateMetadata({
     alternates: {
       canonical: `/modules/${moduleContent.slug}`,
     },
+    openGraph: {
+      title: `${moduleContent.name} — module ProJD`,
+      description: moduleContent.summary,
+      url: `/modules/${moduleContent.slug}`,
+      type: "website",
+    },
   };
 }
 
@@ -66,6 +72,7 @@ export default async function ModuleDetailPage({ params }: ModulePageProps) {
     <main id="contenu">
       <section className="module-detail-hero">
         <Breadcrumbs
+          currentPath={`/modules/${moduleContent.slug}`}
           items={[
             { label: "Modules", href: "/modules" },
             { label: moduleContent.name },
@@ -89,7 +96,10 @@ export default async function ModuleDetailPage({ params }: ModulePageProps) {
               <Link className="button primary" href="/demo">
                 Voir dans la démo
               </Link>
-              <Link className="button secondary" href="/commander">
+              <Link
+                className="button secondary"
+                href={`/commander?module=${moduleContent.slug}&context=module`}
+              >
                 Ajouter à ma proposition
               </Link>
             </div>
@@ -172,7 +182,7 @@ export default async function ModuleDetailPage({ params }: ModulePageProps) {
       <MarketingCta
         title={`Évaluer ${moduleContent.name} avec votre équipe.`}
         text="La démo utilise des données fictives. Une proposition sert ensuite à cadrer vos rôles, vos sources et les règles de mise en service."
-        primaryHref="/commander"
+        primaryHref={`/commander?module=${moduleContent.slug}&context=module`}
         primaryLabel="Configurer une proposition"
         secondaryHref="/demo"
         secondaryLabel="Préparer la démo"

@@ -1,0 +1,136 @@
+name: Quality gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vitrine-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  quality:
+    name: lint-type-test-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Configure Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          cache: npm
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit and API contract tests
+        run: npm run test:unit
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Production build
+        run: npm run build
+
+  e2e:
+    name: chromium-e2e
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Configure Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          cache: npm
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Production build
+        run: npm run build
+
+      - name: Desktop and mobile journeys
+        run: npm run test:e2e
+
+      - name: Preserve Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          if-no-files-found: ignore
+          name: playwright-report
+          path: output/playwright-report
+          retention-days: 14
+
+  container:
+    name: container-smoke-scan
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      IMAGE_REF: fichero-vitrine:${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Derive reproducible image metadata
+        id: image-metadata
+        shell: bash
+        run: echo "created=$(git show -s --format=%cI "$GITHUB_SHA")" >> "$GITHUB_OUTPUT"
+
+      - name: Build immutable candidate
+        run: |
+          docker build --pull \
+            --build-arg BUILD_DATE="${{ steps.image-metadata.outputs.created }}" \
+            --build-arg VCS_REF="$GITHUB_SHA" \
+            --build-arg VERSION="$GITHUB_SHA" \
+            --tag "$IMAGE_REF" \
+            .
+
+      - name: Smoke hardened runtime
+        run: scripts/docker-smoke.sh "$IMAGE_REF"
+
+      - name: Prepare artifact directory
+        run: mkdir -p output
+
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          artifact-name: vitrine-sbom.spdx.json
+          image: ${{ env.IMAGE_REF }}
+          output-file: output/vitrine-sbom.spdx.json
+
+      - name: Scan image for high and critical vulnerabilities
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        with:
+          exit-code: "1"
+          ignore-unfixed: true
+          image-ref: ${{ env.IMAGE_REF }}
+          scan-type: image
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          timeout: 10m

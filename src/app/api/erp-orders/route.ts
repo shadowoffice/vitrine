@@ -1,168 +1,191 @@
-import { randomUUID } from "node:crypto";
-import { appendFile, mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
-
 import {
   erpOrderSchema,
   formatOrderIssues,
-  isErpOrderResponse,
+  foundationOrderResponseSchema,
   type ErpOrderResponse,
 } from "@/lib/erp-order";
+import { requestFoundation } from "@/lib/server/foundation-client";
+import { createStableReference } from "@/lib/server/idempotency";
+import { appendJsonLine } from "@/lib/server/jsonl";
+import { logServerEvent } from "@/lib/server/logging";
+import {
+  failureResponseHeaders,
+  readPublicJsonRequest,
+  requestResponseHeaders,
+} from "@/lib/server/request";
 
 export const runtime = "nodejs";
 
-type ProviderOrderResponse = {
-  status?: string;
-  safeSummary?: string;
-  safeError?: string | null;
-  customerId?: string | null;
-  tenantId?: string | null;
-  provisioningRequestId?: string | null;
-  tenantSlug?: string | null;
-  primaryDomain?: string | null;
-};
+const orderSpoolOptions = {
+  maxFileBytes: 25 * 1024 * 1024,
+  rotationFiles: 10,
+} as const;
 
-const orderRef = (): string => {
-  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
-  return `fic-${stamp}-${randomUUID().slice(0, 8)}`;
-};
-
-const readJson = async (request: Request): Promise<unknown> => {
-  try {
-    return await request.json();
-  } catch {
-    return null;
-  }
-};
-
-const readProviderResponse = async (response: Response): Promise<ProviderOrderResponse> => {
-  try {
-    const payload: unknown = await response.json();
-    if (payload && typeof payload === "object") {
-      return payload as ProviderOrderResponse;
-    }
-  } catch {
-    return {};
-  }
-
-  return {};
-};
-
-const storeLocalOrder = async (payload: unknown): Promise<void> => {
-  const inboxPath = process.env.VITRINE_ORDER_INBOX_PATH || "/app/data/erp-orders.jsonl";
-  await mkdir(dirname(inboxPath), { recursive: true });
-  await appendFile(inboxPath, `${JSON.stringify(payload)}\n`, { mode: 0o600 });
-};
-
-const submitToProviderBridge = async (payload: unknown): Promise<ErpOrderResponse | null> => {
-  const intakeUrl = process.env.FONDATION_ORDER_INTAKE_URL?.trim();
-  const token = process.env.FONDATION_ORDER_INTAKE_TOKEN?.trim();
-  if (!intakeUrl || !token) {
-    return null;
-  }
-
-  const response = await fetch(intakeUrl, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${token}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(payload),
+const respond = (
+  body: ErpOrderResponse,
+  status: number,
+  requestId: string,
+  idempotencyKey?: string,
+): Response =>
+  Response.json(body, {
+    status,
+    headers: requestResponseHeaders(requestId, idempotencyKey),
   });
-  const body = await readProviderResponse(response);
-  if (!response.ok) {
-    return {
-      status: "failed",
-      orderRef: typeof (payload as { orderRef?: unknown }).orderRef === "string" ? (payload as { orderRef: string }).orderRef : orderRef(),
-      safeSummary: "Commande reçue, mais la préparation automatique a été refusée.",
-      safeError: body.safeError ?? `Le service d'activation a répondu ${response.status}.`,
-    };
-  }
-
-  return {
-    status: "accepted",
-    orderRef: typeof (payload as { orderRef?: unknown }).orderRef === "string" ? (payload as { orderRef: string }).orderRef : orderRef(),
-    safeSummary: body.safeSummary ?? "Commande ERP transmise à l'équipe ProJD.",
-    safeError: body.safeError ?? null,
-    customerId: body.customerId ?? null,
-    tenantId: body.tenantId ?? null,
-    provisioningRequestId: body.provisioningRequestId ?? null,
-    tenantSlug: body.tenantSlug ?? null,
-    primaryDomain: body.primaryDomain ?? null,
-  };
-};
 
 export async function POST(request: Request): Promise<Response> {
-  const payload = await readJson(request);
-  const parsed = erpOrderSchema.safeParse(payload);
-  if (!parsed.success) {
+  const input = await readPublicJsonRequest(request, {
+    scope: "erp-orders",
+    limit: 10,
+    windowMs: 10 * 60 * 1_000,
+    maxBytes: 64_000,
+    requireOrigin: true,
+    honeypotFields: ["websiteConfirmation"],
+  });
+
+  if (!input.ok) {
     return Response.json(
       {
         status: "failed",
-        orderRef: orderRef(),
+        orderRef: createStableReference("fic", input.requestId),
         safeSummary: "Commande ERP invalide.",
-        safeError: formatOrderIssues(parsed.error),
+        safeError: input.safeError,
       } satisfies ErpOrderResponse,
-      { status: 400 },
+      {
+        status: input.status,
+        headers: failureResponseHeaders(input),
+      },
     );
   }
 
-  const ref = orderRef();
+  const ref = createStableReference("fic", input.idempotencyKey);
+  if (input.isHoneypot) {
+    return respond(
+      {
+        status: "accepted",
+        orderRef: ref,
+        safeSummary: "Commande ERP reçue.",
+        safeError: null,
+      },
+      202,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
+  const parsed = erpOrderSchema.safeParse(input.payload);
+  if (!parsed.success) {
+    return respond(
+      {
+        status: "failed",
+        orderRef: ref,
+        safeSummary: "Commande ERP invalide.",
+        safeError: formatOrderIssues(parsed.error),
+      },
+      400,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
   const orderPayload = {
     ...parsed.data,
     orderRef: ref,
+    idempotencyKey: input.idempotencyKey,
     source: `vitrine:fichero.cloud:${parsed.data.requestType}`,
     receivedAt: new Date().toISOString(),
   };
-  const localBackupSummary = "Achat ProJD reçu. Le dossier sera importé par l'équipe ProJD.";
-  const reviewRequiredSummary = "Achat ProJD reçu en sauvegarde locale; révision requise.";
+  const foundation = await requestFoundation({
+    env: input.env,
+    endpoint: "order",
+    method: "POST",
+    responseSchema: foundationOrderResponseSchema,
+    requestId: input.requestId,
+    idempotencyKey: input.idempotencyKey,
+    body: orderPayload,
+  });
+
+  if (
+    foundation.ok &&
+    (foundation.data.status === "accepted" ||
+      foundation.data.status === "already_prepared")
+  ) {
+    logServerEvent("info", "erp_order.accepted", {
+      requestId: input.requestId,
+      orderRef: ref,
+      delivery: "fondation",
+    });
+    return respond(
+      {
+        status: "accepted",
+        orderRef: ref,
+        safeSummary:
+          foundation.data.safeSummary ??
+          "Commande ERP transmise à l’équipe ProJD.",
+        safeError: foundation.data.safeError ?? null,
+        customerId: foundation.data.customerId ?? null,
+        tenantId: foundation.data.tenantId ?? null,
+        provisioningRequestId:
+          foundation.data.provisioningRequestId ?? null,
+        tenantSlug: foundation.data.tenantSlug ?? null,
+        primaryDomain: foundation.data.primaryDomain ?? null,
+      },
+      202,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
+  const providerError = foundation.ok
+    ? foundation.data.safeError ?? "Fondation a refusé la commande."
+    : foundation.data?.safeError ?? foundation.safeError;
+  const fallbackReason = foundation.ok
+    ? foundation.data.status
+    : foundation.code;
 
   try {
-    const bridgeResult = await submitToProviderBridge(orderPayload);
-    if (isErpOrderResponse(bridgeResult) && bridgeResult.status === "accepted") {
-      return Response.json(bridgeResult, { status: 202 });
-    }
-
-    await storeLocalOrder({
-      ...orderPayload,
-      fallbackReason: bridgeResult?.safeError ?? "Activation intake not configured.",
-    });
-
-    return Response.json(
+    await appendJsonLine(
+      input.env.orderInboxPath,
       {
-        status: bridgeResult?.status === "failed" ? "failed" : "local_backup",
-        orderRef: ref,
-        safeSummary: bridgeResult?.status === "failed" ? reviewRequiredSummary : localBackupSummary,
-        safeError: bridgeResult?.safeError ?? null,
-      } satisfies ErpOrderResponse,
-      { status: bridgeResult?.status === "failed" ? 202 : 202 },
+        ...orderPayload,
+        delivery: "local_backup",
+        fallbackReason,
+      },
+      orderSpoolOptions,
     );
   } catch (error) {
-    try {
-      await storeLocalOrder({
-        ...orderPayload,
-        fallbackReason: error instanceof Error ? error.message : "Unknown intake failure.",
-      });
-
-      return Response.json(
-        {
-          status: "local_backup",
-          orderRef: ref,
-          safeSummary: localBackupSummary,
-          safeError: null,
-        } satisfies ErpOrderResponse,
-        { status: 202 },
-      );
-    } catch {
-      return Response.json(
-        {
-          status: "failed",
-          orderRef: ref,
-          safeSummary: "Commande ERP non enregistrée.",
-          safeError: "La sauvegarde locale est indisponible.",
-        } satisfies ErpOrderResponse,
-        { status: 500 },
-      );
-    }
+    logServerEvent("error", "erp_order.spool_failed", {
+      requestId: input.requestId,
+      orderRef: ref,
+      error,
+    });
+    return respond(
+      {
+        status: "failed",
+        orderRef: ref,
+        safeSummary: "Commande ERP non enregistrée.",
+        safeError: "La sauvegarde locale est indisponible.",
+      },
+      503,
+      input.requestId,
+      input.idempotencyKey,
+    );
   }
+
+  logServerEvent("warn", "erp_order.local_backup", {
+    requestId: input.requestId,
+    orderRef: ref,
+    fallbackReason,
+  });
+  return respond(
+    {
+      status: "local_backup",
+      orderRef: ref,
+      safeSummary:
+        "Achat ProJD sauvegardé localement; une révision par l’équipe est requise.",
+      safeError: providerError,
+    },
+    202,
+    input.requestId,
+    input.idempotencyKey,
+  );
 }

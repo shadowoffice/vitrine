@@ -5,6 +5,7 @@ import { demoErpUrl } from "@/lib/site-content";
 const productLinks = [
   { label: "Présentation", href: "/projd" },
   { label: "Solutions par équipe", href: "/solutions" },
+  { label: "Solutions par secteur", href: "/secteurs" },
   { label: "Modules", href: "/modules" },
   { label: "Tarifs", href: "/tarifs" },
 ];
@@ -14,6 +15,9 @@ const resourceLinks = [
   { label: "Présentation interactive", href: "/presentation" },
   { label: "Documentation", href: "/documentation" },
   { label: "Guides pratiques", href: "/guides" },
+  { label: "Comparaisons", href: "/comparer" },
+  { label: "Glossaire", href: "/glossaire" },
+  { label: "Scénarios vérifiables", href: "/scenarios" },
   { label: "Sécurité et données", href: "/securite" },
 ];
 

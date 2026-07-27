@@ -1,34 +1,78 @@
 services:
   vitrine:
-    build: .
-    image: fichero-vitrine:latest
+    build:
+      context: .
+      args:
+        BUILD_DATE: ${VITRINE_IMAGE_CREATED:-1970-01-01T00:00:00Z}
+        NEXT_PUBLIC_MARKETING_VARIANT: ${NEXT_PUBLIC_MARKETING_VARIANT:-}
+        NEXT_PUBLIC_SALES_BOOKING_URL: ${NEXT_PUBLIC_SALES_BOOKING_URL:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://fichero.cloud}
+        VCS_REF: ${VITRINE_IMAGE_REVISION:-local}
+        VERSION: ${VITRINE_IMAGE_VERSION:-dev}
+    image: ${VITRINE_IMAGE_NAME:-fichero-vitrine}:${VITRINE_IMAGE_TAG:-latest}
     container_name: fichero-vitrine
     restart: unless-stopped
+    init: true
+    stop_grace_period: 20s
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 768m
+    mem_reservation: 128m
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
     environment:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: "1"
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
+      NEXT_PUBLIC_MARKETING_VARIANT: ${NEXT_PUBLIC_MARKETING_VARIANT:-}
+      NEXT_PUBLIC_SALES_BOOKING_URL: ${NEXT_PUBLIC_SALES_BOOKING_URL:-}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://fichero.cloud}
       VITRINE_ORDER_INBOX_PATH: /app/data/erp-orders.jsonl
       VITRINE_PROPOSAL_INBOX_PATH: /app/data/proposals.jsonl
+      VITRINE_ANALYTICS_INBOX_PATH: /app/data/analytics-events.jsonl
+      VITRINE_ANALYTICS_MAX_FILE_BYTES: ${VITRINE_ANALYTICS_MAX_FILE_BYTES:-5242880}
+      VITRINE_ANALYTICS_ROTATION_FILES: ${VITRINE_ANALYTICS_ROTATION_FILES:-5}
+      VITRINE_ALLOWED_ORIGINS: ${VITRINE_ALLOWED_ORIGINS:-}
+      VITRINE_TRUST_PROXY_HOPS: ${VITRINE_TRUST_PROXY_HOPS:-1}
+      VITRINE_ENABLE_PROPOSALS: ${VITRINE_ENABLE_PROPOSALS:-false}
+      VITRINE_PRIVACY_OFFICER_NAME: ${VITRINE_PRIVACY_OFFICER_NAME:-}
+      VITRINE_PRIVACY_CONTACT_EMAIL: ${VITRINE_PRIVACY_CONTACT_EMAIL:-}
+      VITRINE_PROPOSAL_RETENTION_DAYS: ${VITRINE_PROPOSAL_RETENTION_DAYS:-}
+      VITRINE_ENABLE_CHECKOUT: ${VITRINE_ENABLE_CHECKOUT:-false}
+      VITRINE_REQUIRE_SIGNED_QUOTE: ${VITRINE_REQUIRE_SIGNED_QUOTE:-false}
+      VITRINE_QUOTE_SIGNING_SECRET: ${VITRINE_QUOTE_SIGNING_SECRET:-}
       FONDATION_ORDER_INTAKE_URL: ${FONDATION_ORDER_INTAKE_URL:-}
+      FONDATION_PROPOSAL_INTAKE_URL: ${FONDATION_PROPOSAL_INTAKE_URL:-}
       FONDATION_CHECKOUT_URL: ${FONDATION_CHECKOUT_URL:-}
       FONDATION_CHECKOUT_CAPTURE_URL: ${FONDATION_CHECKOUT_CAPTURE_URL:-}
+      FONDATION_CHECKOUT_STATUS_URL: ${FONDATION_CHECKOUT_STATUS_URL:-}
+      FONDATION_ALLOWED_HOSTS: ${FONDATION_ALLOWED_HOSTS:-}
+      FONDATION_REQUEST_TIMEOUT_MS: ${FONDATION_REQUEST_TIMEOUT_MS:-8000}
       FONDATION_ORDER_INTAKE_TOKEN: ${FONDATION_ORDER_INTAKE_TOKEN:-}
     ports:
-      - "3103:3000"
+      - "127.0.0.1:3103:3000"
+      - "${VITRINE_PROXY_BIND_IP:-192.168.0.19}:3103:3000"
     networks:
       - default
       - fondation
     volumes:
-      - ./data:/app/data
+      - ./data:/app/data:rw
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/healthz').then((response)=>process.exit(response.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-file: "5"
+        max-size: 10m
 
 networks:
   fondation:

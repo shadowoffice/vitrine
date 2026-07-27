@@ -7,6 +7,7 @@ export const erpRequestTypes = ["software_purchase"] as const;
 export const paymentProviders = ["stripe", "paypal"] as const;
 export const checkoutProviders = ["stripe", "paypal", "promo_code"] as const;
 export const ficheroErpDomainSuffix = "erp.fichero.cloud";
+export const maxQuoteTokenLength = 8_192;
 
 const optionalTrimmedString = (maxLength: number) =>
   z.preprocess((value) => {
@@ -98,6 +99,7 @@ export const erpOrderSchema = z.object({
   estimatedUsers: z.coerce.number().int().min(1).max(5000),
   desiredSubdomain: optionalDesiredErpPrefix,
   promoCode: optionalPromoCode,
+  quoteToken: optionalTrimmedString(maxQuoteTokenLength),
   message: optionalTrimmedString(4000),
   acceptsContact: z.boolean().refine((value) => value, "L'autorisation de contact est requise."),
 });
@@ -140,6 +142,89 @@ export type CheckoutCaptureResponse = {
   safeError: string | null;
   primaryDomain?: string | null;
 };
+
+export const checkoutStatusValues = [
+  "pending",
+  "paid",
+  "failed",
+  "cancelled",
+  "expired",
+  "unavailable",
+] as const;
+
+export type CheckoutStatusResponse = {
+  status: (typeof checkoutStatusValues)[number];
+  provider: (typeof paymentProviders)[number];
+  providerSessionId: string;
+  orderRef?: string | null;
+  safeSummary: string;
+  safeError: string | null;
+  primaryDomain?: string | null;
+};
+
+const nullableIdentifier = z.string().trim().min(1).max(200).nullable().optional();
+const nullableSafeText = z.string().trim().max(1_000).nullable().optional();
+
+export const foundationOrderResponseSchema = z.object({
+  status: z.enum(["accepted", "already_prepared", "failed"]),
+  safeSummary: z.string().trim().min(1).max(500).optional(),
+  safeError: nullableSafeText,
+  customerId: nullableIdentifier,
+  tenantId: nullableIdentifier,
+  provisioningRequestId: nullableIdentifier,
+  tenantSlug: nullableIdentifier,
+  primaryDomain: nullableIdentifier,
+});
+
+export const foundationCheckoutResponseSchema = z.object({
+  status: z.enum([
+    "created",
+    "promo_activated",
+    "promo_invalid",
+    "promo_failed",
+    "order_failed",
+    "provider_not_configured",
+    "provider_failed",
+  ]),
+  safeSummary: z.string().trim().min(1).max(500).optional(),
+  safeError: nullableSafeText,
+  provider: z.enum(checkoutProviders).optional(),
+  checkoutUrl: z.string().url().max(2_000).nullable().optional(),
+  providerSessionId: nullableIdentifier,
+  orderRef: nullableIdentifier,
+  customerId: nullableIdentifier,
+  tenantId: nullableIdentifier,
+  provisioningRequestId: nullableIdentifier,
+  tenantSlug: nullableIdentifier,
+  primaryDomain: nullableIdentifier,
+  amountCents: z.number().int().nonnegative().optional(),
+  monthlyPriceCents: z.number().int().nonnegative().optional(),
+  currency: z.string().trim().length(3).optional(),
+});
+
+export const foundationCaptureResponseSchema = z.object({
+  status: z.enum(["captured", "not_configured", "failed"]),
+  safeSummary: z.string().trim().min(1).max(500).optional(),
+  safeError: nullableSafeText,
+  paymentResult: z
+    .object({
+      safeSummary: z.string().trim().min(1).max(500).optional(),
+      safeError: nullableSafeText,
+      primaryDomain: nullableIdentifier,
+    })
+    .nullable()
+    .optional(),
+});
+
+export const foundationCheckoutStatusResponseSchema = z.object({
+  status: z.enum(checkoutStatusValues),
+  provider: z.enum(paymentProviders).optional(),
+  providerSessionId: z.string().trim().min(5).max(200).optional(),
+  orderRef: nullableIdentifier,
+  safeSummary: z.string().trim().min(1).max(500).optional(),
+  safeError: nullableSafeText,
+  primaryDomain: nullableIdentifier,
+});
 
 export const formatOrderIssues = (error: z.ZodError): string =>
   error.issues.map((issue) => issue.message).join(" ");
@@ -189,6 +274,24 @@ export const isCheckoutCaptureResponse = (value: unknown): value is CheckoutCapt
   const candidate = value as Partial<CheckoutCaptureResponse>;
   return (
     (candidate.status === "captured" || candidate.status === "failed") &&
+    typeof candidate.safeSummary === "string" &&
+    (candidate.safeError === null || typeof candidate.safeError === "string")
+  );
+};
+
+export const isCheckoutStatusResponse = (
+  value: unknown,
+): value is CheckoutStatusResponse => {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<CheckoutStatusResponse>;
+  return (
+    typeof candidate.status === "string" &&
+    (checkoutStatusValues as readonly string[]).includes(candidate.status) &&
+    (candidate.provider === "stripe" || candidate.provider === "paypal") &&
+    typeof candidate.providerSessionId === "string" &&
     typeof candidate.safeSummary === "string" &&
     (candidate.safeError === null || typeof candidate.safeError === "string")
   );

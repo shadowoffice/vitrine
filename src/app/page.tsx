@@ -133,7 +133,7 @@ export default function Home() {
           {solutionRoles.map((solution) => (
             <Link
               className="role-card"
-              href={`/solutions#${solution.slug}`}
+              href={`/solutions/${solution.slug}`}
               key={solution.slug}
             >
               <span>{solution.code}</span>

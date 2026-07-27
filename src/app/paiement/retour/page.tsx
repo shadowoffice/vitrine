@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 type PaymentReturnPageProps = {
   searchParams?: Promise<{
     provider?: string | string[];
+    session_id?: string | string[];
     status?: string | string[];
     token?: string | string[];
   }>;
@@ -31,6 +32,7 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
         provider={firstQueryValue(params.provider)}
         paymentStatus={firstQueryValue(params.status)}
         paypalOrderId={firstQueryValue(params.token)}
+        stripeSessionId={firstQueryValue(params.session_id)}
       />
     </main>
   );

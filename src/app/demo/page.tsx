@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import { ErpPreview } from "../_components/ErpPreview";
@@ -66,6 +67,30 @@ export default function DemoPage() {
           </div>
         </div>
         <ErpPreview />
+      </section>
+
+      <section className="compact-section demo-capture-section">
+        <div className="section-intro">
+          <p className="eyebrow">Vue réelle du produit</p>
+          <h2>Le portefeuille de projets dans la démo publique.</h2>
+          <p>
+            Cette capture provient de l’environnement de démonstration. Les
+            projets affichés sont fictifs et la visite publique doit rester en
+            lecture seule.
+          </p>
+        </div>
+        <figure className="demo-capture">
+          <Image
+            alt="Portefeuille ProJD montrant une liste de projets de démonstration fictifs avec leurs états et informations de suivi."
+            height={814}
+            sizes="(max-width: 800px) calc(100vw - 32px), 1180px"
+            src="/projd-projets-demo.png"
+            width={1140}
+          />
+          <figcaption>
+            Capture ProJD · données fictives · lecture seule
+          </figcaption>
+        </figure>
       </section>
 
       <section className="compact-section demo-track-section">

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
+import { Suspense } from "react";
 
 import { PrivacyAnalytics } from "./_components/PrivacyAnalytics";
 import { SiteFooter } from "./_components/SiteFooter";
 import { SiteHeader } from "./_components/SiteHeader";
+import { WebVitalsReporter } from "./_components/WebVitalsReporter";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -70,7 +72,10 @@ export default function RootLayout({
         <SiteHeader />
         {children}
         <SiteFooter />
-        <PrivacyAnalytics />
+        <Suspense fallback={null}>
+          <PrivacyAnalytics />
+        </Suspense>
+        <WebVitalsReporter />
       </body>
     </html>
   );

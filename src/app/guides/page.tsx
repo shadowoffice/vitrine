@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { ContentFilter } from "../_components/ContentFilter";
 import { MarketingCta } from "../_components/MarketingCta";
 import { guides } from "@/lib/site-content";
 
@@ -10,6 +10,13 @@ export const metadata: Metadata = {
     "Guides courts pour démarrer un projet, lancer un appel d’offres, suivre un budget et traiter une facture dans ProJD.",
   alternates: {
     canonical: "/guides",
+  },
+  openGraph: {
+    title: "Guides pratiques ProJD",
+    description:
+      "Douze parcours concrets pour les projets, budgets, contrats, appels d’offres, intégrations et factures.",
+    url: "/guides",
+    type: "website",
   },
 };
 
@@ -26,26 +33,19 @@ export default function GuidesPage() {
       </section>
 
       <section className="compact-section guide-index-section">
-        <div className="guide-index-grid">
-          {guides.map((guide) => (
-            <Link href={`/guides/${guide.slug}`} key={guide.slug}>
-              <div className="guide-card-meta">
-                <span>{guide.code}</span>
-                <small>{guide.category}</small>
-                <strong>{guide.duration}</strong>
-              </div>
-              <h2>{guide.title}</h2>
-              <p>{guide.summary}</p>
-              <div className="guide-audience">
-                <span>Pour</span>
-                <strong>{guide.audience}</strong>
-              </div>
-              <small className="guide-card-action">
-                Lire le guide <span aria-hidden="true">→</span>
-              </small>
-            </Link>
-          ))}
-        </div>
+        <ContentFilter
+          emptyMessage="Aucun guide ne correspond à cette recherche."
+          items={guides.map((guide) => ({
+            category: guide.category,
+            code: guide.code,
+            description: guide.summary,
+            href: `/guides/${guide.slug}`,
+            meta: `${guide.duration} · ${guide.audience}`,
+            title: guide.title,
+          }))}
+          label="Rechercher un guide"
+          placeholder="Ex. budget, intégration ou portail"
+        />
       </section>
 
       <MarketingCta
