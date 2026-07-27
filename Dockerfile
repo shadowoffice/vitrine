@@ -47,9 +47,15 @@ COPY --from=build --chown=nextjs:nodejs /app/public ./public
 COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Image optimization is globally disabled; keep the vulnerable native Sharp
-# toolchain out of the production runtime.
-RUN rm -rf node_modules/sharp node_modules/@img
+# Image optimization is globally disabled; keep the native Sharp toolchain
+# out of the production runtime. The service starts directly with Node and
+# never installs packages at runtime, so remove npm/npx and their dependency
+# tree as well to reduce both privileges and vulnerability surface.
+RUN rm -rf \
+      node_modules/sharp \
+      node_modules/@img \
+      /usr/local/lib/node_modules/npm \
+  && rm -f /usr/local/bin/npm /usr/local/bin/npx
 
 USER nextjs
 EXPOSE 3000
