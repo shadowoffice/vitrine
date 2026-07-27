@@ -65,6 +65,13 @@ export default function SolutionsPage() {
                     </Link>
                   ))}
                 </div>
+                <Link
+                  className="text-link solution-detail-link"
+                  href={`/solutions/${solution.slug}`}
+                >
+                  Voir le parcours {solution.role.toLowerCase()}{" "}
+                  <span aria-hidden="true">→</span>
+                </Link>
               </article>
             );
           })}
@@ -90,8 +97,8 @@ export default function SolutionsPage() {
       <MarketingCta
         title="Construire une démonstration autour de vos rôles."
         text="Indiquez les équipes présentes, le projet pilote et les outils déjà utilisés. Nous cadrons ensuite un parcours court et vérifiable."
-        primaryHref="/commander"
-        primaryLabel="Configurer une proposition"
+        primaryHref="/secteurs"
+        primaryLabel="Choisir par secteur"
         secondaryHref="/demo"
         secondaryLabel="Voir le parcours démo"
       />

@@ -112,6 +112,373 @@ export const solutionRoles = [
   },
 ] satisfies SolutionRole[];
 
+export type SolutionRoleDetail = {
+  problems: string[];
+  workflow: string[];
+  expectedOutcome: string;
+  verification: string;
+};
+
+export const solutionRoleDetails = {
+  direction: {
+    problems: [
+      "Les revues dépendent de fichiers préparés manuellement.",
+      "Les écarts financiers et les actions en retard arrivent dans des comptes rendus séparés.",
+      "La provenance d’un chiffre ou d’un statut est difficile à retrouver.",
+    ],
+    workflow: [
+      "Filtrer le portefeuille actif",
+      "Repérer les écarts et échéances",
+      "Ouvrir le projet concerné",
+      "Affecter une décision et une date",
+    ],
+    expectedOutcome:
+      "Une revue de direction centrée sur les exceptions qui demandent une décision.",
+    verification:
+      "À vérifier dans la démo avec le portefeuille, le sommaire financier et le rapport hebdomadaire.",
+  },
+  projets: {
+    problems: [
+      "Les actions, RFIs et risques vivent dans des outils ou fichiers distincts.",
+      "Les responsabilités et dates cibles perdent leur contexte projet.",
+      "Le rapport hebdomadaire demande une reconstruction manuelle.",
+    ],
+    workflow: [
+      "Ouvrir le cockpit projet",
+      "Réviser actions, risques et jalons",
+      "Relier les documents utiles",
+      "Produire le rapport hebdomadaire",
+    ],
+    expectedOutcome:
+      "Un suivi hebdomadaire relié à la fiche projet et aux responsables concernés.",
+    verification:
+      "À vérifier dans la démo avec un projet fictif, ses suivis et son rapport imprimable.",
+  },
+  estimation: {
+    problems: [
+      "Le budget, les lots et les listes de partenaires sont préparés séparément.",
+      "Les accusés, réponses et relances sont difficiles à suivre.",
+      "La décision d’attribution perd les pièces et hypothèses comparées.",
+    ],
+    workflow: [
+      "Valider le budget source",
+      "Préparer les lots",
+      "Inviter les partenaires admissibles",
+      "Comparer et documenter la recommandation",
+    ],
+    expectedOutcome:
+      "Un appel d’offres traçable du budget approuvé jusqu’à la recommandation.",
+    verification:
+      "À vérifier dans la démo avec le parcours BID, le portail fictif et la comparaison des offres.",
+  },
+  comptabilite: {
+    problems: [
+      "Les pièces justificatives et ventilations ne suivent pas toujours la facture.",
+      "L’approbation manque de contexte projet ou d’engagement.",
+      "Le budget et les coûts réels sont révisés dans des vues différentes.",
+    ],
+    workflow: [
+      "Identifier le fournisseur",
+      "Joindre et ventiler la facture",
+      "Faire approuver avec une trace",
+      "Réviser l’impact au projet",
+    ],
+    expectedOutcome:
+      "Une facture rattachée au bon fournisseur, chantier et code de coût avant approbation.",
+    verification:
+      "À vérifier dans la démo avec une facture fictive, sa ventilation et la file d’approbation.",
+  },
+} satisfies Record<SolutionRole["slug"], SolutionRoleDetail>;
+
+export type SectorSlug =
+  | "entrepreneurs-generaux"
+  | "entrepreneurs-specialises"
+  | "equipes-multiprojets";
+
+export type SectorContent = {
+  slug: SectorSlug;
+  code: string;
+  name: string;
+  headline: string;
+  summary: string;
+  challenges: string[];
+  startingPoint: string;
+  moduleSlugs: ModuleSlug[];
+};
+
+export const sectors = [
+  {
+    slug: "entrepreneurs-generaux",
+    code: "EG",
+    name: "Entrepreneurs généraux",
+    headline: "Relier appels d’offres, contrats, coordination et coûts.",
+    summary:
+      "Un même projet sert de pivot aux équipes d’estimation, de gestion et d’administration.",
+    challenges: [
+      "Conserver la continuité entre estimation et exécution.",
+      "Suivre partenaires, documents et décisions par lot.",
+      "Lire les engagements et coûts dans le contexte du chantier.",
+    ],
+    startingPoint:
+      "Commencer avec un projet pilote, un appel d’offres actif et une revue financière récurrente.",
+    moduleSlugs: ["estimation-bid", "projets", "budgets", "contrats"],
+  },
+  {
+    slug: "entrepreneurs-specialises",
+    code: "ES",
+    name: "Entrepreneurs spécialisés",
+    headline: "Garder les travaux, documents et coûts rattachés au bon mandat.",
+    summary:
+      "ProJD peut cadrer un flux plus concentré autour des projets, engagements, factures et rapports.",
+    challenges: [
+      "Éviter la double saisie entre suivi de chantier et administration.",
+      "Conserver les pièces et changements avec le bon contrat.",
+      "Préparer une revue simple des coûts et actions ouvertes.",
+    ],
+    startingPoint:
+      "Choisir un mandat représentatif et le flux administratif qui cause le plus de ressaisie.",
+    moduleSlugs: ["projets", "contrats", "factures-ocr", "rapports"],
+  },
+  {
+    slug: "equipes-multiprojets",
+    code: "MP",
+    name: "Équipes multi-projets",
+    headline: "Voir les exceptions du portefeuille sans perdre le détail chantier.",
+    summary:
+      "Les responsables partagent une lecture commune des projets tout en ouvrant le détail seulement lorsqu’une décision est nécessaire.",
+    challenges: [
+      "Comparer la santé de plusieurs projets avec les mêmes critères.",
+      "Repérer actions, risques et écarts qui dépassent les seuils internes.",
+      "Distribuer des rapports cohérents aux équipes concernées.",
+    ],
+    startingPoint:
+      "Définir une convention de projet, trois indicateurs de revue et les responsables de correction.",
+    moduleSlugs: ["projets", "budgets", "rapports", "documents"],
+  },
+] satisfies SectorContent[];
+
+export const getSectorBySlug = (slug: string): SectorContent | undefined =>
+  sectors.find((sector) => sector.slug === slug);
+
+export type ComparisonSlug = "excel" | "procore" | "sharepoint";
+
+export type ComparisonContent = {
+  slug: ComparisonSlug;
+  name: string;
+  title: string;
+  summary: string;
+  sourceStrengths: string[];
+  limitsToEvaluate: string[];
+  projdRole: string[];
+  coexistence: string;
+  relatedModules: ModuleSlug[];
+};
+
+export const comparisons = [
+  {
+    slug: "excel",
+    name: "Excel",
+    title: "ProJD et Excel : structurer le workflow sans interdire les classeurs.",
+    summary:
+      "Excel reste utile pour l’analyse ponctuelle et les imports contrôlés. ProJD ajoute des entités, états, responsabilités et traces communes.",
+    sourceStrengths: [
+      "Calculs et analyses ad hoc rapides.",
+      "Format familier pour préparer ou vérifier un import.",
+      "Souplesse pour explorer une hypothèse hors processus.",
+    ],
+    limitsToEvaluate: [
+      "Versions concurrentes et provenance des cellules.",
+      "Contrôles d’accès et historique des changements.",
+      "Passage d’un classeur à une responsabilité opérationnelle.",
+    ],
+    projdRole: [
+      "Conserver le projet, l’entreprise et les personnes comme références canoniques.",
+      "Valider les imports avant de créer des lots ou budgets.",
+      "Garder états, responsables et dates dans un workflow serveur.",
+    ],
+    coexistence:
+      "Les exports et imports peuvent rester une frontière explicite; le classeur ne décide pas seul d’un état financier.",
+    relatedModules: ["budgets", "estimation-bid", "rapports"],
+  },
+  {
+    slug: "procore",
+    name: "Procore",
+    title: "ProJD et Procore : relier le terrain au workflow ERP.",
+    summary:
+      "Procore peut demeurer une source terrain. ProJD concentre la normalisation ERP, les partenaires, les coûts et les parcours de bureau.",
+    sourceStrengths: [
+      "Contexte de projet et collaboration terrain selon les outils activés.",
+      "RFIs, submittals et documents accessibles par API selon les permissions.",
+      "Adoption existante à préserver chez plusieurs équipes.",
+    ],
+    limitsToEvaluate: [
+      "Licences et permissions réellement disponibles.",
+      "Données qui doivent être lues, rapprochées ou laissées dans la source.",
+      "Comportement attendu en cas d’accès expiré ou de panne.",
+    ],
+    projdRole: [
+      "Conserver la provenance des références importées.",
+      "Relier le contexte terrain aux budgets, contrats et rapports.",
+      "Prévisualiser les synchronisations avant leur activation.",
+    ],
+    coexistence:
+      "Le cadrage détermine quelle application demeure autoritaire pour chaque donnée; aucune synchronisation totale n’est présumée.",
+    relatedModules: ["documents", "projets", "integrations"],
+  },
+  {
+    slug: "sharepoint",
+    name: "SharePoint",
+    title: "ProJD et SharePoint : garder les fichiers, ajouter le contexte métier.",
+    summary:
+      "SharePoint peut rester la destination documentaire. ProJD conserve les références, mappages et règles qui relient un fichier au bon flux.",
+    sourceStrengths: [
+      "Bibliothèques et gouvernance Microsoft 365 existantes.",
+      "Collaboration documentaire et permissions configurables.",
+      "Intégration avec l’écosystème du client.",
+    ],
+    limitsToEvaluate: [
+      "Structure des sites et bibliothèques cibles.",
+      "Règles de synchronisation, confidentialité et fichiers privés.",
+      "Propriétaire opérationnel du document et de ses métadonnées.",
+    ],
+    projdRole: [
+      "Mapper projet, fichier et provenance.",
+      "Bloquer les éléments marqués privé ou hors synchronisation.",
+      "Présenter le document dans le contexte du projet ou de l’appel d’offres.",
+    ],
+    coexistence:
+      "SharePoint garde les fichiers lorsque ce choix est confirmé; ProJD n’en devient pas un miroir incontrôlé.",
+    relatedModules: ["documents", "estimation-bid", "integrations"],
+  },
+] satisfies ComparisonContent[];
+
+export const getComparisonBySlug = (
+  slug: string,
+): ComparisonContent | undefined =>
+  comparisons.find((comparison) => comparison.slug === slug);
+
+export const glossaryTerms = [
+  {
+    term: "Addenda",
+    definition:
+      "Document qui modifie ou précise un appel d’offres avant sa fermeture. Son accusé de réception doit rester rattaché au lot concerné.",
+  },
+  {
+    term: "Avenant",
+    definition:
+      "Modification approuvée au contrat. Le suivi doit distinguer la demande, l’approbation et son effet financier.",
+  },
+  {
+    term: "Budget révisé",
+    definition:
+      "Budget initial ajusté par les changements approuvés selon les règles de l’entreprise.",
+  },
+  {
+    term: "Code de coût",
+    definition:
+      "Dimension commune utilisée pour classer budget, engagement, facture et coût direct.",
+  },
+  {
+    term: "Coût engagé",
+    definition:
+      "Montant associé à un engagement ou une obligation connue, même si la facture finale n’est pas encore comptabilisée.",
+  },
+  {
+    term: "Directive",
+    definition:
+      "Instruction ou demande de changement qui doit être documentée avant sa résolution contractuelle et financière.",
+  },
+  {
+    term: "Lot d’appel d’offres",
+    definition:
+      "Périmètre de travaux transmis à un groupe ciblé de partenaires avec documents, échéance et règles de réponse.",
+  },
+  {
+    term: "Portail partenaire",
+    definition:
+      "Surface externe limitée à une invitation, utilisée pour consulter des documents et déposer une réponse sans ouvrir l’administration ERP.",
+  },
+  {
+    term: "Projet canonique",
+    definition:
+      "Fiche de référence réutilisée par les modules afin d’éviter plusieurs versions du même chantier.",
+  },
+  {
+    term: "RFI",
+    definition:
+      "Demande d’information formelle reliée à un projet, un responsable, une échéance et une réponse.",
+  },
+  {
+    term: "Retenue",
+    definition:
+      "Part d’un paiement conservée selon les conditions applicables. Son traitement doit être confirmé par les règles contractuelles et comptables du client.",
+  },
+  {
+    term: "Submittal",
+    definition:
+      "Élément soumis pour révision ou approbation, avec responsable, version, état et historique.",
+  },
+] as const;
+
+export const verifiedScenarios = [
+  {
+    slug: "revue-projet",
+    code: "SV-01",
+    title: "Préparer une revue de projet",
+    context:
+      "Scénario de démonstration fondé sur le cockpit, les actions, les risques et le sommaire financier disponibles.",
+    steps: [
+      "Ouvrir un projet fictif.",
+      "Repérer une action et un risque à traiter.",
+      "Relire l’écart financier associé.",
+      "Produire le rapport hebdomadaire.",
+    ],
+    evidence:
+      "La validation porte sur la continuité du contexte et la production du rapport, pas sur un gain client chiffré.",
+    moduleSlugs: ["projets", "budgets", "rapports"],
+  },
+  {
+    slug: "appel-offres",
+    code: "SV-02",
+    title: "Suivre un appel d’offres",
+    context:
+      "Scénario de démonstration fondé sur le budget source, les lots, partenaires, documents et réponses fictives.",
+    steps: [
+      "Vérifier la provenance du budget.",
+      "Ouvrir un lot et ses documents.",
+      "Lire les états des invitations.",
+      "Comparer les réponses reçues.",
+    ],
+    evidence:
+      "La validation porte sur la traçabilité du parcours; aucun résultat d’adjudication réel n’est présenté.",
+    moduleSlugs: ["estimation-bid", "partenaires", "portail-collaboration"],
+  },
+  {
+    slug: "facture-fournisseur",
+    code: "SV-03",
+    title: "Ventiler et approuver une facture",
+    context:
+      "Scénario de démonstration fondé sur une facture et des données fournisseur entièrement fictives.",
+    steps: [
+      "Ouvrir la pièce PDF fictive.",
+      "Vérifier fournisseur, projet et code de coût.",
+      "Lire la ventilation.",
+      "Suivre la décision d’approbation.",
+    ],
+    evidence:
+      "L’OCR automatique n’est pas présenté comme terminé; la validation humaine demeure explicite.",
+    moduleSlugs: ["factures-ocr", "budgets", "documents"],
+  },
+] as const;
+
+export const contentLastModified = {
+  core: "2026-07-26T00:00:00.000Z",
+  product: "2026-07-26T00:00:00.000Z",
+  pricing: "2026-07-27T00:00:00.000Z",
+  resources: "2026-07-27T00:00:00.000Z",
+  policies: "2026-07-26T00:00:00.000Z",
+} as const;
+
 export const availabilityCodes = ["available", "evolving", "activation"] as const;
 export type AvailabilityCode = (typeof availabilityCodes)[number];
 
@@ -472,7 +839,15 @@ export type GuideSlug =
   | "demarrer-un-projet"
   | "lancer-un-appel-offres"
   | "suivre-un-budget"
-  | "traiter-une-facture";
+  | "traiter-une-facture"
+  | "preparer-une-revue-projet"
+  | "cadrer-une-integration"
+  | "qualifier-les-partenaires"
+  | "preparer-une-implantation-pilote"
+  | "documenter-un-avenant"
+  | "importer-un-budget-preliminaire"
+  | "recevoir-une-soumission"
+  | "preparer-un-rapport-hebdomadaire";
 
 export type GuideStep = {
   title: string;
@@ -640,6 +1015,294 @@ export const guides = [
     note: "L’OCR automatisé est en évolution. Lorsqu’il sera activé, aucune donnée extraite ne sera comptabilisée sans validation humaine.",
     relatedModules: ["factures-ocr", "budgets", "documents"],
   },
+  {
+    slug: "preparer-une-revue-projet",
+    code: "G05",
+    title: "Préparer une revue de projet",
+    category: "Pilotage",
+    duration: "8 min",
+    summary:
+      "Passer du portefeuille aux exceptions qui demandent une décision, puis produire un rapport daté.",
+    audience: "Direction et chargés de projet",
+    outcome:
+      "Une revue centrée sur les écarts, risques et actions attribués plutôt que sur la collecte des données.",
+    steps: [
+      {
+        title: "Définir le périmètre de la revue",
+        text: "Choisir les projets actifs, la période et les responsables présents avant d’ouvrir les indicateurs.",
+        checks: ["Liste de projets", "Date de coupure", "Responsables attendus"],
+      },
+      {
+        title: "Repérer les exceptions",
+        text: "Filtrer les risques, actions en retard, jalons rapprochés et écarts financiers à expliquer.",
+        checks: ["Actions bloquées", "Risques ouverts", "Écarts significatifs"],
+      },
+      {
+        title: "Ouvrir le contexte source",
+        text: "Passer du sommaire au projet, à la pièce ou au suivi concerné avant de décider.",
+        checks: ["Projet canonique", "Source datée", "Pièce ou suivi relié"],
+      },
+      {
+        title: "Affecter et publier",
+        text: "Attribuer chaque décision, confirmer la date cible et produire le rapport hebdomadaire.",
+        checks: ["Responsable unique", "Date cible", "Rapport généré"],
+      },
+    ],
+    note: "Un tableau de bord signale une exception; il ne remplace pas la validation du contexte et de la source.",
+    relatedModules: ["rapports", "projets", "budgets"],
+  },
+  {
+    slug: "cadrer-une-integration",
+    code: "G06",
+    title: "Cadrer une intégration Procore ou SharePoint",
+    category: "Intégrations",
+    duration: "9 min",
+    summary:
+      "Définir la source autoritaire, le périmètre et le comportement d’échec avant toute synchronisation.",
+    audience: "TI, opérations et responsables d’implantation",
+    outcome:
+      "Une fiche d’intégration testable qui précise données, permissions, fréquence et reprise.",
+    steps: [
+      {
+        title: "Nommer la source autoritaire",
+        text: "Décider quel système possède chaque donnée et qui peut approuver un changement de cette règle.",
+        checks: ["Donnée concernée", "Système autoritaire", "Propriétaire métier"],
+      },
+      {
+        title: "Vérifier les accès",
+        text: "Confirmer licences, compte technique, scopes et environnement de test sans présumer des permissions.",
+        checks: ["Licences", "Scopes minimaux", "Bac à sable"],
+      },
+      {
+        title: "Limiter le premier périmètre",
+        text: "Choisir un projet, une bibliothèque ou un type de référence et documenter les exclusions.",
+        checks: ["Projet pilote", "Types inclus", "Données privées exclues"],
+      },
+      {
+        title: "Tester l’échec et la reprise",
+        text: "Retirer temporairement l’accès, répéter un événement et vérifier la reprise sans doublon.",
+        checks: ["Timeout visible", "Nouvelle tentative sûre", "Aucun doublon"],
+      },
+    ],
+    note: "Une intégration est activée seulement lorsque les permissions et le comportement d’échec ont été vérifiés.",
+    relatedModules: ["integrations", "documents", "projets"],
+  },
+  {
+    slug: "qualifier-les-partenaires",
+    code: "G07",
+    title: "Qualifier les partenaires d’un appel d’offres",
+    category: "Estimation",
+    duration: "7 min",
+    summary:
+      "Construire une liste d’invitation à partir des spécialités, contacts actifs et règles internes.",
+    audience: "Estimateurs et responsables achats",
+    outcome:
+      "Une sélection justifiée avant l’envoi, sans exposer les notes internes aux partenaires.",
+    steps: [
+      {
+        title: "Confirmer la spécialité du lot",
+        text: "Relire la portée et les codes du budget avant de chercher des entreprises correspondantes.",
+        checks: ["Portée du lot", "Spécialités ciblées", "Zone ou contraintes"],
+      },
+      {
+        title: "Filtrer le répertoire",
+        text: "Écarter les fiches fermées ou bloquées et vérifier que les contacts d’invitation sont actifs.",
+        checks: ["Statut admissible", "Contact actif", "Préférences respectées"],
+      },
+      {
+        title: "Relire le contexte interne",
+        text: "Consulter les invitations précédentes et les notes autorisées sans les copier dans le portail.",
+        checks: ["Historique", "Notes internes", "Décision documentée"],
+      },
+      {
+        title: "Prévisualiser l’envoi",
+        text: "Vérifier destinataires, modèle, documents, fermeture et lien expirant avant transmission.",
+        checks: ["Destinataires", "Documents", "Date et lien"],
+      },
+    ],
+    note: "La présence dans le répertoire ne constitue pas une qualification réglementaire ou contractuelle automatique.",
+    relatedModules: ["partenaires", "estimation-bid", "portail-collaboration"],
+  },
+  {
+    slug: "preparer-une-implantation-pilote",
+    code: "G08",
+    title: "Préparer une implantation pilote",
+    category: "Implantation",
+    duration: "10 min",
+    summary:
+      "Choisir un projet, une équipe et un résultat vérifiable avant d’élargir le déploiement.",
+    audience: "Direction, responsables métier et TI",
+    outcome:
+      "Un pilote borné avec responsabilités, données de départ, critères de validation et décision de sortie.",
+    steps: [
+      {
+        title: "Choisir le problème prioritaire",
+        text: "Décrire une tâche actuelle, sa source et le résultat observable attendu sans empiler plusieurs transformations.",
+        checks: ["Tâche précise", "Propriétaire", "Résultat observable"],
+      },
+      {
+        title: "Sélectionner le projet et l’équipe",
+        text: "Prendre un contexte représentatif mais contrôlable, avec les personnes disponibles pour valider.",
+        checks: ["Projet pilote", "Utilisateurs nommés", "Responsable de décision"],
+      },
+      {
+        title: "Préparer les données",
+        text: "Inventorier les sources, nettoyer seulement le périmètre requis et conserver leur provenance.",
+        checks: ["Sources", "Qualité minimale", "Données sensibles"],
+      },
+      {
+        title: "Fixer les critères de sortie",
+        text: "Définir les scénarios à jouer, les limites acceptées et la décision d’étendre, corriger ou arrêter.",
+        checks: ["Scénarios", "Limites", "Date de décision"],
+      },
+    ],
+    note: "Un pilote sert à vérifier un workflow; il ne constitue pas une promesse de résultat généralisée à toute l’entreprise.",
+    relatedModules: ["projets", "integrations", "rapports"],
+  },
+  {
+    slug: "documenter-un-avenant",
+    code: "G09",
+    title: "Documenter un avenant de contrat",
+    category: "Contrats",
+    duration: "8 min",
+    summary:
+      "Conserver la demande, les pièces, la décision et l’effet financier dans le même contexte contrat-chantier.",
+    audience: "Administration de contrats et chargés de projet",
+    outcome:
+      "Un changement dont l’origine, l’approbation et l’impact peuvent être relus sans reconstruire le dossier.",
+    steps: [
+      {
+        title: "Identifier l’origine du changement",
+        text: "Relier la demande à la directive, au document ou à l’échange qui l’a déclenchée.",
+        checks: ["Source datée", "Projet et contrat", "Responsable du suivi"],
+      },
+      {
+        title: "Décrire le périmètre",
+        text: "Distinguer la portée technique, les exclusions et les pièces utilisées pour préparer l’évaluation.",
+        checks: ["Travaux visés", "Exclusions", "Pièces de référence"],
+      },
+      {
+        title: "Évaluer puis faire approuver",
+        text: "Conserver les hypothèses de coût et d’échéance avant de changer l’état contractuel.",
+        checks: ["Montant proposé", "Effet calendrier", "Décision autorisée"],
+      },
+      {
+        title: "Relire l’impact consolidé",
+        text: "Vérifier que le changement approuvé est visible dans l’analyse du contrat et le budget concerné.",
+        checks: ["État final", "Budget révisé", "Trace d’audit"],
+      },
+    ],
+    note: "ProJD soutient la trace du changement; l’interprétation juridique et l’autorité d’approbation restent celles du contrat.",
+    relatedModules: ["contrats", "budgets", "documents"],
+  },
+  {
+    slug: "importer-un-budget-preliminaire",
+    code: "G10",
+    title: "Importer un budget préliminaire",
+    category: "Estimation",
+    duration: "9 min",
+    summary:
+      "Préparer un classeur contrôlé, valider son aperçu et conserver sa provenance avant de créer des lots.",
+    audience: "Estimateurs et responsables de budget",
+    outcome:
+      "Un budget importé avec codes, montants et source vérifiables avant sa soumission.",
+    steps: [
+      {
+        title: "Geler la source d’import",
+        text: "Conserver une copie datée du classeur et identifier son propriétaire avant toute transformation.",
+        checks: ["Fichier daté", "Propriétaire", "Version retenue"],
+      },
+      {
+        title: "Normaliser les colonnes",
+        text: "Aligner codes, descriptions, types et montants sur le modèle attendu sans effacer les valeurs sources.",
+        checks: ["Codes uniques", "Types explicites", "Montants numériques"],
+      },
+      {
+        title: "Réviser l’aperçu",
+        text: "Traiter lignes rejetées, doublons et totaux inattendus avant de confirmer l’import.",
+        checks: ["Erreurs corrigées", "Doublons expliqués", "Total rapproché"],
+      },
+      {
+        title: "Soumettre le budget",
+        text: "Faire approuver le budget dans ProJD avant de l’utiliser comme source des lots d’appel d’offres.",
+        checks: ["État soumis", "Approbateur", "Provenance conservée"],
+      },
+    ],
+    note: "Le classeur reste une source identifiable; l’import ne doit pas convertir silencieusement une valeur invalide.",
+    relatedModules: ["budgets", "estimation-bid", "rapports"],
+  },
+  {
+    slug: "recevoir-une-soumission",
+    code: "G11",
+    title: "Recevoir une soumission par le portail",
+    category: "Portail partenaire",
+    duration: "7 min",
+    summary:
+      "Vérifier les documents accusés, la réponse et les fichiers déposés sans exposer les autres partenaires.",
+    audience: "Estimateurs, achats et coordination",
+    outcome:
+      "Une réponse privée rattachée à l’invitation et prête à entrer dans la comparaison.",
+    steps: [
+      {
+        title: "Vérifier l’invitation",
+        text: "Confirmer le lot, le partenaire, l’expiration du lien et les documents exigés.",
+        checks: ["Invitation ciblée", "Lien valide", "Documents attendus"],
+      },
+      {
+        title: "Contrôler les accusés",
+        text: "S’assurer que les addenda ou pièces obligatoires ont été consultés et accusés.",
+        checks: ["Versions visibles", "Accusés requis", "Date de consultation"],
+      },
+      {
+        title: "Recevoir la réponse",
+        text: "Conserver l’état intéressé ou refusé, le montant déclaré et les fichiers dans l’espace privé de l’invitation.",
+        checks: ["État de réponse", "Montant", "Fichiers privés"],
+      },
+      {
+        title: "Préparer la comparaison",
+        text: "Signaler les renseignements manquants et ouvrir la réponse dans le comparatif sans modifier son dépôt original.",
+        checks: ["Pièces complètes", "Écarts signalés", "Source intacte"],
+      },
+    ],
+    note: "Un partenaire ne doit jamais pouvoir lire les montants, fichiers ou notes associés à une autre invitation.",
+    relatedModules: ["portail-collaboration", "estimation-bid", "partenaires"],
+  },
+  {
+    slug: "preparer-un-rapport-hebdomadaire",
+    code: "G12",
+    title: "Préparer un rapport hebdomadaire",
+    category: "Coordination",
+    duration: "6 min",
+    summary:
+      "Réviser les actions, risques, jalons et décisions avant de produire une version partageable et datée.",
+    audience: "Chargés de projet et coordination",
+    outcome:
+      "Un rapport qui reflète l’état du projet à une date précise avec les responsables des suivis ouverts.",
+    steps: [
+      {
+        title: "Choisir la période",
+        text: "Fixer la date de coupure et vérifier que le projet et son responsable sont correctement identifiés.",
+        checks: ["Date de coupure", "Projet", "Responsable"],
+      },
+      {
+        title: "Mettre à jour les suivis",
+        text: "Relire actions, risques, RFIs et jalons qui doivent apparaître dans la réunion.",
+        checks: ["États actuels", "Dates cibles", "Responsables"],
+      },
+      {
+        title: "Valider les faits saillants",
+        text: "Séparer les informations de contexte des décisions ou escalades demandées.",
+        checks: ["Décisions requises", "Blocages", "Éléments clos"],
+      },
+      {
+        title: "Produire et archiver",
+        text: "Générer la version imprimable, relire son contenu et conserver la date de production.",
+        checks: ["Aperçu relu", "Date visible", "Version partageable"],
+      },
+    ],
+    note: "Le rapport est une lecture à une date donnée; les états vivants continuent d’évoluer dans le projet.",
+    relatedModules: ["projets", "rapports", "documents"],
+  },
 ] satisfies GuideContent[];
 
 export const getGuideBySlug = (slug: string): GuideContent | undefined =>
@@ -680,6 +1343,27 @@ export const resourceCards = [
     text: "Autorité serveur, portail cloisonné, audit et limites assumées des intégrations.",
     href: "/securite",
     action: "Voir les garde-fous",
+  },
+  {
+    code: "COM",
+    title: "Comparaisons",
+    text: "Situer ProJD par rapport à Excel, Procore et SharePoint sans présumer qu’un outil doit disparaître.",
+    href: "/comparer",
+    action: "Comparer les rôles",
+  },
+  {
+    code: "GLS",
+    title: "Glossaire construction",
+    text: "Des définitions courtes pour les objets métier utilisés dans les pages et les guides.",
+    href: "/glossaire",
+    action: "Consulter le glossaire",
+  },
+  {
+    code: "SV",
+    title: "Scénarios vérifiables",
+    text: "Des parcours précis à reproduire dans la démo fictive, sans témoignage ni gain client inventé.",
+    href: "/scenarios",
+    action: "Voir les scénarios",
   },
 ] as const;
 

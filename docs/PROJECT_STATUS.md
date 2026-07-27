@@ -5,19 +5,17 @@ Dernière mise à jour : 2026-07-26, America/Toronto.
 Branche de travail :
 
 ```text
-feat/projd-professional-vitrine
+feat/vitrine-50-improvements
 ```
 
 ## Résumé
 
-La refonte transforme Vitrine en site B2B multipage et place la vente assistée
-avant le paiement. `/commander` prépare maintenant une proposition courte;
-l’ancien parcours de commande est isolé sous `/commander/achat` et reste
-`noindex`.
+La refonte B2B multipage est en production. La branche courante consolide
+cinquante améliorations autour de la sécurité commerciale, de la conversion,
+du contenu, de l'accessibilité, de la mesure et de l'exploitation.
 
-La refonte a été fusionnée dans `main` au commit `6fb688d` et déployée sur
-`https://fichero.cloud` le 2026-07-26. Le conteneur public est sain et l'image
-précédente est conservée localement pour rollback.
+Le détail vérifiable, y compris les dépendances externes qui ne doivent pas être
+inventées, se trouve dans `docs/IMPROVEMENTS_50_STATUS.md`.
 
 ## État actuel
 
@@ -28,14 +26,16 @@ précédente est conservée localement pour rollback.
 | Produit et solutions | en place | `/projd`, `/solutions`, `/modules` et détails réécrits. |
 | Vérité produit | en place | `site-content.ts` porte `available`, `evolving`, `activation`. |
 | Ressources | en place | `/ressources`, `/presentation`, `/documentation`, `/guides` et `/demo`. |
-| Confiance | en place | Sécurité, confidentialité et conditions existent; validation juridique finale requise. |
-| Proposition | en place | `/commander` vers `/api/proposals` et boîte JSONL locale. |
-| Checkout historique | isolé | `/commander/achat` est `noindex`; Fondation reste l’autorité. |
-| Retour Stripe | sûr côté message | Affiche une vérification, jamais un succès déduit de l’URL. |
-| Retour PayPal | partiel | Capture serveur présente; validation fournisseur réelle requise. |
-| SEO | en place | Canonicals, sitemap, robots, image OG, 404 et données structurées de l’accueil. |
-| Visuels | en place, à enrichir | Identité et aperçu ERP fictif en CSS; vraie capture ProJD encore souhaitable. |
-| Analytics | basique | Page views first-party; pas encore de tableau de bord conversion. |
+| Confiance | renforcée | En-têtes HTTP, origine, limites, logs redacted, runbooks; validation juridique finale requise. |
+| Proposition | fermée par défaut | Formulaire progressif prêt; l’UI et l’API restent fermées sans gouvernance PII complète, endpoint Fondation autorisé et jeton. |
+| Checkout historique | fermé par défaut | `/commander/achat` est `noindex`; formulaire et API exigent activation explicite et devis signé. |
+| Retour Stripe | sûr et préparé | Polling d'un état autoritaire; reste différé sans endpoint Fondation. |
+| Retour PayPal | renforcé, partiel | Capture serveur et anti-rejeu local; validation fournisseur réelle requise. |
+| SEO | enrichi | 12 guides, secteurs, rôles, comparaisons, glossaire, sitemap daté et schémas spécialisés. |
+| Visuels | enrichi | Capture réelle de la démo fictive et images sociales dynamiques. |
+| Analytics | renforcé | App Router, tunnel, attribution limitée, Web Vitals et résumé privé sans PII. |
+| Qualité | automatisée | Vitest, Playwright desktop/mobile, Axe, audit, build, Docker smoke et CI. |
+| Exploitation | durcie | `/readyz`, image immuable, runtime non-root en lecture seule, SBOM et rollback. |
 
 ## Contrats importants
 
@@ -51,34 +51,27 @@ précédente est conservée localement pour rollback.
 ```bash
 npm run lint
 npm run typecheck
+npm test
 npm run build
+npm run test:e2e
+npm audit --omit=dev --audit-level=high
+docker compose config --quiet
 git diff --check
 ```
 
-Validation locale du 2026-07-26 :
-
-- ESLint réussi;
-- TypeScript strict réussi;
-- build Next.js réussi, 44 pages générées;
-- `git diff --check` réussi;
-- Chromium vérifié à 1440 × 1000 et 390 × 844;
-- aucun débordement global sur les routes principales;
-- menu mobile et clavier de la présentation vérifiés;
-- proposition acceptée localement, origine étrangère refusée et honeypot sans
-  écriture;
-- démo externe et `/healthz` répondent HTTP 200.
-- image Docker de production vérifiée sans `.env`, données locales, cache
-  Graphify ni dépendance native Sharp;
-- smoke public réussi sur les routes principales, la validation des API et
-  `/healthz`;
-- rendu public vérifié avec Chromium en desktop et mobile, menu mobile inclus,
-  sans erreur de console.
+Les résultats finaux de la branche doivent être inscrits dans la pull request
+et le suivi de déploiement, après exécution sur l'état Git exact publié.
 
 Smoke recommandé :
 
 - `/`
 - `/projd`
 - `/solutions`
+- `/solutions/direction`
+- `/secteurs`
+- `/comparer`
+- `/glossaire`
+- `/scenarios`
 - `/modules`
 - `/modules/projets`
 - `/modules/factures-ocr`
@@ -99,6 +92,7 @@ Smoke recommandé :
 - `/statut`
 - `/sitemap.xml`
 - `/healthz`
+- `/readyz`
 
 Scénarios d’échec :
 
@@ -112,12 +106,13 @@ Scénarios d’échec :
 
 ## Suivis de production
 
-- traiter, sécuriser, sauvegarder et purger la boîte
-  `VITRINE_PROPOSAL_INBOX_PATH`;
-- valider le contenu légal et une méthode de contact officielle;
+- avant toute activation, valider le contenu légal, le responsable, la méthode
+  de contact officielle et la durée de conservation;
+- après activation, traiter, sécuriser, sauvegarder et purger la boîte de
+  secours `VITRINE_PROPOSAL_INBOX_PATH`;
 - faire valider juridiquement confidentialité et conditions;
-- remplacer ou compléter l’aperçu CSS par une vraie capture ProJD avec données
-  fictives;
+- produire la vidéo guidée complémentaire à la capture réelle de la démo
+  fictive;
 - exécuter les achats Stripe et PayPal en sandbox avec webhooks réels;
 - confirmer que Fondation réconcilie paiement, licence et activation;
 - surveiller les journaux, les demandes reçues et les retours de paiement après

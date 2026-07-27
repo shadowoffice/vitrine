@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ProposalForm } from "./ProposalForm";
+import {
+  getProposalConfigurationIssues,
+  getServerEnv,
+} from "@/lib/server/env";
+import { modules } from "@/lib/site-content";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Configurer une proposition",
@@ -10,10 +17,19 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/commander",
   },
+  openGraph: {
+    title: "Configurer une proposition ProJD",
+    description:
+      "Choisissez un premier workflow, les modules à examiner et le contexte de votre équipe.",
+    url: "/commander",
+    type: "website",
+  },
 };
 
 type ProposalPageProps = {
   searchParams?: Promise<{
+    context?: string | string[];
+    module?: string | string[];
     plan?: string | string[];
   }>;
 };
@@ -28,11 +44,62 @@ const preparationPoints = [
   "Les intégrations à vérifier",
 ] as const;
 
+const queryValues = (value: string | string[] | undefined): string[] =>
+  Array.isArray(value) ? value : value ? [value] : [];
+
+const normalizeSourceContext = (
+  value: string | undefined,
+): string | undefined => {
+  const normalized = value
+    ?.trim()
+    .replace(/[^a-zA-Z0-9:_-]/g, "-")
+    .slice(0, 120);
+  return normalized || undefined;
+};
+
+const configuredBookingUrl = (): string | undefined => {
+  const candidate = process.env.NEXT_PUBLIC_SALES_BOOKING_URL?.trim();
+  if (!candidate) {
+    return undefined;
+  }
+
+  try {
+    const parsed = new URL(candidate);
+    return parsed.protocol === "https:" ? parsed.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const proposalAvailability = (): "enabled" | "disabled" | "misconfigured" => {
+  try {
+    const env = getServerEnv();
+    if (!env.enableProposals) {
+      return "disabled";
+    }
+    return getProposalConfigurationIssues(env).length === 0
+      ? "enabled"
+      : "misconfigured";
+  } catch {
+    return "misconfigured";
+  }
+};
+
 export default async function ProposalPage({
   searchParams,
 }: ProposalPageProps) {
   const params = searchParams ? await searchParams : {};
   const initialPlanCode = firstQueryValue(params.plan);
+  const requestedModuleSlugs = new Set(queryValues(params.module));
+  const initialModuleSlugs = modules
+    .filter((module) => requestedModuleSlugs.has(module.slug))
+    .map((module) => module.slug);
+  const sourceContext = normalizeSourceContext(firstQueryValue(params.context));
+  const moduleOptions = modules.map((module) => ({
+    slug: module.slug,
+    label: module.name,
+  }));
+  const availability = proposalAvailability();
 
   return (
     <main id="contenu">
@@ -59,13 +126,33 @@ export default async function ProposalPage({
             </p>
           </div>
           <p className="existing-offer-link">
-            Une proposition est déjà approuvée?{" "}
-            <Link href={`/commander/achat${initialPlanCode ? `?plan=${initialPlanCode}` : ""}`}>
-              Finaliser la commande
-            </Link>
+            Une proposition est déjà approuvée? Utilisez uniquement le lien de
+            commande sécurisé et expirant transmis avec votre dossier.
           </p>
         </div>
-        <ProposalForm initialPlanCode={initialPlanCode} />
+        {availability === "enabled" ? (
+          <ProposalForm
+            bookingUrl={configuredBookingUrl()}
+            initialModuleSlugs={initialModuleSlugs}
+            initialPlanCode={initialPlanCode}
+            moduleOptions={moduleOptions}
+            sourceContext={sourceContext}
+          />
+        ) : (
+          <section className="proposal-success" role="status">
+            <span aria-hidden="true">—</span>
+            <p className="eyebrow">Collecte fermée</p>
+            <h2>Le formulaire public n’accepte aucun renseignement.</h2>
+            <p>
+              {availability === "misconfigured"
+                ? "Une activation a été demandée, mais les garanties de confidentialité ou la livraison vers Fondation sont incomplètes. Le formulaire demeure fermé."
+                : "La collecte reste désactivée tant que le responsable officiel, le contact de confidentialité, la durée de conservation et l’intake Fondation ne sont pas confirmés."}
+            </p>
+            <Link className="text-button" href="/confidentialite">
+              Voir l’état de confidentialité
+            </Link>
+          </section>
+        )}
       </section>
     </main>
   );

@@ -1,37 +1,49 @@
 # Vitrine ProJD
 
-Vitrine est le site public de vente de l’ERP construction ProJD sur
-`https://fichero.cloud`.
+Vitrine est le site public de vente assistée de l’ERP construction ProJD,
+accessible sur `https://fichero.cloud`.
 
-La stratégie commerciale est une vente assistée :
+Le parcours commercial reste volontairement séparé de l’autorité SaaS :
 
-1. le visiteur découvre le produit, les solutions, les tarifs et les guides;
-2. `/commander` recueille une demande de proposition courte;
-3. l’équipe ProJD qualifie le périmètre et prépare une présentation;
-4. le checkout historique `/commander/achat` est utilisé seulement lorsqu’une
-   proposition est déjà cadrée.
+1. le visiteur découvre le produit, les rôles, les secteurs, les modules, les
+   tarifs et les guides;
+2. `/commander` recueille une demande de proposition en deux étapes;
+3. l’équipe ProJD qualifie le périmètre et prépare une présentation ou un
+   devis;
+4. `/commander/achat` n’est utilisé qu’après ce cadrage;
+5. Fondation demeure l’autorité pour le checkout, le paiement, la licence et
+   l’activation.
 
-Vitrine ne confirme jamais elle-même un paiement, une licence ou une activation
-ERP.
+Vitrine ne confirme jamais elle-même une licence ou une activation ERP. Un
+retour fournisseur ne constitue pas non plus une preuve de paiement.
+
+Le suivi détaillé des améliorations et de leurs dépendances externes se trouve
+dans [IMPROVEMENTS_50_STATUS.md](docs/IMPROVEMENTS_50_STATUS.md).
 
 ## Stack
 
-- Next.js App Router, React, TypeScript strict et CSS global;
-- pages publiques majoritairement rendues côté serveur;
-- routes Node.js pour propositions, analytics et handoff de paiement;
+- Next.js 16 App Router, React 19, TypeScript strict et Zod;
+- pages publiques rendues côté serveur, avec de petits îlots client pour les
+  filtres, les formulaires, le calculateur et la mesure;
+- routes Node.js pour les propositions, l’analytics et le handoff de paiement;
+- Vitest pour les contrats métier et API;
+- Playwright, Chromium et Axe pour les parcours bureau/mobile et
+  l’accessibilité automatisée;
 - conteneur `fichero-vitrine`, exposé localement sur le port `3103`;
-- Fondation comme autorité pour checkout, paiement, licence et activation;
-- ProJD comme application ERP locataire.
+- Fondation comme autorité commerciale et SaaS; ProJD comme application ERP
+  locataire.
 
 ## Contenu canonique
 
-- `src/lib/site-content.ts` : navigation, solutions, modules, disponibilité,
-  intégrations, ressources, documentation et guides;
-- `src/lib/pricing.ts` : forfaits et calculs de panier;
-- `src/lib/proposal.ts` : schéma de demande de proposition;
-- `src/lib/erp-order.ts` : contrat du checkout historique.
+- `src/lib/site-content.ts` : navigation, rôles, secteurs, comparaisons,
+  modules, guides, glossaire, scénarios et dates de contenu;
+- `src/lib/pricing.ts` : forfaits, calculs de panier et matrice comparative;
+- `src/lib/proposal.ts` : contrat des demandes de proposition;
+- `src/lib/erp-order.ts` : contrats du checkout, de la capture et du statut;
+- `src/lib/server/env.ts` : validation des variables serveur;
+- `src/lib/server/foundation-client.ts` : client Fondation typé unique.
 
-Les niveaux publics sont :
+Les niveaux publics des modules sont :
 
 - `available` — périmètre actuellement utilisable;
 - `evolving` — première tranche utilisable, mais encore en évolution;
@@ -39,93 +51,165 @@ Les niveaux publics sont :
   connecteurs à valider.
 
 Voir [CONTENT_TRUTH_MATRIX.md](docs/CONTENT_TRUTH_MATRIX.md) avant de modifier
-une promesse produit.
+une promesse produit. Les renseignements légaux, preuves commerciales et
+coordonnées qui restent à confirmer sont consignés dans
+[LEGAL_AND_COMMERCIAL_INPUTS.md](docs/LEGAL_AND_COMMERCIAL_INPUTS.md).
 
-## Routes principales
+## Surface publique
 
-- `/` — accueil commercial court;
-- `/projd` — présentation produit;
-- `/solutions` — parcours par rôle;
-- `/modules` et `/modules/[slug]` — catalogue fonctionnel;
-- `/tarifs` — repères de prix et entrée vers la proposition;
-- `/ressources` — hub documentation, guides, sécurité et démo;
-- `/presentation` — présentation commerciale interactive en six diapositives;
-- `/documentation` — référence fonctionnelle;
-- `/guides` et `/guides/[slug]` — parcours pratiques;
-- `/demo` — présentation guidée et accès à la démo fictive;
-- `/securite`, `/confidentialite`, `/conditions`, `/statut` — confiance publique;
+- `/` et `/projd` — accueil et présentation du produit;
+- `/solutions` et `/solutions/[slug]` — parcours pour la direction, les
+  projets, l’estimation et la comptabilité;
+- `/secteurs` et `/secteurs/[slug]` — entrepreneurs généraux, entrepreneurs
+  spécialisés et équipes multi-projets;
+- `/modules` et `/modules/[slug]` — dix modules, avec recherche accessible;
+- `/tarifs` — assistant de forfait, calcul de première année et comparaison;
+- `/ressources`, `/documentation` et `/presentation` — ressources produit;
+- `/guides` et `/guides/[slug]` — douze guides avec recherche accessible;
+- `/comparer` et `/comparer/[slug]` — comparaisons factuelles avec Excel,
+  Procore et SharePoint;
+- `/glossaire` — définitions construction et ERP;
+- `/scenarios` — scénarios reproductibles avec données fictives;
+- `/demo` — capture réelle de l’instance de démonstration fictive et accès
+  externe;
+- `/securite`, `/confidentialite`, `/conditions` et `/statut` — confiance
+  publique;
 - `/commander` — demande de proposition assistée.
 
 Routes opérationnelles non indexables :
 
 - `/commander/achat` — checkout historique après qualification;
-- `/paiement/retour` — état de retour fournisseur.
+- `/paiement/retour` — capture éventuelle et vérification bornée du statut.
 
-Redirection conservée :
-
-- `/fondation` vers `/projd`.
-
-La carte complète vit dans [SITE_MAP.md](docs/SITE_MAP.md).
+`/fondation` redirige vers `/projd`. La carte exhaustive, avec tous les slugs,
+vit dans [SITE_MAP.md](docs/SITE_MAP.md).
 
 ## Routes serveur
 
-- `POST /api/proposals` — valide et conserve une proposition dans une boîte
-  JSONL locale;
-- `POST /api/checkout` — demande à Fondation de créer un checkout fournisseur;
-- `POST /api/checkout/capture` — handoff de capture PayPal;
-- `POST /api/erp-orders` — intake historique avec fallback JSONL;
-- `POST /api/analytics` — mesure first-party sans cookie;
-- `/healthz`, `/robots.txt`, `/sitemap.xml`.
+| Méthode et route | Responsabilité |
+| --- | --- |
+| `POST /api/proposals` | Refuse par défaut; lorsqu’elle est explicitement activée avec les garanties obligatoires, valide puis livre à Fondation avec secours JSONL. |
+| `POST /api/analytics` | Conserve pages vues, événements du tunnel et Web Vitals first-party sans cookie. |
+| `POST /api/checkout` | Refuse par défaut; lorsqu'il est explicitement activé, recalcule le panier, exige le devis signé et demande un checkout à Fondation. |
+| `POST /api/checkout/capture` | Refuse tant que le checkout sécurisé n’est pas activé; sinon demande la capture PayPal à Fondation avec protection locale contre le rejeu. |
+| `GET /api/checkout/status` | Interroge le statut autoritaire configuré; sinon retourne un état indisponible sûr. |
+| `POST /api/erp-orders` | Transmet l’intake historique à Fondation, avec secours JSONL rotatif. |
+| `GET /healthz` | Vivacité du processus, sans dépendances externes. |
+| `GET /readyz` | Cohérence de configuration et écriture des files JSONL actives. |
+| `GET /robots.txt`, `GET /sitemap.xml` | Indexation publique. |
+
+Les contrats publics partagent les mêmes garde-fous : contenu JSON, lecture en
+flux avec plafond d’octets, origine canonique, rate limit borné, honeypot,
+identifiant de requête et clé d’idempotence. Le rate limit et l’anti-rejeu
+PayPal sont locaux au processus; l’idempotence durable demeure une
+responsabilité de Fondation.
+
+Le client Fondation reste `server-only`. Il vérifie l’allowlist des hôtes,
+refuse les redirections, applique un timeout, borne la réponse et valide le
+JSON reçu avec Zod. Les logs sont structurés et expurgent les champs sensibles.
 
 ## Environnement
 
-Valeurs serveur :
+Valeurs publiques figées au build :
 
-- `VITRINE_PROPOSAL_INBOX_PATH` — défaut `/app/data/proposals.jsonl`;
-- `VITRINE_ORDER_INBOX_PATH`;
+- `NEXT_PUBLIC_SITE_URL` — défaut `https://fichero.cloud`;
+- `NEXT_PUBLIC_SALES_BOOKING_URL` — URL HTTPS facultative du calendrier
+  commercial;
+- `NEXT_PUBLIC_MARKETING_VARIANT` — `control` ou `clarity`, facultatif.
+
+Fondation, serveur seulement :
+
 - `FONDATION_ORDER_INTAKE_URL`;
+- `FONDATION_PROPOSAL_INTAKE_URL`;
 - `FONDATION_CHECKOUT_URL`;
 - `FONDATION_CHECKOUT_CAPTURE_URL`;
-- `FONDATION_ORDER_INTAKE_TOKEN`.
+- `FONDATION_CHECKOUT_STATUS_URL`;
+- `FONDATION_ORDER_INTAKE_TOKEN`;
+- `FONDATION_ALLOWED_HOSTS` — hôtes supplémentaires séparés par des virgules;
+- `FONDATION_REQUEST_TIMEOUT_MS` — défaut `8000`.
 
-Valeur publique :
+Sécurité et stockage, serveur seulement :
 
-- `NEXT_PUBLIC_SITE_URL`.
+- `VITRINE_ALLOWED_ORIGINS`;
+- `VITRINE_TRUST_PROXY_HOPS`;
+- `VITRINE_ENABLE_PROPOSALS` — défaut `false`;
+- `VITRINE_PRIVACY_OFFICER_NAME` — responsable officiel requis à l’activation;
+- `VITRINE_PRIVACY_CONTACT_EMAIL` — contact officiel requis à l’activation;
+- `VITRINE_PROPOSAL_RETENTION_DAYS` — durée requise, de `1` à `3650` jours;
+- `VITRINE_ENABLE_CHECKOUT` — défaut `false`;
+- `VITRINE_REQUIRE_SIGNED_QUOTE` — doit être `true` pour activer le checkout;
+- `VITRINE_QUOTE_SIGNING_SECRET` — requis pour activer le checkout;
+- `VITRINE_PROPOSAL_INBOX_PATH` — défaut
+  `/app/data/proposals.jsonl`;
+- `VITRINE_ORDER_INBOX_PATH` — défaut `/app/data/erp-orders.jsonl`;
+- `VITRINE_ANALYTICS_INBOX_PATH` — défaut
+  `/app/data/analytics-events.jsonl`;
+- `VITRINE_ANALYTICS_MAX_FILE_BYTES` — défaut `5242880`;
+- `VITRINE_ANALYTICS_ROTATION_FILES` — défaut `5`.
 
-Ne jamais déplacer un secret Fondation dans une variable `NEXT_PUBLIC_*`.
+`FONDATION_CHECKOUT_URL` et `FONDATION_CHECKOUT_CAPTURE_URL` peuvent être
+dérivées d’une `FONDATION_ORDER_INTAKE_URL` terminant par `/erp-orders`. Les
+URLs de proposition et de statut doivent être configurées explicitement. Ne
+jamais déplacer un secret Fondation dans une variable `NEXT_PUBLIC_*`.
 
-## Sécurité du paiement
+La collecte de propositions demeure fermée si un seul des éléments suivants
+manque : activation explicite, responsable et courriel officiels, durée de
+conservation, endpoint de proposition autorisé et jeton Fondation. Dans cet
+état, `/commander` n’affiche aucun formulaire et l’API répond `503` sans lire,
+stocker ni transmettre la proposition.
+
+Les variables `VITRINE_IMAGE_NAME`, `VITRINE_IMAGE_TAG`,
+`VITRINE_IMAGE_REVISION`, `VITRINE_IMAGE_VERSION` et
+`VITRINE_IMAGE_CREATED` pilotent les images immuables et leurs métadonnées OCI.
+
+## Contrats sûrs du paiement
 
 - `/commander/achat` et `/paiement/retour` restent `noindex`;
-- une URL de retour Stripe ne prouve jamais qu’un paiement est réussi;
-- Stripe doit rester « en vérification » jusqu’à une confirmation serveur ou
-  webhook provenant de Fondation;
-- PayPal n’est confirmé qu’après la réponse serveur de capture;
-- Vitrine ne crée ni abonnement, ni facture, ni licence, ni runtime ERP.
+- le checkout direct est désactivé par défaut et aucune configuration partielle
+  ne permet d'afficher son formulaire;
+- un devis signé utilise un jeton HMAC versionné liant devis, commande, plan,
+  sièges, courriel et expiration; son émission appartient au service de
+  confiance;
+- Stripe reste en vérification jusqu’à un statut serveur `paid`;
+- le polling de statut est borné et revient à « vérification différée » en cas
+  d’absence ou de panne;
+- PayPal n’affiche une capture que sur réponse serveur `captured`, puis demande
+  aussi le statut autoritaire;
+- paiement, facture, licence et activation restent des états distincts.
 
-## Développement et validation
+L’activation complète du tunnel dépend encore d’entrées légales, commerciales
+et Fondation. Ne pas lever ces barrières sans les preuves listées dans
+[IMPROVEMENTS_50_STATUS.md](docs/IMPROVEMENTS_50_STATUS.md).
+
+## Développement et qualité
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Avant PR ou déploiement :
+Barrières avant fusion :
 
 ```bash
 npm run lint
 npm run typecheck
+npm run test:unit
+npm audit --omit=dev --audit-level=high
 npm run build
+npm run test:e2e
 git diff --check
 ```
 
-Pour le runtime :
+Validation du conteneur :
 
 ```bash
-docker compose up -d --build
-docker compose ps
-curl -fsS http://127.0.0.1:3103/healthz
+docker compose config --quiet
+docker compose build --pull vitrine
+scripts/docker-smoke.sh fichero-vitrine:latest
 ```
 
-Tester aussi les erreurs de proposition, l’absence de configuration Fondation,
-les refus fournisseur, l’annulation du checkout et les retours Stripe/PayPal.
+La CI GitHub exécute trois jobs : qualité/build, Playwright Chromium et
+smoke/scan du conteneur avec SBOM. Les détails de validation sont dans
+[QUALITY_GATES.md](docs/QUALITY_GATES.md); les procédures de santé, sauvegarde,
+déploiement immuable et rollback sont dans
+[OPERATIONS.md](docs/OPERATIONS.md).

@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MarketingCta } from "../_components/MarketingCta";
+import { PricingExplorer } from "./PricingExplorer";
+import {
+  pricingCommercialNotes,
+  pricingComparisonRows,
+  pricingPlans,
+} from "@/lib/pricing";
 import { faqItems, packages } from "@/lib/site-content";
 
 export const metadata: Metadata = {
@@ -10,6 +16,13 @@ export const metadata: Metadata = {
     "Forfaits de référence ProJD pour une équipe pilote, une entreprise multi-projets ou plusieurs équipes métier.",
   alternates: {
     canonical: "/tarifs",
+  },
+  openGraph: {
+    title: "Tarifs ProJD — forfaits ERP construction",
+    description:
+      "Comparez les accès, la mise en route et le périmètre des forfaits ProJD, puis estimez un coût catalogue.",
+    url: "/tarifs",
+    type: "website",
   },
 };
 
@@ -31,9 +44,28 @@ const implementationSteps = [
   },
 ] as const;
 
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+};
+
 export default function PricingPage() {
   return (
     <main id="contenu">
+      <script
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c"),
+        }}
+        type="application/ld+json"
+      />
       <section className="page-hero pricing-hero">
         <p className="eyebrow">Forfaits de référence</p>
         <h1>Un point de départ clair. Une proposition adaptée ensuite.</h1>
@@ -88,6 +120,69 @@ export default function PricingPage() {
           Accès additionnels facturés selon le forfait. Les imports historiques
           et connecteurs spécifiques sont évalués dans la proposition.
         </p>
+      </section>
+
+      <PricingExplorer />
+
+      <section
+        className="compact-section pricing-comparison-section"
+        aria-labelledby="pricing-comparison-title"
+      >
+        <div className="section-intro">
+          <p className="eyebrow">Comparer les forfaits</p>
+          <h2 id="pricing-comparison-title">
+            Les différences qui changent réellement le périmètre.
+          </h2>
+          <p>
+            Le tableau compare le catalogue public. Une intégration n’est
+            jamais présumée active avant la validation des licences, accès et
+            responsabilités.
+          </p>
+        </div>
+        <div className="comparison-table-scroll" tabIndex={0}>
+          <table className="pricing-comparison-table">
+            <caption className="visually-hidden">
+              Comparaison des forfaits ProJD
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Critère</th>
+                {pricingPlans.map((plan) => (
+                  <th scope="col" key={plan.code}>
+                    {plan.publicName}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {pricingComparisonRows.map((row) => (
+                <tr key={row.label}>
+                  <th scope="row">{row.label}</th>
+                  {pricingPlans.map((plan) => (
+                    <td key={plan.code}>{row.values[plan.code]}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section
+        className="compact-section pricing-terms"
+        aria-labelledby="pricing-terms-title"
+      >
+        <div>
+          <p className="eyebrow">Lecture commerciale</p>
+          <h2 id="pricing-terms-title">
+            Ce que le calcul inclut — et ce qu’il ne décide pas.
+          </h2>
+        </div>
+        <ul>
+          {Object.values(pricingCommercialNotes).map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
       </section>
 
       <section className="compact-section implementation-section">

@@ -18,6 +18,19 @@ export const proposalPriorities = [
   "integrations",
 ] as const;
 
+export const proposalModuleSlugs = [
+  "projets",
+  "budgets",
+  "contrats",
+  "estimation-bid",
+  "documents",
+  "factures-ocr",
+  "partenaires",
+  "portail-collaboration",
+  "rapports",
+  "integrations",
+] as const;
+
 export const proposalPriorityLabels = {
   projects: "Gestion de projets",
   finance: "Finance construction",
@@ -44,6 +57,11 @@ export const proposalRequestSchema = z.object({
   teamSize: z.enum(proposalTeamSizes),
   priority: z.enum(proposalPriorities),
   currentTools: z.array(z.string().trim().min(1).max(60)).max(8).default([]),
+  selectedModules: z.array(z.enum(proposalModuleSlugs)).max(10).default([]),
+  sourceContext: optionalTrimmedString(120).refine(
+    (value) => value === undefined || /^[a-z0-9][a-z0-9:/_.-]*$/iu.test(value),
+    "Le contexte de provenance est invalide.",
+  ),
   plan: z.enum(pricingPlanCodes).optional(),
   message: optionalTrimmedString(2000),
   acceptsContact: z.boolean().refine((value) => value, "L’autorisation de contact est requise."),
@@ -57,7 +75,19 @@ export type ProposalResponse = {
   reference: string;
   safeSummary: string;
   safeError: string | null;
+  delivery?: "fondation" | "local_backup";
 };
+
+export const proposalIntakeResponseSchema = z.object({
+  status: z.enum(["accepted", "queued", "failed"]),
+  reference: z.string().trim().min(1).max(160).optional(),
+  safeSummary: z.string().trim().min(1).max(500).optional(),
+  safeError: z.string().trim().max(1_000).nullable().optional(),
+});
+
+export type ProposalIntakeResponse = z.infer<
+  typeof proposalIntakeResponseSchema
+>;
 
 export const isProposalResponse = (value: unknown): value is ProposalResponse => {
   if (!value || typeof value !== "object") {
@@ -68,6 +98,10 @@ export const isProposalResponse = (value: unknown): value is ProposalResponse =>
   return (
     (candidate.status === "accepted" || candidate.status === "failed") &&
     typeof candidate.reference === "string" &&
-    typeof candidate.safeSummary === "string"
+    typeof candidate.safeSummary === "string" &&
+    (candidate.safeError === null || typeof candidate.safeError === "string") &&
+    (candidate.delivery === undefined ||
+      candidate.delivery === "fondation" ||
+      candidate.delivery === "local_backup")
   );
 };

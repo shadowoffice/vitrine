@@ -1,11 +1,17 @@
 .git
 .env*
 .next
+/.github
+/coverage
 /data
+/docs
+/e2e
 /graphify-out
 node_modules
 npm-debug.log
 output
+/scripts
+/tests
 Dockerfile
 docker-compose.yml
 README.md

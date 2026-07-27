@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import {
+  getProposalConfigurationIssues,
+  getServerEnv,
+} from "@/lib/server/env";
+
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Confidentialité",
   description:
@@ -10,30 +17,74 @@ export const metadata: Metadata = {
   },
 };
 
-const privacySections = [
-  {
-    code: "01",
-    title: "Mesure d’audience",
-    text: "La vitrine utilise une mesure first-party sans cookie et sans identifiant visiteur. L’application ne conserve pas l’adresse IP dans les événements analytiques.",
-  },
-  {
-    code: "02",
-    title: "Demande de proposition",
-    text: "Les renseignements saisis servent à préparer une démonstration et un dossier commercial. Le formulaire public ne demande ni adresse fiscale ni information de paiement.",
-  },
-  {
-    code: "03",
-    title: "Conservation locale",
-    text: "La demande est reçue par le serveur de la vitrine et conservée dans une boîte locale à accès restreint. L’accès, la relève et la suppression doivent suivre la politique d’exploitation du service.",
-  },
-  {
-    code: "04",
-    title: "Durée et demandes",
-    text: "La durée de conservation et les responsabilités finales doivent être précisées dans la proposition ou le contrat client. Une demande liée aux données peut être inscrite dans le formulaire de configuration.",
-  },
-] as const;
+type ProposalDisclosure =
+  | { status: "disabled" | "misconfigured" }
+  | {
+      status: "enabled";
+      officerName: string;
+      contactEmail: string;
+      retentionDays: number;
+    };
+
+const proposalDisclosure = (): ProposalDisclosure => {
+  try {
+    const env = getServerEnv();
+    if (!env.enableProposals) {
+      return { status: "disabled" };
+    }
+    if (
+      getProposalConfigurationIssues(env).length > 0 ||
+      !env.privacyOfficerName ||
+      !env.privacyContactEmail ||
+      env.proposalRetentionDays === null
+    ) {
+      return { status: "misconfigured" };
+    }
+    return {
+      status: "enabled",
+      officerName: env.privacyOfficerName,
+      contactEmail: env.privacyContactEmail,
+      retentionDays: env.proposalRetentionDays,
+    };
+  } catch {
+    return { status: "misconfigured" };
+  }
+};
 
 export default function PrivacyPage() {
+  const disclosure = proposalDisclosure();
+  const collectionEnabled = disclosure.status === "enabled";
+  const privacySections = [
+    {
+      code: "01",
+      title: "Mesure d’audience",
+      text: "La vitrine utilise une mesure first-party sans cookie et sans identifiant visiteur. L’application ne conserve pas l’adresse IP dans les événements analytiques.",
+    },
+    {
+      code: "02",
+      title: "Demande de proposition",
+      text: collectionEnabled
+        ? "La collecte est activée. Le formulaire demande uniquement le contexte commercial, l’entreprise, le nom, le courriel, le téléphone facultatif et le consentement de contact; il ne demande aucune donnée de paiement."
+        : disclosure.status === "misconfigured"
+          ? "Une activation a été demandée, mais la configuration de confidentialité ou de livraison est incomplète. Le formulaire demeure fermé et l’API refuse toute proposition."
+          : "La collecte des propositions est désactivée. Le formulaire est fermé et l’API refuse les données sans les enregistrer ni les transmettre à Fondation.",
+    },
+    {
+      code: "03",
+      title: "Livraison et secours",
+      text: collectionEnabled
+        ? "Les propositions sont transmises à l’endpoint Fondation autorisé. Une file locale restreinte peut servir de secours si ce service devient temporairement indisponible."
+        : "Aucune proposition n’est ajoutée à la file locale et aucun appel Fondation n’est effectué pendant la fermeture.",
+    },
+    {
+      code: "04",
+      title: "Responsabilité et conservation",
+      text: collectionEnabled
+        ? `Le responsable officiel configuré est ${disclosure.officerName}. La durée déclarée pour les propositions est de ${disclosure.retentionDays} jours; les procédures d’exploitation doivent appliquer cette purge aux données et sauvegardes.`
+        : "Aucun nom, contact ni délai provisoire n’est publié comme politique officielle. Ces valeurs doivent être confirmées avant toute réouverture.",
+    },
+  ] as const;
+
   return (
     <main id="contenu">
       <section className="page-hero policy-hero">
@@ -60,16 +111,32 @@ export default function PrivacyPage() {
 
       <section className="compact-section policy-action">
         <div>
-          <p className="eyebrow">Question sur vos données</p>
-          <h2>Inscrire la demande dans le dossier ProJD.</h2>
+          <p className="eyebrow">
+            {collectionEnabled ? "Contact officiel" : "Collecte fermée"}
+          </p>
+          <h2>
+            {collectionEnabled
+              ? disclosure.officerName
+              : "Aucun renseignement n’est accepté par le formulaire."}
+          </h2>
           <p>
-            Utilisez le champ Contexte pour préciser une demande d’accès, de
-            correction ou de suppression liée au formulaire public.
+            {collectionEnabled
+              ? "Pour une demande d’accès, de rectification ou de suppression liée à une proposition, utilisez le contact de confidentialité configuré."
+              : "Le formulaire sera offert seulement après confirmation des responsabilités, du contact, de la conservation et de la livraison sécurisée."}
           </p>
         </div>
-        <Link className="button primary" href="/commander">
-          Ouvrir le formulaire
-        </Link>
+        {collectionEnabled ? (
+          <a
+            className="button primary"
+            href={`mailto:${disclosure.contactEmail}`}
+          >
+            {disclosure.contactEmail}
+          </a>
+        ) : (
+          <Link className="button secondary" href="/securite">
+            Voir les mesures de sécurité
+          </Link>
+        )}
       </section>
     </main>
   );

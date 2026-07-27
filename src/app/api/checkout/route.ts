@@ -1,185 +1,247 @@
-import { randomUUID } from "node:crypto";
-
 import {
-  checkoutProviders,
   erpOrderSchema,
   formatOrderIssues,
-  isCheckoutResponse,
+  foundationCheckoutResponseSchema,
   type CheckoutResponse,
 } from "@/lib/erp-order";
 import { buildPricingCart } from "@/lib/pricing";
-import { siteUrl } from "@/lib/site-content";
+import { getCheckoutConfigurationIssues } from "@/lib/server/env";
+import {
+  foundationFailureHttpStatus,
+  requestFoundation,
+} from "@/lib/server/foundation-client";
+import { createStableReference } from "@/lib/server/idempotency";
+import { logServerEvent } from "@/lib/server/logging";
+import { verifySignedQuote } from "@/lib/server/quote";
+import {
+  failureResponseHeaders,
+  readPublicJsonRequest,
+  requestResponseHeaders,
+} from "@/lib/server/request";
 
 export const runtime = "nodejs";
 
-type ProviderCheckoutResponse = {
-  status?: string;
-  safeSummary?: string;
-  safeError?: string | null;
-  provider?: CheckoutResponse["provider"];
-  checkoutUrl?: string | null;
-  providerSessionId?: string | null;
-  orderRef?: string | null;
-  customerId?: string | null;
-  tenantId?: string | null;
-  provisioningRequestId?: string | null;
-  tenantSlug?: string | null;
-  primaryDomain?: string | null;
-  amountCents?: number;
-  monthlyPriceCents?: number;
-  currency?: string;
-};
-
 type PaymentProvider = "stripe" | "paypal";
-
-const isCheckoutProvider = (value: unknown): value is CheckoutResponse["provider"] =>
-  typeof value === "string" && (checkoutProviders as readonly string[]).includes(value);
 
 const payloadPaymentProvider = (payload: unknown): PaymentProvider => {
   if (payload && typeof payload === "object") {
-    const provider = (payload as { provider?: unknown }).provider;
+    const provider = (payload as { paymentProvider?: unknown }).paymentProvider;
     return provider === "paypal" ? "paypal" : "stripe";
   }
-
   return "stripe";
 };
 
-const orderRef = (): string => {
-  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
-  return `fic-${stamp}-${randomUUID().slice(0, 8)}`;
-};
-
-const readJson = async (request: Request): Promise<unknown> => {
-  try {
-    return await request.json();
-  } catch {
-    return null;
-  }
-};
-
-const checkoutUrl = (): string | null => {
-  const explicit = process.env.FONDATION_CHECKOUT_URL?.trim();
-  if (explicit) {
-    return explicit;
-  }
-
-  const orderUrl = process.env.FONDATION_ORDER_INTAKE_URL?.trim();
-  return orderUrl?.replace(/\/erp-orders\/?$/, "/checkout-sessions") ?? null;
-};
-
-const publicSiteUrl = (): string =>
-  (process.env.NEXT_PUBLIC_SITE_URL?.trim() || siteUrl).replace(/\/+$/g, "");
-
-const readProviderResponse = async (response: Response): Promise<ProviderCheckoutResponse> => {
-  try {
-    const payload: unknown = await response.json();
-    return payload && typeof payload === "object" ? payload as ProviderCheckoutResponse : {};
-  } catch {
-    return {};
-  }
-};
-
-const submitCheckout = async (payload: unknown): Promise<CheckoutResponse | null> => {
-  const intakeUrl = checkoutUrl();
-  const token = process.env.FONDATION_ORDER_INTAKE_TOKEN?.trim();
-  if (!intakeUrl || !token) {
-    return null;
-  }
-
-  const response = await fetch(intakeUrl, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${token}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(payload),
+const respond = (
+  body: CheckoutResponse,
+  status: number,
+  requestId: string,
+  idempotencyKey?: string,
+): Response =>
+  Response.json(body, {
+    status,
+    headers: requestResponseHeaders(requestId, idempotencyKey),
   });
-  const body = await readProviderResponse(response);
-  const fallbackRef = typeof (payload as { orderRef?: unknown }).orderRef === "string"
-    ? (payload as { orderRef: string }).orderRef
-    : orderRef();
-  const fallbackProvider = payloadPaymentProvider(payload);
-  const provider = isCheckoutProvider(body.provider) ? body.provider : null;
 
-  if (response.ok && body.status === "promo_activated" && provider === "promo_code") {
-    return {
-      status: "promo_activated",
-      orderRef: body.orderRef ?? fallbackRef,
-      provider,
-      checkoutUrl: null,
-      providerSessionId: body.providerSessionId ?? null,
-      safeSummary: body.safeSummary ?? "Commande activée par code promo.",
-      safeError: body.safeError ?? null,
-      customerId: body.customerId ?? null,
-      tenantId: body.tenantId ?? null,
-      provisioningRequestId: body.provisioningRequestId ?? null,
-      tenantSlug: body.tenantSlug ?? null,
-      primaryDomain: body.primaryDomain ?? null,
-      amountCents: body.amountCents,
-      monthlyPriceCents: body.monthlyPriceCents,
-      currency: body.currency,
-    };
+const isSecureCheckoutUrl = (value: string): boolean => {
+  try {
+    const parsed = new URL(value);
+    return (
+      parsed.protocol === "https:" &&
+      !parsed.username &&
+      !parsed.password &&
+      !parsed.hash
+    );
+  } catch {
+    return false;
   }
-
-  if (!response.ok || body.status !== "created" || !body.checkoutUrl || !provider || provider === "promo_code") {
-    return {
-      status: "failed",
-      orderRef: body.orderRef ?? fallbackRef,
-      provider: provider ?? fallbackProvider,
-      checkoutUrl: null,
-      providerSessionId: body.providerSessionId ?? null,
-      safeSummary: body.safeSummary ?? "Checkout non créé.",
-      safeError: body.safeError ?? `Le service de paiement a répondu ${response.status}.`,
-      customerId: body.customerId ?? null,
-      tenantId: body.tenantId ?? null,
-      provisioningRequestId: body.provisioningRequestId ?? null,
-      tenantSlug: body.tenantSlug ?? null,
-      primaryDomain: body.primaryDomain ?? null,
-      amountCents: body.amountCents,
-      monthlyPriceCents: body.monthlyPriceCents,
-      currency: body.currency,
-    };
-  }
-
-  return {
-    status: "created",
-    orderRef: body.orderRef ?? fallbackRef,
-    provider,
-    checkoutUrl: body.checkoutUrl,
-    providerSessionId: body.providerSessionId ?? null,
-    safeSummary: body.safeSummary ?? "Checkout créé.",
-    safeError: body.safeError ?? null,
-    customerId: body.customerId ?? null,
-    tenantId: body.tenantId ?? null,
-    provisioningRequestId: body.provisioningRequestId ?? null,
-    tenantSlug: body.tenantSlug ?? null,
-    primaryDomain: body.primaryDomain ?? null,
-    amountCents: body.amountCents,
-    monthlyPriceCents: body.monthlyPriceCents,
-    currency: body.currency,
-  };
 };
 
 export async function POST(request: Request): Promise<Response> {
-  const payload = await readJson(request);
-  const parsed = erpOrderSchema.safeParse(payload);
-  if (!parsed.success) {
+  const input = await readPublicJsonRequest(request, {
+    scope: "checkout",
+    limit: 15,
+    windowMs: 10 * 60 * 1_000,
+    maxBytes: 64_000,
+    requireOrigin: true,
+    honeypotFields: ["websiteConfirmation"],
+  });
+
+  if (!input.ok) {
     return Response.json(
       {
         status: "failed",
-        orderRef: orderRef(),
+        orderRef: createStableReference("fic", input.requestId),
         provider: "stripe",
         checkoutUrl: null,
         safeSummary: "Panier invalide.",
-        safeError: formatOrderIssues(parsed.error),
+        safeError: input.safeError,
       } satisfies CheckoutResponse,
-      { status: 400 },
+      {
+        status: input.status,
+        headers: failureResponseHeaders(input),
+      },
     );
   }
 
-  const ref = orderRef();
+  let ref = createStableReference("fic", input.idempotencyKey);
+  const fallbackProvider = payloadPaymentProvider(input.payload);
+  if (!input.env.enableCheckout) {
+    return respond(
+      {
+        status: "failed",
+        orderRef: ref,
+        provider: fallbackProvider,
+        checkoutUrl: null,
+        safeSummary: "Checkout direct désactivé.",
+        safeError:
+          "Le paiement en ligne n’est pas disponible. Demandez une proposition à l’équipe ProJD.",
+      },
+      503,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
+  const checkoutConfigurationIssues = getCheckoutConfigurationIssues(input.env);
+  if (checkoutConfigurationIssues.length > 0) {
+    logServerEvent("error", "checkout.configuration_blocked", {
+      requestId: input.requestId,
+      issues: checkoutConfigurationIssues,
+    });
+    return respond(
+      {
+        status: "failed",
+        orderRef: ref,
+        provider: fallbackProvider,
+        checkoutUrl: null,
+        safeSummary: "Checkout direct indisponible.",
+        safeError:
+          "La configuration sécurisée du paiement est incomplète.",
+      },
+      503,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
+  if (input.isHoneypot) {
+    return respond(
+      {
+        status: "failed",
+        orderRef: ref,
+        provider: fallbackProvider,
+        checkoutUrl: null,
+        safeSummary: "Paiement non créé.",
+        safeError: "La demande n’a pas pu être traitée.",
+      },
+      422,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
+  const parsed = erpOrderSchema.safeParse(input.payload);
+  if (!parsed.success) {
+    return respond(
+      {
+        status: "failed",
+        orderRef: ref,
+        provider: fallbackProvider,
+        checkoutUrl: null,
+        safeSummary: "Panier invalide.",
+        safeError: formatOrderIssues(parsed.error),
+      },
+      400,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
   const cart = buildPricingCart(parsed.data.plan, parsed.data.estimatedUsers);
-  const baseUrl = publicSiteUrl();
+  const quoteToken = parsed.data.quoteToken;
+  if (input.env.requireSignedQuote && !input.env.quoteSigningSecret) {
+    return respond(
+      {
+        status: "failed",
+        orderRef: ref,
+        provider: parsed.data.paymentProvider,
+        checkoutUrl: null,
+        safeSummary: "Validation du devis indisponible.",
+        safeError:
+          "La signature des devis est requise, mais le service n’est pas configuré.",
+      },
+      503,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+  if (input.env.requireSignedQuote && !quoteToken) {
+    return respond(
+      {
+        status: "failed",
+        orderRef: ref,
+        provider: parsed.data.paymentProvider,
+        checkoutUrl: null,
+        safeSummary: "Devis signé requis.",
+        safeError:
+          "Obtenez un devis approuvé avant de démarrer le paiement.",
+      },
+      403,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
+  let verifiedQuoteId: string | undefined;
+  if (quoteToken) {
+    if (!input.env.quoteSigningSecret) {
+      return respond(
+        {
+          status: "failed",
+          orderRef: ref,
+          provider: parsed.data.paymentProvider,
+          checkoutUrl: null,
+          safeSummary: "Validation du devis indisponible.",
+          safeError: "Le service de signature des devis n’est pas configuré.",
+        },
+        503,
+        input.requestId,
+        input.idempotencyKey,
+      );
+    }
+
+    const verifiedQuote = verifySignedQuote({
+      token: quoteToken,
+      secret: input.env.quoteSigningSecret,
+      plan: parsed.data.plan,
+      seatCount: cart.seatCount,
+      email: parsed.data.email,
+    });
+    if (!verifiedQuote.valid) {
+      return respond(
+        {
+          status: "failed",
+          orderRef: ref,
+          provider: parsed.data.paymentProvider,
+          checkoutUrl: null,
+          safeSummary: "Devis signé refusé.",
+          safeError: verifiedQuote.safeError,
+        },
+        verifiedQuote.code === "expired"
+          ? 410
+          : verifiedQuote.code === "mismatch"
+            ? 422
+            : 403,
+        input.requestId,
+        input.idempotencyKey,
+      );
+    }
+
+    ref = verifiedQuote.payload.orderRef;
+    verifiedQuoteId = verifiedQuote.payload.quoteId;
+  }
+
+  const baseUrl = input.env.siteUrl.toString().replace(/\/+$/gu, "");
   const checkoutPayload = {
     provider: parsed.data.paymentProvider,
     companyName: parsed.data.companyName,
@@ -207,6 +269,9 @@ export async function POST(request: Request): Promise<Response> {
       ? "vitrine:fichero.cloud:checkout:promo_code"
       : `vitrine:fichero.cloud:checkout:${parsed.data.paymentProvider}`,
     orderRef: ref,
+    idempotencyKey: input.idempotencyKey,
+    quoteId: verifiedQuoteId,
+    quoteVerified: Boolean(verifiedQuoteId),
     successUrl:
       parsed.data.paymentProvider === "stripe"
         ? `${baseUrl}/paiement/retour?provider=stripe&session_id={CHECKOUT_SESSION_ID}`
@@ -214,23 +279,127 @@ export async function POST(request: Request): Promise<Response> {
     cancelUrl: `${baseUrl}/commander/achat?plan=${parsed.data.plan}&payment=cancelled`,
   };
 
-  const result = await submitCheckout(checkoutPayload);
-  if (!isCheckoutResponse(result)) {
-    return Response.json(
+  const foundation = await requestFoundation({
+    env: input.env,
+    endpoint: "checkout",
+    method: "POST",
+    responseSchema: foundationCheckoutResponseSchema,
+    requestId: input.requestId,
+    idempotencyKey: input.idempotencyKey,
+    body: checkoutPayload,
+  });
+
+  if (!foundation.ok) {
+    const body = foundation.data;
+    logServerEvent("warn", "checkout.failed", {
+      requestId: input.requestId,
+      orderRef: ref,
+      reason: foundation.code,
+      status: foundation.status,
+    });
+    return respond(
       {
         status: "failed",
-        orderRef: ref,
-        provider: parsed.data.paymentProvider,
+        orderRef: body?.orderRef ?? ref,
+        provider: body?.provider ?? parsed.data.paymentProvider,
         checkoutUrl: null,
-        safeSummary: "Paiement indisponible.",
-        safeError: "Le service de paiement n'est pas configuré.",
-      } satisfies CheckoutResponse,
-      { status: 503 },
+        providerSessionId: body?.providerSessionId ?? null,
+        safeSummary: body?.safeSummary ?? "Paiement indisponible.",
+        safeError: body?.safeError ?? foundation.safeError,
+        customerId: body?.customerId ?? null,
+        tenantId: body?.tenantId ?? null,
+        provisioningRequestId: body?.provisioningRequestId ?? null,
+        tenantSlug: body?.tenantSlug ?? null,
+        primaryDomain: body?.primaryDomain ?? null,
+        amountCents: body?.amountCents,
+        monthlyPriceCents: body?.monthlyPriceCents,
+        currency: body?.currency,
+      },
+      foundationFailureHttpStatus(foundation),
+      input.requestId,
+      input.idempotencyKey,
     );
   }
 
-  return Response.json(
-    result,
-    { status: result.status === "created" ? 201 : result.status === "promo_activated" ? 202 : 422 },
+  const body = foundation.data;
+  if (
+    body.status === "promo_activated" &&
+    body.provider === "promo_code"
+  ) {
+    return respond(
+      {
+        status: "promo_activated",
+        orderRef: body.orderRef ?? ref,
+        provider: "promo_code",
+        checkoutUrl: null,
+        providerSessionId: body.providerSessionId ?? null,
+        safeSummary: body.safeSummary ?? "Commande activée par code promo.",
+        safeError: body.safeError ?? null,
+        customerId: body.customerId ?? null,
+        tenantId: body.tenantId ?? null,
+        provisioningRequestId: body.provisioningRequestId ?? null,
+        tenantSlug: body.tenantSlug ?? null,
+        primaryDomain: body.primaryDomain ?? null,
+        amountCents: body.amountCents,
+        monthlyPriceCents: body.monthlyPriceCents,
+        currency: body.currency,
+      },
+      202,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
+  if (
+    body.status !== "created" ||
+    (body.provider !== "stripe" && body.provider !== "paypal") ||
+    !body.checkoutUrl ||
+    !isSecureCheckoutUrl(body.checkoutUrl)
+  ) {
+    return respond(
+      {
+        status: "failed",
+        orderRef: body.orderRef ?? ref,
+        provider:
+          body.provider === "paypal" ? "paypal" : parsed.data.paymentProvider,
+        checkoutUrl: null,
+        providerSessionId: body.providerSessionId ?? null,
+        safeSummary: body.safeSummary ?? "Checkout non créé.",
+        safeError:
+          body.safeError ??
+          "Fondation a retourné une session de paiement invalide.",
+      },
+      502,
+      input.requestId,
+      input.idempotencyKey,
+    );
+  }
+
+  logServerEvent("info", "checkout.created", {
+    requestId: input.requestId,
+    orderRef: body.orderRef ?? ref,
+    provider: body.provider,
+  });
+  return respond(
+    {
+      status: "created",
+      orderRef: body.orderRef ?? ref,
+      provider: body.provider,
+      checkoutUrl: body.checkoutUrl,
+      providerSessionId: body.providerSessionId ?? null,
+      safeSummary: body.safeSummary ?? "Checkout créé.",
+      safeError: body.safeError ?? null,
+      customerId: body.customerId ?? null,
+      tenantId: body.tenantId ?? null,
+      provisioningRequestId: body.provisioningRequestId ?? null,
+      tenantSlug: body.tenantSlug ?? null,
+      primaryDomain: body.primaryDomain ?? null,
+      amountCents: body.amountCents,
+      monthlyPriceCents: body.monthlyPriceCents,
+      currency: body.currency,
+    },
+    201,
+    input.requestId,
+    input.idempotencyKey,
   );
 }

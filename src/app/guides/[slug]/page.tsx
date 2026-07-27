@@ -8,6 +8,8 @@ import {
   getGuideBySlug,
   getModuleBySlug,
   guides,
+  contentLastModified,
+  siteUrl,
   type ModuleContent,
 } from "@/lib/site-content";
 
@@ -44,6 +46,12 @@ export async function generateMetadata({
     alternates: {
       canonical: `/guides/${guide.slug}`,
     },
+    openGraph: {
+      title: guide.title,
+      description: guide.summary,
+      url: `/guides/${guide.slug}`,
+      type: "article",
+    },
   };
 }
 
@@ -58,12 +66,47 @@ export default async function GuidePage({ params }: GuidePageProps) {
   const relatedModules = guide.relatedModules
     .map((moduleSlug) => getModuleBySlug(moduleSlug))
     .filter((module): module is ModuleContent => Boolean(module));
+  const relatedGuides = guides
+    .filter(
+      (candidate) =>
+        candidate.slug !== guide.slug &&
+        candidate.relatedModules.some((moduleSlug) =>
+          guide.relatedModules.includes(moduleSlug),
+        ),
+    )
+    .slice(0, 3);
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: guide.title,
+    description: guide.summary,
+    dateModified: contentLastModified.resources,
+    inLanguage: "fr-CA",
+    mainEntityOfPage: `${siteUrl}/guides/${guide.slug}`,
+    author: {
+      "@type": "Organization",
+      name: "ProJD",
+      url: siteUrl,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "ProJD",
+      url: siteUrl,
+    },
+  };
 
   return (
     <main id="contenu">
+      <script
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleJsonLd).replace(/</g, "\\u003c"),
+        }}
+        type="application/ld+json"
+      />
       <article className="guide-layout">
         <header className="guide-hero">
           <Breadcrumbs
+            currentPath={`/guides/${guide.slug}`}
             items={[
               { label: "Guides", href: "/guides" },
               { label: guide.title },
@@ -131,6 +174,27 @@ export default async function GuidePage({ params }: GuidePageProps) {
             ))}
           </div>
         </section>
+
+        {relatedGuides.length > 0 && (
+          <section className="guide-more">
+            <div>
+              <p className="eyebrow">Continuer le parcours</p>
+              <h2>Guides reliés au même workflow.</h2>
+            </div>
+            <div>
+              {relatedGuides.map((relatedGuide) => (
+                <Link
+                  href={`/guides/${relatedGuide.slug}`}
+                  key={relatedGuide.slug}
+                >
+                  <span>{relatedGuide.code}</span>
+                  <strong>{relatedGuide.title}</strong>
+                  <small>{relatedGuide.duration}</small>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </article>
 
       <MarketingCta

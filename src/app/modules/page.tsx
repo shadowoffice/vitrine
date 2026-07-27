@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AvailabilityBadge } from "../_components/AvailabilityBadge";
+import { ContentFilter } from "../_components/ContentFilter";
 import { MarketingCta } from "../_components/MarketingCta";
 import {
   availabilityLabels,
@@ -15,6 +16,13 @@ export const metadata: Metadata = {
     "Explorez les modules ProJD pour les projets, la finance, les contrats, l’estimation, les partenaires, les factures et les rapports.",
   alternates: {
     canonical: "/modules",
+  },
+  openGraph: {
+    title: "Modules ERP construction ProJD",
+    description:
+      "Filtrez les modules ProJD par workflow et état réel de disponibilité.",
+    url: "/modules",
+    type: "website",
   },
 };
 
@@ -52,46 +60,27 @@ export default function ModulesPage() {
       </section>
 
       <section className="compact-section catalog-section">
-        {availabilityOrder.map((availability) => {
-          const matchingModules = modules.filter(
-            (module) => module.availability === availability,
-          );
-
-          if (matchingModules.length === 0) {
-            return null;
-          }
-
-          return (
-            <div className="catalog-group" key={availability}>
-              <div className="catalog-group-heading">
-                <div>
-                  <AvailabilityBadge availability={availability} />
-                  <h2>{availabilityLabels[availability]}</h2>
-                </div>
-                <p>{availabilityDescriptions[availability]}</p>
-              </div>
-              <div className="module-catalog-grid">
-                {matchingModules.map((module) => (
-                  <Link
-                    className="module-catalog-card"
-                    href={`/modules/${module.slug}`}
-                    key={module.slug}
-                  >
-                    <span className="module-code">{module.code}</span>
-                    <div>
-                      <small>{module.eyebrow}</small>
-                      <h3>{module.name}</h3>
-                      <p>{module.text}</p>
-                    </div>
-                    <strong>
-                      Détails <span aria-hidden="true">→</span>
-                    </strong>
-                  </Link>
-                ))}
-              </div>
+        <div className="availability-legend" aria-label="États des modules">
+          {availabilityOrder.map((availability) => (
+            <div key={availability}>
+              <AvailabilityBadge availability={availability} />
+              <p>{availabilityDescriptions[availability]}</p>
             </div>
-          );
-        })}
+          ))}
+        </div>
+        <ContentFilter
+          emptyMessage="Aucun module ne correspond à cette recherche."
+          items={modules.map((module) => ({
+            category: availabilityLabels[module.availability],
+            code: module.code,
+            description: module.text,
+            href: `/modules/${module.slug}`,
+            meta: `${module.eyebrow} · ${module.availabilityNote}`,
+            title: module.name,
+          }))}
+          label="Rechercher un module"
+          placeholder="Ex. budget, documents ou appels d’offres"
+        />
       </section>
 
       <MarketingCta

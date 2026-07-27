@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
 import {
@@ -49,7 +49,7 @@ const getFormText = (formData: FormData, key: string): string => {
   return typeof value === "string" ? value.trim() : "";
 };
 
-const toOrderPayload = (formData: FormData) => {
+const toOrderPayload = (formData: FormData, quoteToken: string) => {
   const estimatedUsers = getFormText(formData, "estimatedUsers");
   const desiredSubdomain = normalizeDesiredErpPrefix(getFormText(formData, "desiredSubdomain"));
   const promoCode = normalizePromoCode(getFormText(formData, "promoCode"));
@@ -76,6 +76,7 @@ const toOrderPayload = (formData: FormData) => {
     estimatedUsers: estimatedUsers ? Number(estimatedUsers) : undefined,
     desiredSubdomain: desiredSubdomain || undefined,
     promoCode: promoCode || undefined,
+    quoteToken,
     message: getFormText(formData, "message"),
     acceptsContact: formData.get("acceptsContact") === "on",
   };
@@ -83,9 +84,13 @@ const toOrderPayload = (formData: FormData) => {
 
 type ErpOrderFormProps = {
   initialPlanCode?: string | null;
+  quoteToken: string;
 };
 
-export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
+export function ErpOrderForm({
+  initialPlanCode,
+  quoteToken,
+}: ErpOrderFormProps) {
   const initialPlan = getPricingPlan(initialPlanCode);
   const [state, setState] = useState<SubmitState>({ status: "idle" });
   const [planCode, setPlanCode] = useState<PricingPlanCode>(initialPlan.code);
@@ -93,6 +98,7 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
   const [paymentProvider, setPaymentProvider] = useState<"stripe" | "paypal">("stripe");
   const [desiredDomainInput, setDesiredDomainInput] = useState("");
   const [promoCodeInput, setPromoCodeInput] = useState("");
+  const idempotencyKeyRef = useRef<string | null>(null);
   const baseId = useId();
   const disabled = state.status === "submitting";
   const copy = orderCopy;
@@ -131,11 +137,18 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
     event.preventDefault();
     setState({ status: "submitting" });
 
-    const payload = toOrderPayload(new FormData(event.currentTarget));
+    const payload = toOrderPayload(
+      new FormData(event.currentTarget),
+      quoteToken,
+    );
+    idempotencyKeyRef.current ??= window.crypto.randomUUID();
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          "idempotency-key": idempotencyKeyRef.current,
+        },
         body: JSON.stringify(payload),
       });
       const body: unknown = await response.json();
@@ -181,7 +194,13 @@ export function ErpOrderForm({ initialPlanCode }: ErpOrderFormProps) {
   };
 
   return (
-    <form className="order-form" onSubmit={handleSubmit}>
+    <form
+      className="order-form"
+      onChange={() => {
+        idempotencyKeyRef.current = null;
+      }}
+      onSubmit={handleSubmit}
+    >
       <input name="requestType" type="hidden" value="software_purchase" />
       <div className="form-grid">
         <label>
