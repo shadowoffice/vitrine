@@ -5,17 +5,41 @@ Dernière mise à jour : 2026-07-26, America/Toronto.
 Branche de travail :
 
 ```text
-feat/vitrine-50-improvements
+main
 ```
 
 ## Résumé
 
-La refonte B2B multipage est en production. La branche courante consolide
-cinquante améliorations autour de la sécurité commerciale, de la conversion,
-du contenu, de l'accessibilité, de la mesure et de l'exploitation.
+La refonte B2B multipage et la tranche de cinquante améliorations sont en
+production. Elles consolident la sécurité commerciale, la conversion, le
+contenu, l'accessibilité, la mesure et l'exploitation.
 
 Le détail vérifiable, y compris les dépendances externes qui ne doivent pas être
 inventées, se trouve dans `docs/IMPROVEMENTS_50_STATUS.md`.
+
+## Déploiement de production
+
+- PR fusionnée : `#7`;
+- SHA `main` et révision OCI : `ba1df64ad3cd028afe9ee3d2caf660e0eedf8a35`;
+- mise en ligne : 2026-07-26 à 22:58, America/Toronto;
+- image : `sha256:c301bed534b75e25c362a716dcc1f1222f949617154b0d655c62569e80951284`;
+- rollback : `fichero-vitrine:rollback-20260726-pre-50-improvements`;
+- archive de sauvegarde mode `0600` créée avant bascule dans le répertoire
+  opérateur privé; le chiffrement au repos demeure une responsabilité
+  d’exploitation.
+
+Vérifications après bascule :
+
+- conteneur `healthy`, zéro redémarrage et runtime en lecture seule;
+- `/healthz` et `/readyz` locaux/publics en HTTP 200;
+- 51 routes du sitemap sans échec;
+- 10 parcours Playwright publics réussis, 4 variantes hors périmètre
+  intentionnellement ignorées;
+- aucun problème Axe sérieux/critique sur accueil, tarifs et proposition;
+- propositions, checkout et capture confirmés fermés en HTTP 503 avec un
+  payload valide;
+- bind explicite loopback/LAN et filtrage `DOCKER-USER` limité au proxy privé;
+- CSP, HSTS, anti-framing, `nosniff`, referrer et permissions confirmés.
 
 ## État actuel
 
