@@ -1,5 +1,7 @@
 import "server-only";
 
+import { getActiveTraceIds } from "./observability";
+
 const sensitiveKeyPattern =
   /(authorization|cookie|email|phone|token|secret|password|address|message|payload|body|gst|qst)/iu;
 const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/giu;
@@ -64,11 +66,13 @@ export const logServerEvent = (
   context: Record<string, unknown> = {},
 ): void => {
   const redactedContext = redactValue(context);
+  const traceContext = getActiveTraceIds();
   const entry = JSON.stringify({
     timestamp: new Date().toISOString(),
     level,
     service: "vitrine",
     event,
+    ...traceContext,
     ...(redactedContext &&
     typeof redactedContext === "object" &&
     !Array.isArray(redactedContext)
