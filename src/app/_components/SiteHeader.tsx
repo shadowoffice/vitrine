@@ -33,6 +33,12 @@ export function SiteHeader() {
         </nav>
 
         <div className="header-actions">
+          <a
+            className="header-link"
+            href="https://login.fichero.cloud/login"
+          >
+            Login SaaS
+          </a>
           <Link className="header-link" href="/demo">
             Voir la démo
           </Link>
@@ -49,6 +55,7 @@ export function SiteHeader() {
           </summary>
           <nav aria-label="Navigation mobile">
             <NavLinks />
+            <a href="https://login.fichero.cloud/login">Login SaaS</a>
             <Link href="/demo">Voir la démo</Link>
             <Link className="mobile-nav-cta" href="/commander">
               Configurer ProJD
